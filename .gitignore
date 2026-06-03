@@ -1,0 +1,7 @@
+# 大文件不跟踪
+02-processed/
+concept-quotes-full/
+concept-quotes/
+
+# 备份文件
+backup/

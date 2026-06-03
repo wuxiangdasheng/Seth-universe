@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="concept-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理后台 - 赛斯宇宙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;
+  --bg-card:#101018;--bg-card-hover:#181824;--bg-input:#0a0a10;
+  --border-subtle:rgba(255,255,255,0.04);--border-active:rgba(180,160,100,0.3);
+  --gold:#b4a064;--gold-bright:#d4c088;--gold-dim:#8a7a52;
+  --gold-glow:rgba(180,160,100,0.08);--gold-glow2:rgba(180,160,100,0.04);
+  --star:#e8e0d0;--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#4a4538;
+  --accent-ethereal:#6b8fa3;--accent-mystic:#8b6ba3;--accent-life:#6ba37a;
+  --accent-warm:#a37a5a;--accent-rose:#a35a7a;
+  --accent-red:#c04040;--accent-red-light:#e06060;
+  --accent-green:#50a050;--accent-green-light:#70c070;
+  --font-serif:'EB Garamond',serif;--font-display:'Instrument Serif','EB Garamond',serif;
+  --font-zh-title:'Noto Serif SC',serif;--font-zh-body:'Noto Sans SC',sans-serif;
+  --prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px;
+  --sidebar-w:260px;--edit-w:420px;
+}
+html{scroll-behavior:smooth;font-size:14px}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh-body);line-height:1.7;overflow-x:hidden;min-height:100vh}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.6;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%,rgba(200,190,160,0.4),transparent),
+    radial-gradient(1px 1px at 25% 45%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1.2px 1.2px at 40% 15%,rgba(220,210,180,0.5),transparent),
+    radial-gradient(1px 1px at 55% 70%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 70% 30%,rgba(200,190,160,0.4),transparent),
+    radial-gradient(1.5px 1.5px at 85% 55%,rgba(220,210,180,0.5),transparent),
+    radial-gradient(1px 1px at 15% 80%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 30% 60%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1.2px 1.2px at 50% 85%,rgba(220,210,180,0.4),transparent),
+    radial-gradient(1px 1px at 75% 10%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 90% 75%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1px 1px at 5% 50%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1.3px 1.3px at 60% 40%,rgba(220,210,180,0.4),transparent),
+    radial-gradient(1px 1px at 35% 90%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1px 1px at 95% 20%,rgba(200,190,160,0.3),transparent);
+}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.015;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.12);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:rgba(180,160,100,0.25)}
+
+/* PRISM NAV */
+#prism-nav{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--prism-expanded-w);
+  background:var(--bg-surface);border-right:1px solid var(--border-subtle);z-index:55;
+  display:flex;flex-direction:column;padding:0;transition:width 0.3s cubic-bezier(0.4,0,0.2,1);overflow:visible;
+}
+#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
+.pn-inner{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding:20px 0 12px}
+.pn-inner::-webkit-scrollbar{width:3px}
+.pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}
+.pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
+.pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
+.pn-node-trigger{display:flex;align-items:center;gap:10px;padding:10px 8px;text-decoration:none;color:var(--text-secondary);
+  transition:all 0.2s;position:relative;border-radius:8px;
+}
+.pn-node-trigger:hover{background:rgba(255,255,255,0.02);color:var(--text-primary)}
+.pn-node-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pn-node-icon svg{width:100%;height:100%}
+.pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
+.pn-node-label{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-node-label-en{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden}
+.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
+.pn-node-glow{position:absolute;left:0;top:10%;bottom:10%;width:2.5px;
+  background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:0 1.5px 1.5px 0;
+}
+.pn-collapsed .pn-node-glow{left:-1px}
+.pn-node-subs{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;opacity:0;padding:0 6px 0 34px}
+.pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
+.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
+.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
+.pn-sub:hover{background:rgba(255,255,255,0.02)}
+.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0;transition:all 0.15s}
+.pn-sub:hover .pn-sub-dot{background:var(--gold)}
+.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
+.pn-sub:hover .pn-sub-label{color:var(--text-primary)}
+.pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn-toggle{position:absolute;top:50%;right:-11px;transform:translateY(-50%);width:22px;height:48px;
+  background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;transition:all 0.2s;z-index:56;
+}
+.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
+
+/* HEADER */
+.header{position:fixed;top:0;left:var(--prism-w);right:0;height:var(--header-h);
+  background:rgba(5,5,8,0.85);backdrop-filter:blur(20px) saturate(1.1);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:100;transition:left 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.header-logo{display:flex;align-items:center;gap:12px}
+.header-logo .logo-mark{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:14px;color:var(--gold);font-style:italic;opacity:0.8;
+}
+.header-logo a{
+  font-family:var(--font-zh-title);font-size:14px;font-weight:600;color:var(--text-primary);
+  letter-spacing:0.08em;text-decoration:none;
+}
+.header-tagline{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);font-style:italic;letter-spacing:0.08em;display:none}
+@media(min-width:900px){.header-tagline{display:block}}
+.header-actions{display:flex;align-items:center;gap:12px}
+.header-actions .badge-admin{
+  padding:3px 10px;border-radius:2px;background:var(--gold-glow);
+  font-family:var(--font-serif);font-size:10px;color:var(--gold);
+  text-transform:uppercase;letter-spacing:0.15em;
+}
+
+/* LAYOUT: 3 columns */
+.layout{
+  display:flex;margin-left:var(--prism-w);margin-top:var(--header-h);
+  height:calc(100vh - var(--header-h));overflow:hidden;
+  transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* Column 2: Concept list sidebar */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;background:var(--bg-surface);
+  border-right:1px solid var(--border-subtle);
+  display:flex;flex-direction:column;overflow:hidden;
+}
+.sidebar-header{padding:14px 16px 10px;border-bottom:1px solid var(--border-subtle)}
+.sidebar-stats{display:flex;gap:10px;margin-bottom:10px}
+.sidebar-stat{
+  flex:1;text-align:center;padding:8px 4px;
+  background:var(--bg-elevated);border-radius:4px;
+}
+.sidebar-stat .stat-val{font-family:var(--font-display);font-size:18px;color:var(--gold);line-height:1;font-style:italic}
+.sidebar-stat .stat-lbl{font-family:var(--font-serif);font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.12em;margin-top:3px}
+.sidebar-search{display:flex;align-items:center;gap:6px;background:var(--bg-input);
+  border:0.5px solid var(--border-subtle);border-radius:4px;padding:6px 10px;
+}
+.sidebar-search:focus-within{border-color:var(--gold-dim)}
+.sidebar-search input{background:none;border:none;outline:none;color:var(--text-primary);font-family:var(--font-zh-body);font-size:13px;width:100%}
+.sidebar-search input::placeholder{color:var(--text-muted)}
+.sidebar-search svg{width:14px;height:14px;color:var(--text-muted);flex-shrink:0}
+.sidebar-filter{margin-top:8px}
+.sidebar-filter select{width:100%;background:var(--bg-input);border:0.5px solid var(--border-subtle);border-radius:4px;
+  padding:5px 8px;color:var(--text-primary);font-family:var(--font-zh-body);font-size:13px;
+}
+.sidebar-filter select:focus{border-color:var(--gold-dim);outline:none}
+
+.sidebar-section-title{
+  padding:8px 16px;font-family:var(--font-serif);font-size:14px;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.2em;color:var(--text-muted);
+}
+
+.sidebar-concept-list{flex:1;overflow-y:auto}
+.sidebar-concept-list::-webkit-scrollbar{width:3px}
+.sidebar-concept-list::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+
+.sidebar-concept-item{
+  display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;
+  border-bottom:0.5px solid var(--border-subtle);transition:background 0.15s;
+}
+.sidebar-concept-item:hover{background:rgba(255,255,255,0.015)}
+.sidebar-concept-item.active{background:var(--gold-glow2);border-left:2px solid var(--gold)}
+.sci-dot{width:5px;height:5px;border-radius:50%;background:var(--text-muted);flex-shrink:0}
+.sidebar-concept-item.active .sci-dot{background:var(--gold)}
+.sci-name{font-family:var(--font-zh-title);font-size:14px;font-weight:500;color:var(--text-primary)}
+.sci-name-en{font-family:var(--font-serif);font-size:12px;color:var(--text-muted);font-style:italic}
+.sci-badge{margin-left:auto;padding:2px 6px;border-radius:2px;background:var(--gold-glow);
+  font-family:var(--font-serif);font-size:11px;color:var(--gold);
+}
+
+/* Column 3: Edit panel */
+.edit-panel{
+  flex:1;overflow-y:auto;padding:24px 28px 80px;
+}
+.edit-panel::-webkit-scrollbar{width:4px}
+.edit-panel::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+
+.edit-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  height:60vh;color:var(--text-muted);text-align:center;
+}
+.edit-empty-icon{width:48px;height:48px;margin-bottom:16px;opacity:0.2}
+.edit-empty h3{font-family:var(--font-zh-title);font-size:16px;font-weight:400;color:var(--text-secondary);margin-bottom:6px}
+.edit-empty p{font-family:var(--font-serif);font-size:14px;font-style:italic}
+
+.edit-header{position:sticky;top:0;z-index:10;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;padding:12px 0 14px;background:var(--bg-deep);border-bottom:0.5px solid var(--border-subtle)}
+.edit-title{font-family:var(--font-zh-title);font-size:16px;font-weight:600;color:var(--star)}
+.edit-actions{display:flex;gap:6px}
+
+.form-group{margin-bottom:14px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.form-label{display:block;font-family:var(--font-serif);font-size:11px;font-weight:500;
+  color:var(--text-secondary);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.1em;
+}
+.form-label .required{color:var(--accent-red);margin-left:3px}
+.form-input,.form-textarea,.form-select{width:100%;padding:8px 12px;background:var(--bg-input);
+  border:0.5px solid var(--border-subtle);border-radius:4px;color:var(--text-primary);
+  font-family:var(--font-zh-body);font-size:14px;transition:border-color 0.15s;
+}
+.form-input:focus,.form-textarea:focus,.form-select:focus{outline:none;border-color:var(--gold-dim)}
+.form-textarea{min-height:70px;resize:vertical;line-height:1.8}
+.form-select{cursor:pointer}
+
+.section-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding-bottom:8px;border-bottom:0.5px solid var(--border-subtle)}
+.section-title{font-family:var(--font-zh-title);font-size:13px;font-weight:600;color:var(--text-secondary)}
+
+.quote-list{border:0.5px solid var(--border-subtle);border-radius:4px;overflow:hidden;max-height:300px;overflow-y:auto}
+.quote-item{padding:12px 14px;border-bottom:0.5px solid var(--border-subtle);background:var(--bg-elevated)}
+.quote-item:last-child{border-bottom:none}
+.quote-item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+.quote-item-title{font-family:var(--font-serif);font-size:12px;color:var(--text-muted)}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:6px 14px;font-family:var(--font-zh-body);font-size:13px;font-weight:500;
+  border:0.5px solid var(--border-subtle);border-radius:4px;cursor:pointer;
+  transition:all 0.15s;text-decoration:none;background:var(--bg-elevated);color:var(--text-secondary);
+}
+.btn:hover{background:var(--bg-card-hover);color:var(--text-primary);border-color:var(--border-active)}
+.btn-primary{background:var(--gold);color:var(--bg-deep);border-color:var(--gold)}
+.btn-primary:hover{background:var(--gold-bright);border-color:var(--gold-bright)}
+.btn-danger{background:rgba(192,64,64,0.15);color:var(--accent-red-light);border-color:rgba(192,64,64,0.2)}
+.btn-danger:hover{background:rgba(192,64,64,0.25);border-color:rgba(192,64,64,0.3)}
+.btn-sm{padding:4px 10px;font-size:12px}
+.btn-icon{padding:4px;min-width:26px}
+.btn:disabled{opacity:0.5;cursor:not-allowed}
+
+.loading-spinner{display:inline-block;width:14px;height:14px;border:1.5px solid var(--border-subtle);
+  border-top-color:var(--gold);border-radius:50%;animation:spin 0.6s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.toast-container{position:fixed;top:calc(var(--header-h) + 12px);right:16px;z-index:2000;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--bg-elevated);border:0.5px solid var(--border-subtle);border-radius:4px;
+  padding:10px 16px;min-width:260px;box-shadow:0 8px 24px rgba(0,0,0,0.5);
+  display:flex;align-items:center;gap:10px;
+  transform:translateX(120%);transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+.toast.show{transform:translateX(0)}
+.toast.success{border-left:2px solid var(--accent-green)}
+.toast.error{border-left:2px solid var(--accent-red)}
+.toast-icon{font-size:16px}
+.toast.success .toast-icon{color:var(--accent-green)}
+.toast.error .toast-icon{color:var(--accent-red)}
+.toast-message{font-size:13px}
+
+/* Delete confirm */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  display:flex;align-items:center;justify-content:center;z-index:1000;
+  opacity:0;visibility:hidden;transition:all 0.25s;
+}
+.confirm-overlay.active{opacity:1;visibility:visible}
+.confirm-box{background:var(--bg-surface);border:0.5px solid var(--border-subtle);border-radius:8px;
+  width:100%;max-width:400px;padding:24px;
+  transform:translateY(-16px);transition:transform 0.25s cubic-bezier(0.16,1,0.3,1);
+}
+.confirm-overlay.active .confirm-box{transform:translateY(0)}
+.confirm-text{font-size:15px;line-height:1.8;margin-bottom:12px}
+.confirm-warning{display:flex;align-items:center;gap:8px;padding:10px 12px;
+  background:rgba(192,64,64,0.08);border:0.5px solid rgba(192,64,64,0.15);border-radius:4px;
+  color:var(--accent-red-light);font-size:13px;margin-bottom:16px;
+}
+.confirm-actions{display:flex;justify-content:flex-end;gap:8px}
+
+@media(max-width:768px){
+  #prism-nav{display:none}
+  .header{left:0}
+  .layout{margin-left:0}
+  .sidebar{display:none}
+  .edit-panel{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-mark">S</div>
+    <a href="index.html">赛斯宇宙</a>
+    <span class="badge-admin">Admin</span>
+  </div>
+  <div class="header-tagline">Content Management</div>
+  <div class="header-actions">
+    <button class="btn" onclick="loadConcepts()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      刷新
+    </button>
+    <button class="btn btn-primary" onclick="openCreate()">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      新增
+    </button>
+  </div>
+</header>
+
+<div class="layout">
+  <!-- Column 2: Sidebar (concept list) -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-stats">
+        <div class="sidebar-stat"><div class="stat-val" id="statTotal">-</div><div class="stat-lbl">概念</div></div>
+        <div class="sidebar-stat"><div class="stat-val" id="statQuotes">-</div><div class="stat-lbl">摘录</div></div>
+      </div>
+      <div class="sidebar-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        <input type="text" id="searchInput" placeholder="搜索概念..." oninput="handleSearch()">
+      </div>
+      <div class="sidebar-filter">
+        <select id="categoryFilter" onchange="handleSearch()"><option value="">全部分类</option></select>
+      </div>
+    </div>
+    <div class="sidebar-section-title">Concept List</div>
+    <div class="sidebar-concept-list" id="conceptList"></div>
+  </aside>
+
+  <!-- Column 3: Edit panel -->
+  <main class="edit-panel" id="editPanel">
+    <div class="edit-empty" id="editEmpty">
+      <div class="edit-empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+      </div>
+      <h3>选择一个概念开始编辑</h3>
+      <p>Select a concept from the list</p>
+    </div>
+    <div id="editForm" style="display:none">
+      <div class="edit-header">
+        <h2 class="edit-title" id="editTitle">编辑概念</h2>
+        <div class="edit-actions">
+          <button class="btn btn-sm btn-danger" onclick="confirmDelete()" id="deleteBtn">删除</button>
+          <button class="btn btn-sm btn-primary" onclick="saveConcept()" id="saveBtn">保存</button>
+        </div>
+      </div>
+      <input type="hidden" id="formId">
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">中文名称 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="formNameZh">
+        </div>
+        <div class="form-group">
+          <label class="form-label">英文名称 <span class="required">*</span></label>
+          <input type="text" class="form-input" id="formNameEn">
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">分类</label>
+        <select class="form-select" id="formCategory">
+          <option value="">选择分类</option>
+          <option>实相与创造</option><option>意识与感知</option><option>多维自我与身份</option>
+          <option>时间与空间</option><option>梦境与睡眠</option><option>身体与健康</option>
+          <option>情感与能量</option><option>社会与群体</option><option>进化与价值</option>
+          <option>创造与自发性</option><option>宗教与神话</option><option>科学与知识</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">定义（中文） <span class="required">*</span></label>
+        <textarea class="form-textarea" id="formDefinition"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">定义（英文原文）</label>
+        <textarea class="form-textarea" id="formDefinitionEn" style="min-height:80px;"></textarea>
+      </div>
+      <div class="form-group">
+        <label class="form-label">定义出处</label>
+        <input type="text" class="form-input" id="formDefinitionSource" placeholder="例如：The Nature of Personal Reality, Ch. 10">
+      </div>
+      
+      <div class="section-header" style="margin-top:12px">
+        <h3 class="section-title">定义条目 (<span id="defCountDisplay">0</span>)</h3>
+        <button type="button" class="btn btn-sm" onclick="addDefinition()">+ 添加</button>
+      </div>
+      <div id="definitionList"></div>
+      <div class="form-group">
+        <label class="form-label">阐释</label>
+        <textarea class="form-textarea" id="formExplanation" style="min-height:60px;"></textarea>
+      </div>
+
+      <div class="section-header">
+        <h3 class="section-title">摘录 (<span id="quoteCountDisplay">0</span>)</h3>
+        <div style="display:flex;gap:6px">
+          <button type="button" class="btn btn-sm" onclick="toggleAllQuotes()"><span id="toggleQuoteText">展开</span></button>
+          <button type="button" class="btn btn-sm" onclick="addQuote()">+ 添加</button>
+        </div>
+      </div>
+      <div class="quote-list" id="quotesList"></div>
+      <div id="quotePagination" style="text-align:center;padding:8px"></div>
+
+      <div class="section-header" style="margin-top:16px">
+        <h3 class="section-title">子概念 (<span id="subConceptCountDisplay">0</span>)</h3>
+        <button type="button" class="btn btn-sm" onclick="addSubConcept()">+ 添加</button>
+      </div>
+      <div id="subConceptsList"></div>
+    </div>
+  </main>
+</div>
+
+<!-- Delete confirm -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <p class="confirm-text" id="confirmText"></p>
+    <div class="confirm-warning">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+      <span>此操作不可撤销</span>
+    </div>
+    <div class="confirm-actions">
+      <button class="btn" onclick="closeConfirm()">取消</button>
+      <button class="btn btn-danger" onclick="doDelete()">确认删除</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+let concepts = [];
+let editingQuotes = [];
+let editingDefinition = [];  // [{en, zh, source}, ...]
+let showAllQuotes = false;
+let currentId = null;
+let deleteTargetId = null;
+const API_BASE = window.location.origin;
+
+document.addEventListener('DOMContentLoaded', function() { loadConcepts(); });
+
+async function loadConcepts() {
+  try {
+    var response = await fetch(API_BASE + '/api/concepts');
+    if (!response.ok) throw new Error('加载失败');
+    var data = await response.json();
+    concepts = data.concepts || [];
+    document.getElementById('statTotal').textContent = data.total || 0;
+    var totalQ = 0;
+    for (var i = 0; i < concepts.length; i++) totalQ += (concepts[i].quotes_count || 0);
+    document.getElementById('statQuotes').textContent = totalQ;
+    var cats = {};
+    for (var i = 0; i < concepts.length; i++) {
+      var c = concepts[i];
+      if (c.category && !cats[c.category]) cats[c.category] = true;
+    }
+    var filter = document.getElementById('categoryFilter');
+    filter.innerHTML = '<option value="">全部分类</option>';
+    var sortedCats = [];
+    for (var k in cats) sortedCats.push(k);
+    sortedCats.sort();
+    for (var i = 0; i < sortedCats.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = sortedCats[i]; opt.textContent = sortedCats[i];
+      filter.appendChild(opt);
+    }
+    renderList();
+  } catch (error) {
+    showToast('加载失败: ' + error.message, 'error');
+  }
+}
+
+function renderList() {
+  var container = document.getElementById('conceptList');
+  var searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  var catFilter = document.getElementById('categoryFilter').value;
+
+  var filtered = concepts;
+  if (searchTerm) {
+    filtered = filtered.filter(function(c) {
+      return (c.id || '').toLowerCase().indexOf(searchTerm) !== -1 ||
+             (c.name_zh || '').toLowerCase().indexOf(searchTerm) !== -1 ||
+             (c.name_en || '').toLowerCase().indexOf(searchTerm) !== -1;
+    });
+  }
+  if (catFilter) {
+    filtered = filtered.filter(function(c) { return c.category === catFilter; });
+  }
+
+  if (filtered.length === 0) {
+    container.innerHTML = '<div style="padding:30px 16px;text-align:center;color:var(--text-muted);font-size:13px">无匹配概念</div>';
+    return;
+  }
+
+  var html = '';
+  for (var i = 0; i < filtered.length; i++) {
+    var c = filtered[i];
+    var isActive = c.id === currentId;
+    html += '<div class="sidebar-concept-item' + (isActive ? ' active' : '') + '" data-id="' + c.id + '" onclick="selectConcept(\'' + c.id + '\')">';
+    html += '<span class="sci-dot"></span>';
+    html += '<div><div class="sci-name">' + escapeHtml(c.name_zh) + '</div>';
+    html += '<div class="sci-name-en">' + escapeHtml(c.name_en || '') + '</div></div>';
+    html += '<span class="sci-badge">' + (c.quotes_count || 0) + '</span>';
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function handleSearch() { renderList(); }
+
+async function selectConcept(id) {
+  currentId = id;
+  renderList();
+  try {
+    var response = await fetch(API_BASE + '/api/concepts/' + id);
+    if (!response.ok) throw new Error('加载失败');
+    var c = await response.json();
+    document.getElementById('editEmpty').style.display = 'none';
+    document.getElementById('editForm').style.display = 'block';
+    document.getElementById('editTitle').textContent = '编辑: ' + c.name_zh;
+    document.getElementById('formId').value = c.id || '';
+    document.getElementById('formNameZh').value = c.name_zh || '';
+    document.getElementById('formNameEn').value = c.name_en || '';
+    document.getElementById('formCategory').value = c.category || '';
+    
+    // Handle definition as array [{en, zh, source}] or string
+    editingDefinition = [];
+    if (Array.isArray(c.definition)) {
+      editingDefinition = c.definition.slice();
+      document.getElementById('formDefinition').value = '';
+      document.getElementById('formDefinitionEn').value = '';
+    } else if (typeof c.definition === 'string') {
+      document.getElementById('formDefinition').value = c.definition;
+      document.getElementById('formDefinitionEn').value = c.definition_en || '';
+    }
+    document.getElementById('formDefinitionSource').value = c.definition_source || '';
+    document.getElementById('formExplanation').value = c.explanation || '';
+    
+    editingQuotes = [];
+    var quotes = c.quotes || [];
+    for (var i = 0; i < quotes.length; i++) {
+      var q = quotes[i];
+      editingQuotes.push({ text: q.text || '', translation: q.translation || '', source: q.source || '' });
+    }
+    document.getElementById('quoteCountDisplay').textContent = editingQuotes.length;
+    document.getElementById('toggleQuoteText').textContent = '展开';
+    showAllQuotes = false;
+    document.getElementById('subConceptCountDisplay').textContent = (c.sub_concepts || []).length;
+    document.getElementById('subConceptsList').innerHTML = '';
+    renderDefinitionList();
+    renderQuoteList();
+  } catch (error) {
+    showToast('加载概念详情失败: ' + error.message, 'error');
+  }
+}
+
+function openCreate() {
+  document.getElementById('editEmpty').style.display = 'none';
+  document.getElementById('editForm').style.display = 'block';
+  document.getElementById('editTitle').textContent = '新增概念';
+  document.getElementById('formId').value = '';
+  document.getElementById('formNameZh').value = '';
+  document.getElementById('formNameEn').value = '';
+  document.getElementById('formCategory').value = '';
+  document.getElementById('formDefinition').value = '';
+  document.getElementById('formDefinitionEn').value = '';
+  document.getElementById('formDefinitionSource').value = '';
+  document.getElementById('formExplanation').value = '';
+  editingDefinition = [];
+  editingQuotes = [];
+  showAllQuotes = false;
+  document.getElementById('quoteCountDisplay').textContent = '0';
+  document.getElementById('toggleQuoteText').textContent = '展开';
+  document.getElementById('subConceptCountDisplay').textContent = '0';
+  document.getElementById('subConceptsList').innerHTML = '';
+  renderDefinitionList();
+  renderQuoteList();
+}
+
+function renderDefinitionList() {
+  var list = document.getElementById('definitionList');
+  document.getElementById('defCountDisplay').textContent = editingDefinition.length;
+  if (editingDefinition.length === 0) {
+    list.innerHTML = '<div style="padding:12px;text-align:center;color:var(--text-muted);font-size:13px">暂无定义条目</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < editingDefinition.length; i++) {
+    var d = editingDefinition[i];
+    html += '<div class="quote-item" style="margin-bottom:8px">';
+    html += '<div class="quote-item-header"><span class="quote-item-title">定义 #' + (i + 1) + '</span>';
+    html += '<button type="button" class="btn btn-sm btn-danger btn-icon" onclick="removeDefinition(' + i + ')">&times;</button></div>';
+    html += '<div class="form-group"><label class="form-label">英文原文</label>';
+    html += '<textarea class="form-textarea" style="min-height:50px" onblur="editingDefinition[' + i + '].en=this.value">' + escapeHtml(d.en || '') + '</textarea></div>';
+    html += '<div class="form-group"><label class="form-label">中文翻译</label>';
+    html += '<textarea class="form-textarea" style="min-height:40px" onblur="editingDefinition[' + i + '].zh=this.value">' + escapeHtml(d.zh || '') + '</textarea></div>';
+    html += '<div class="form-group"><label class="form-label">出处</label>';
+    html += '<input type="text" class="form-input" value="' + escapeHtml(d.source || '') + '" onblur="editingDefinition[' + i + '].source=this.value"></div>';
+    html += '</div>';
+  }
+  list.innerHTML = html;
+}
+
+function addDefinition() {
+  editingDefinition.push({ en: '', zh: '', source: '' });
+  renderDefinitionList();
+}
+
+function removeDefinition(idx) {
+  editingDefinition.splice(idx, 1);
+  renderDefinitionList();
+}
+
+function renderQuoteList() {
+  var list = document.getElementById('quotesList');
+  var display = showAllQuotes ? editingQuotes : editingQuotes.slice(0, 5);
+  if (display.length === 0) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:13px">暂无摘录</div>';
+    return;
+  }
+  var html = '';
+  for (var i = 0; i < display.length; i++) {
+    var q = display[i];
+    var idx = showAllQuotes ? i : i;
+    html += '<div class="quote-item">';
+    html += '<div class="quote-item-header"><span class="quote-item-title">摘录 #' + (idx + 1) + '</span>';
+    html += '<button type="button" class="btn btn-sm btn-danger btn-icon" onclick="removeQuote(' + idx + ')">&times;</button></div>';
+    html += '<div class="form-group"><label class="form-label">中文翻译</label>';
+    html += '<textarea class="form-textarea" style="min-height:40px" onblur="editingQuotes[' + idx + '].translation=this.value">' + escapeHtml(q.translation || '') + '</textarea></div>';
+    html += '<div class="form-group"><label class="form-label">英文原文</label>';
+    html += '<textarea class="form-textarea" style="min-height:50px" onblur="editingQuotes[' + idx + '].text=this.value">' + escapeHtml(q.text || '') + '</textarea></div>';
+    html += '<div class="form-group"><label class="form-label">出处</label>';
+    html += '<input type="text" class="form-input" value="' + escapeHtml(q.source || '') + '" onblur="editingQuotes[' + idx + '].source=this.value"></div>';
+    html += '</div>';
+  }
+  list.innerHTML = html;
+  var total = editingQuotes.length;
+  var pagHtml = '<span style="color:var(--text-muted);font-family:var(--font-serif);font-size:12px">';
+  pagHtml += (showAllQuotes ? '全部 ' + total : '显示 1-5 / 共 ' + total);
+  pagHtml += '</span>';
+  document.getElementById('quotePagination').innerHTML = pagHtml;
+}
+
+function toggleAllQuotes() {
+  showAllQuotes = !showAllQuotes;
+  document.getElementById('toggleQuoteText').textContent = showAllQuotes ? '收起' : '展开';
+  renderQuoteList();
+}
+
+function addQuote() {
+  editingQuotes.push({ text: '', translation: '', source: '' });
+  document.getElementById('quoteCountDisplay').textContent = editingQuotes.length;
+  renderQuoteList();
+}
+
+function removeQuote(idx) {
+  editingQuotes.splice(idx, 1);
+  document.getElementById('quoteCountDisplay').textContent = editingQuotes.length;
+  renderQuoteList();
+}
+
+function addSubConcept() { showToast('子概念编辑功能开发中', 'error'); }
+
+async function saveConcept() {
+  var formId = document.getElementById('formId').value;
+  var nameZh = document.getElementById('formNameZh').value.trim();
+  var nameEn = document.getElementById('formNameEn').value.trim();
+  var definition = document.getElementById('formDefinition').value.trim();
+  if (!nameZh || !nameEn || !definition) {
+    showToast('请填写必填字段', 'error'); return;
+  }
+  var saveBtn = document.getElementById('saveBtn');
+  saveBtn.disabled = true;
+  saveBtn.innerHTML = '<span class="loading-spinner"></span> 保存中';
+
+  var concept = {
+    name_zh: nameZh, name_en: nameEn,
+    category: document.getElementById('formCategory').value.trim() || '核心概念',
+    definition: editingDefinition.length > 0 ? editingDefinition : document.getElementById('formDefinition').value.trim(),
+    definition_en: editingDefinition.length > 0 ? '' : document.getElementById('formDefinitionEn').value.trim(),
+    definition_source: document.getElementById('formDefinitionSource').value.trim(),
+    explanation: document.getElementById('formExplanation').value.trim(),
+    quotes: editingQuotes.filter(function(q) { return q.text; }),
+    related_concepts: [], sub_concepts: []
+  };
+
+  try {
+    var response;
+    if (formId) {
+      response = await fetch(API_BASE + '/api/concepts/' + formId, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(concept)
+      });
+    } else {
+      concept.id = nameEn.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim();
+      response = await fetch(API_BASE + '/api/concepts', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(concept)
+      });
+    }
+    if (!response.ok) { var error = await response.json(); throw new Error(error.error || '保存失败'); }
+    showToast(formId ? '概念已更新' : '概念已创建', 'success');
+    currentId = concept.id;
+    loadConcepts();
+  } catch (error) {
+    showToast(error.message, 'error');
+  } finally {
+    saveBtn.disabled = false;
+    saveBtn.textContent = '保存';
+  }
+}
+
+function confirmDelete() {
+  if (!currentId) return;
+  deleteTargetId = currentId;
+  var item = concepts.find(function(c) { return c.id === currentId; });
+  document.getElementById('confirmText').textContent = '确定要删除概念「' + (item ? item.name_zh : currentId) + '」吗？';
+  document.getElementById('confirmOverlay').classList.add('active');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('active');
+  deleteTargetId = null;
+}
+
+async function doDelete() {
+  if (!deleteTargetId) return;
+  try {
+    var response = await fetch(API_BASE + '/api/concepts/' + deleteTargetId, { method: 'DELETE' });
+    if (!response.ok) { var error = await response.json(); throw new Error(error.error || '删除失败'); }
+    showToast('概念已删除', 'success');
+    closeConfirm();
+    currentId = null;
+    document.getElementById('editEmpty').style.display = 'flex';
+    document.getElementById('editForm').style.display = 'none';
+    loadConcepts();
+  } catch (error) {
+    showToast(error.message, 'error');
+  }
+}
+
+document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+function showToast(message, type) {
+  type = type || 'success';
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  var icon = type === 'success' ? '&#x2705;' : '&#x274c;';
+  toast.innerHTML = '<span class="toast-icon">' + icon + '</span><span class="toast-message">' + escapeHtml(message) + '</span>';
+  container.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('show'); });
+  setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { toast.remove(); }, 300); }, 3000);
+}
+
+function escapeHtml(str) { if (!str) return ''; var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+</script>
+<script src="admin-menu.js"></script>
+</body>
+</html>

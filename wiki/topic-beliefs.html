@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="concept-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>信念系统 · 专题 - 赛斯宇宙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--border-subtle:rgba(255,255,255,0.04);--border-active:rgba(180,160,100,0.3);--gold:#b4a064;--gold-bright:#d4c088;--gold-dim:#8a7a52;--gold-glow:rgba(180,160,100,0.08);--star:#e8e0d0;--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#4a4538;--accent-ethereal:#6b8fa3;--accent-mystic:#8b6ba3;--accent-life:#6ba37a;--font-serif:'EB Garamond',serif;--font-display:'Instrument Serif','EB Garamond',serif;--font-zh-title:'Noto Serif SC',serif;--font-zh-body:'Noto Sans SC',sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px}
+html{scroll-behavior:smooth;font-size:14px}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh-body);line-height:1.7;overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.6;background-image:radial-gradient(1px 1px at 10% 20%,rgba(200,190,160,0.4),transparent),radial-gradient(1px 1px at 25% 45%,rgba(200,190,160,0.3),transparent),radial-gradient(1.2px 1.2px at 40% 15%,rgba(220,210,180,0.5),transparent),radial-gradient(1px 1px at 55% 70%,rgba(200,190,160,0.3),transparent),radial-gradient(1px 1px at 70% 30%,rgba(200,190,160,0.4),transparent),radial-gradient(1.5px 1.5px at 85% 55%,rgba(220,210,180,0.5),transparent),radial-gradient(1px 1px at 15% 80%,rgba(200,190,160,0.3),transparent)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.015;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.12);border-radius:2px}
+#prism-nav{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--prism-expanded-w);background:var(--bg-surface);border-right:1px solid var(--border-subtle);z-index:55;display:flex;flex-direction:column;padding:0;transition:width 0.3s cubic-bezier(0.4,0,0.2,1);overflow:visible}
+#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
+.pn-inner{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding:20px 0 12px}
+.pn-inner::-webkit-scrollbar{width:3px}
+.pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}
+.pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
+.pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
+.pn-node-trigger{display:flex;align-items:center;gap:10px;padding:10px 8px;text-decoration:none;color:var(--text-secondary);transition:all 0.2s;position:relative;border-radius:8px;cursor:pointer}
+.pn-node-trigger:hover{background:rgba(255,255,255,0.02);color:var(--text-primary)}
+.pn-node-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1)}
+.pn-node-icon svg{width:100%;height:100%}
+.pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
+.pn-node-label{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-node-label-en{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden}
+.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
+.pn-node-glow{position:absolute;left:0;top:10%;bottom:10%;width:2.5px;background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:0 1.5px 1.5px 0}
+.pn-collapsed .pn-node-glow{left:-1px}
+.pn-node-subs{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;opacity:0;padding:0 6px 0 34px}
+.pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
+.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
+.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
+.pn-sub:hover{background:rgba(255,255,255,0.02)}
+.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0;transition:all 0.15s}
+.pn-sub:hover .pn-sub-dot{background:var(--gold)}
+.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
+.pn-sub:hover .pn-sub-label{color:var(--text-primary)}
+.pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn-toggle{position:absolute;top:50%;right:-11px;transform:translateY(-50%);width:22px;height:48px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;transition:all 0.2s;z-index:56}
+.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
+.header{position:fixed;top:0;left:var(--prism-w);right:0;height:var(--header-h);background:rgba(5,5,8,0.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;padding:0 20px;z-index:100}
+.header-logo{display:flex;align-items:center;gap:12px}
+.header-logo .logo-mark{font-family:var(--font-display);font-size:20px;color:var(--gold);font-style:italic}
+.header-logo a{text-decoration:none;color:var(--text-primary);font-family:var(--font-zh-title);font-size:14px;font-weight:600;letter-spacing:0.08em}
+.header-tagline{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);font-style:italic;margin-left:auto;display:none}
+@media(min-width:900px){.header-tagline{display:block}}
+.main{margin-left:var(--prism-w);margin-top:var(--header-h);padding:40px 48px 100px;max-width:960px}
+.hero{padding:40px 0 30px}
+.hero .breadcrumb{font-size:13px;color:var(--text-muted);margin-bottom:16px;font-family:var(--font-serif);letter-spacing:0.05em}
+.hero .breadcrumb a{color:var(--gold-dim);text-decoration:none}
+.hero .breadcrumb a:hover{color:var(--gold)}
+.hero .badge{display:inline-block;padding:2px 10px;border-radius:2px;background:var(--gold-glow);font-size:10px;color:var(--gold);text-transform:uppercase;letter-spacing:0.15em;margin-bottom:14px}
+.hero h1{font-family:var(--font-zh-title);font-size:clamp(26px,3.5vw,38px);font-weight:300;color:var(--star);margin-bottom:4px}
+.hero .sub{font-family:var(--font-display);font-size:clamp(14px,1.8vw,17px);color:var(--text-muted);font-style:italic;margin-bottom:12px}
+.hero .src{font-family:var(--font-serif);font-size:12px;color:var(--text-muted);margin-bottom:20px}
+.hero .sum{font-size:15px;color:var(--text-secondary);line-height:2;padding:20px 24px;background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:4px}
+.hero .sum p{margin-top:10px}.hero .sum p:first-child{margin-top:0}
+.ref{color:var(--gold-dim);font-family:var(--font-serif);font-size:12px;font-style:italic;text-decoration:none;cursor:pointer}
+.ref:hover{color:var(--gold)}
+.sec{margin-top:44px}
+.sh{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.sh .ln{flex:1;height:0.5px;background:var(--border-subtle)}
+.sh .lb{font-family:var(--font-zh-title);font-size:15px;font-weight:600;white-space:nowrap}
+.sh .lb .dt{width:3px;height:3px;border-radius:50%;background:var(--gold);display:inline-block;margin-right:5px}
+.sd{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);font-style:italic;margin-bottom:14px}
+.qc{background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:4px;padding:18px 22px;margin-bottom:12px}
+.qc .z{font-size:17px;color:var(--text-primary);line-height:1.85;margin-bottom:10px}
+.qc .e{font-family:var(--font-serif);font-size:15px;color:var(--text-muted);line-height:1.8;font-style:italic;padding-left:14px;position:relative}
+.qc .e::before{content:'';position:absolute;left:0;top:6px;bottom:6px;width:1px;background:var(--gold-dim);opacity:0.4}
+.qc .s{font-family:var(--font-serif);font-size:11px;color:var(--text-muted);margin-top:12px;letter-spacing:0.08em}
+@media(max-width:768px){#prism-nav{display:none}.header{left:0}.main{margin-left:0;padding:24px 16px 60px}.hero{padding:20px 0}.qc{padding:14px 16px}.qc .z{font-size:16px}}
+</style>
+</head>
+<body>
+<header class="header"><div class="header-logo"><span class="logo-mark">S</span><a href="index.html">赛斯宇宙</a></div><div class="header-tagline">专题 · 信念系统</div></header>
+<main class="main">
+
+<div class="hero">
+<div class="breadcrumb"><a href="topics.html">专题</a> ／ 信念系统</div>
+<div class="badge">全书综述 · 19本书 · 3,366处论述</div>
+<h1>信念系统</h1>
+<div class="sub">Belief Systems</div>
+<div class="src">基于《灵魂永生》《个人实相的本质》《未知的实相》《心灵的本质》《群体事件的本质》《梦进化与价值完成》《神奇之道》《健康之道》《早期课》1-9册</div>
+
+<div class="sum">
+
+<p><b>信念是有关于现实的强烈想法，具有电磁实相。</b>它们不是被动的抽象观念，而是意识心自我意识的特定结构<a class="ref" href="#q1">[1]</a>。你的环境就是你的思想、情感和信念物质化后的物理画像<a class="ref" href="#q2">[2]</a>。你的有意识信念指示身体如何运作，而非反过来<a class="ref" href="#q3">[3]</a>。你的情绪跟随你的信念——不是信念跟随情绪<a class="ref" href="#q4">[4]</a>。</p>
+
+<p><b>信念像篱笆一样环绕着你——你必须先看到它们，才知道自己并非自由。</b>有一条信念能穿透所有虚假的限制性观念，那就是："自我不受限制。"这个事实的陈述不因你相信与否而改变<a class="ref" href="#q5">[5]</a>。然而，即使错误的信念也会在物理数据中找到"证据"，因为你的外在经验正是那些信念的物质化。你想改变经验，就必须改变观念<a class="ref" href="#q6">[6]</a>。</p>
+
+<p><b>信念可以按照对你的支撑程度分级。</b>如果你诚实地列出自己的信念，最终你会触及我称之为"核心信念"的东西——关于你自身存在的强烈想法。许多其他从属信念，看似彼此无关，实际上都是核心信念的分支。一旦核心信念被理解为虚假的，其他信念就会自然瓦解。<a class="ref" href="#q7">[7]</a></p>
+
+<p><b>思想的强度和情感投入决定了物质化的速度和力量。</b>仅凭一厢情愿的想法是不够的——你需要将想象力、情感强度和信念结合起来。信念是由想象力和情感强化后的想法<a class="ref" href="#q8">[8]</a>。在日常生活的那些问题区域，你其实也在完美地运用你的信念—情感—想象力机制，只不过方向反了。</p>
+
+<p><b>信念不仅塑造个人实相，也塑造社会现实。</b>宗教与科学是当今人类的两大主流信念系统。当你感到无力时，会在僵化的信念系统中寻求庇护，这可能导致教派形成。同样的特质在一套信念系统中是美德，在另一套中就是罪恶<a class="ref" href="#q9">[9]</a>。</p>
+
+<p><b>信念直接参与健康与疾病。</b>你的医生同样是自己信念系统的受害者。当疾病被视为无缘无故侵犯身体完整性的外敌时，你便感到无力。信念系统中使用的"道具"——手势、药物、治疗程序——都是医患共享信念的外在表现。在一种信念系统中用维生素抵御疾病，在另一种中用仪式抵御邪恶——机制完全相同<a class="ref" href="#q10">[10]</a>。你不能将生物学与信念分开——从性别、月经到身体的每一种反应，信念系统都参与其中<a class="ref" href="#q11">[11]</a>。</p>
+
+<p><b>改变信念有两种实用方法。</b>方法一：与自己对话，写下各领域的信念。矛盾会显现，那些"隐形的信念"——你完全知道但宁可忽略的信念——会浮现<a class="ref" href="#q12">[12]</a>。方法二：如果第一种太理性，可以从情绪回溯到信念。接受感受的有效性，同时明白感受不一定是事实陈述<a class="ref" href="#q13">[13]</a>。</p>
+
+<p><b>还有一种日常练习——每天十分钟的"假装"练习。</b>暂时搁置你的旧信念，有意识地采纳你想要的新信念。你既是催眠师也是被催眠者。使用视觉或语言想象，完成后就放下。一个月内新状况会在你的经验中物质化。当与这些新信念一致的行动冲动出现时，由你决定是否采取行动<a class="ref" href="#q14">[14]</a>。</p>
+
+<p><b>身体意识本身能在一定程度上保护你免受负面信念的伤害。</b>自我确实受到祝福，仅仅是提醒自己这一点就能短路那些不太深层的负面信念<a class="ref" href="#q15">[15]</a>。然而，要真正改变根深蒂固的信念，你需要认识到：在那些"成功"的区域和"失败"的区域中，运作的是同一种自然催眠机制，区别仅在于你确信的方向不同。</p>
+
+<p><b>关于信念的一条根本洞见：</b>你不可能将哲学与生活分开，因为你的思想和意见赋予生活以意义和动力。那些相信受苦本身就是个人发展和精神知识之路的人，会将自己的信念在身体中物质化<a class="ref" href="#q16">[16]</a>。</p>
+
+</div>
+</div>
+
+<div class="sec"><div class="sh"><div class="ln"></div><div class="lb">摘录</div><div class="ln"></div></div>
+
+<div class="qc">
+<div class="z">观念具有电磁实相。信念是有关于现实本质的强烈想法。观念产生情绪。同类相吸，所以相似的想法彼此聚拢，你接受那些适合你特定观念系统的想法。</div>
+<div class="e">"Ideas have an electromagnetic reality. Beliefs are strong ideas about the nature of reality. Ideas generate emotion. Like attracts like, so similar ideas group about each other and you accept those that fit in with your particular system of ideas."</div>
+<div class="s">The Nature of Personal Reality, Session 615</div>
+</div>
+
+
+<div class="qc">
+<div class="z">如果你坚信自己的意识被锁在头骨里、无力逃脱，如果你觉得自己的意识止于身体的边界，那么你就是在自我设限。你根据信念形成自己的实相，死后也一样。</div>
+<div class="e">"If you believe firmly that your consciousness is locked up somewhere inside your skull and is powerless to escape it, if you feel that your consciousness ends at the boundary of your body, then you set up barriers. You always form your own reality according to your beliefs."</div>
+<div class="s">Seth Speaks, Session 511</div>
+</div>
+
+<div class="qc">
+<div class="z">对地狱之火的信仰会让你产生地狱环境的幻觉。对刻板天堂的信仰会让你产生天堂环境的幻觉。你总是根据自己的信念形成自己的实相。</div>
+<div class="e">"A belief in hell fires can cause you to hallucinate Hades conditions. A belief in a stereotyped heaven can result in a hallucination of heavenly conditions. You always form your own reality according to your beliefs."</div>
+<div class="s">Seth Speaks, Session 536</div>
+</div>
+
+<div class="qc">
+<div class="z">如果你相信所有人都是邪恶的，你就完全体验不到人身上的善。你对此完全封闭。他们反过来也会始终向你展示最坏的一面。你会心电感应般地接收到他们的敌对意图。你的经验，换句话说，跟随你的期望。</div>
+<div class="e">"If you believe all men are evil, you simply will not experience the goodness in men. You will be completely closed to it. They in turn will always show you their worst side. You will telepathically pick up their aggressive intentions. Your experience, in other words, follows your expectations."</div>
+<div class="s">Seth Speaks, Session 541</div>
+</div>
+<div class="qc">
+<div class="z">信念是由想象力和情感强化后的想法，关于你实相的本质。</div>
+<div class="e">"Beliefs are thoughts reinforced by imagination and emotion concerning the nature of your reality."</div>
+<div class="s">The Nature of Personal Reality, Session 624</div>
+</div>
+
+<div class="qc">
+<div class="z">你的信念可以像篱笆一样环绕着你。你必须先看到它们，否则你甚至不会意识到自己不自由。</div>
+<div class="e">"Your beliefs can be like fences that surround you. You must first recognize the existence of such barriers or you will not even realize that you are not free, simply because you will not see beyond the fences."</div>
+<div class="s">The Nature of Personal Reality, Session 614</div>
+</div>
+
+<div class="qc">
+<div class="z">自我不受限制。这是一个事实陈述，它独立于你对它的相信或不相信而存在。</div>
+<div class="e">"The Self Is Not Limited. That statement is a statement of fact. It exists regardless of your belief or disbelief in it."</div>
+<div class="s">The Nature of Personal Reality, Session 614</div>
+</div>
+
+<div class="qc">
+<div class="z">你的有意识信念指示你身体功能的运作，不是反过来。意识心设定目标，内在自我利用其全部能力和取之不竭的能量将其实现。</div>
+<div class="e">"Your conscious beliefs direct the functioning of your body. It is not the other way around. The conscious mind sets the goals and the inner self brings them about, using all its facilities and inexhaustible energy."</div>
+<div class="s">The Nature of Personal Reality, Session 615</div>
+</div>
+
+<div class="qc">
+<div class="z">你的情绪跟随你的信念，不是信念跟随情绪。</div>
+<div class="e">"Your emotions follow your beliefs. It is not the other way around."</div>
+<div class="s">The Nature of Personal Reality, Session 614</div>
+</div>
+
+<div class="qc">
+<div class="z">你的环境是你的思想、情感和信念物质化后的物理画像。</div>
+<div class="e">"Your environment is the physical picture of your thoughts, emotions and beliefs made visible."</div>
+<div class="s">The Nature of Personal Reality, Session 614</div>
+</div>
+
+<div class="qc">
+<div class="z">即使错误的信念也在物理数据中看起来被证明为真，因为你的外在经验正是那些信念的物质化。要改变你的经验，你必须改变你的观念。</div>
+<div class="e">"Even false beliefs will seem to be justified in terms of physical data, since your experience in the outside world is the materialization of those beliefs. To change your experience or any portion of it, you must change your ideas."</div>
+<div class="s">The Nature of Personal Reality, Session 615</div>
+</div>
+
+<div class="qc">
+<div class="z">如果你诚实地列出自己的信念，最终你会触及核心信念——关于你自身存在的强烈想法。许多从属信念都是核心信念的分支。一旦核心信念被理解为虚假的，其余就会瓦解。</div>
+<div class="e">"If you are honest with your lists, you will finally come to what I call core beliefs, strong ideas about your own existence. Many other subsidiary beliefs appear quite clearly as being offshoots of core beliefs. Once the core belief is understood to be a false one, the others will fall away."</div>
+<div class="s">The Nature of Personal Reality, Session 618</div>
+</div>
+
+<div class="qc">
+<div class="z">了解自己有意识信念的最直接方法，就是与自己对话。写下你在各个领域的信念，你会发现那些隐形的信念——你完全知道但宁可忽略的——会在检视中浮现。</div>
+<div class="e">"The most direct is to have a series of talks with yourself. Write down your beliefs in a variety of areas. Invisible beliefs are simply those of which you are fully aware but prefer to ignore."</div>
+<div class="s">The Nature of Personal Reality, Session 638</div>
+</div>
+
+<div class="qc">
+<div class="z">你也可以从情绪回溯到信念。接受感受的有效性，同时明白感受不一定是事实陈述。</div>
+<div class="e">"You can also work backward from your emotions to your beliefs. You must accept the validity of your feelings while realizing that they are not necessarily factual statements of your reality."</div>
+<div class="s">The Nature of Personal Reality, Session 638</div>
+</div>
+
+<div class="qc">
+<div class="z">你必须意识到你就是催眠师。暂时悬置此领域的信念，有意识地接受你想要的信念。假装自己处于催眠状态——既是催眠师也是被催眠者。一个月内你会发现新状况在你的经验中物质化。</div>
+<div class="e">"You must realize that you are the hypnotist. For a certain amount of time I will momentarily suspend what I believe in this area, and willfully accept the belief I want. I will pretend that I am under hypnosis. If you do this faithfully, within a month you will find the new conditions materializing in your experience."</div>
+<div class="s">The Nature of Personal Reality, Session 659</div>
+</div>
+
+<div class="qc">
+<div class="z">这就是信念系统在健康与疾病中如此重要的原因。每一种系统都使用道具——手势、药物、治疗程序——这些是医患共享信念的外在表现。</div>
+<div class="e">"That is why belief systems are so important in dealing with health and illness. Each of the systems uses paraphernalia gestures, medicine, treatment that are the exterior manifestations of beliefs shared by healer and patient alike."</div>
+<div class="s">The Nature of Personal Reality, Session 660</div>
+</div>
+
+<div class="qc">
+<div class="z">你们的医生同样是自己信念系统的受害者。病人有时被迫将一个接一个的器官献祭给医生和自己的信念。</div>
+<div class="e">"Your doctors are also the victims of their own belief system. The patient is sometimes compelled to sacrifice one organ after another to his beliefs, and to the doctors."</div>
+<div class="s">The Nature of Personal Reality, Session 659</div>
+</div>
+
+<div class="qc">
+<div class="z">你不能将生物学与你自己的信念系统分开。你们的宗教组织、社会结构、家庭单位和教育程序都涉及对现实的诠释。</div>
+<div class="e">"You cannot separate biology from your own conscious belief systems. Your religious organizations, your social structures, your family units and educational procedures all involve interpretations of reality."</div>
+<div class="s">The Nature of the Psyche, Session 777</div>
+</div>
+
+<div class="qc">
+<div class="z">自我确实受到祝福。仅仅是提醒自己这一点就能短路那些不太深层的负面信念。</div>
+<div class="e">"The self is indeed blessed, and just the reminder of that fact can often short-circuit negative beliefs, particularly if they are not too deep-seated."</div>
+<div class="s">The Way Toward Health, Session 1</div>
+</div>
+
+<div class="qc">
+<div class="z">身体意识在很大程度上是独立的，它自身的防御机制会保护它免受意识负面信念的侵害。有时候身体意识本身会挺身而起，将疾病甩开。</div>
+<div class="e">"The body consciousness is indeed independent. To a large degree its own defense mechanisms protect it from the minds negative beliefs. There are also occasions when the body consciousness itself rises up and throws aside a condition of illness."</div>
+<div class="s">The Way Toward Health, Session 1</div>
+</div>
+
+<div class="qc">
+<div class="z">当个体感到无力时，会在一个僵化的信念系统中寻求庇护。宗教与科学是当今人类的两大主流信念系统。</div>
+<div class="e">"Those who feel powerless then seek shelter in a rigid belief system. The main belief systems: religion and science."</div>
+<div class="s">The Individual and the Nature of Mass Events, Session 856</div>
+</div>
+
+<div class="qc">
+<div class="z">许多普通人相信受苦本身就是个人发展和精神知识之路。在健康问题上，这种信念是灾难性的。你不能将哲学与生活分开，因为你的思想和意见赋予生活意义和动力。</div>
+<div class="e">"Quite ordinary people often believe that suffering itself is a way toward personal development and spiritual knowledge. In matters of health, such beliefs are disastrous. You cannot divorce philosophy from life, for your thoughts and opinions give your life its meaning and impetus."</div>
+<div class="s">The Way Toward Health, Session 14</div>
+</div>
+
+</div>
+
+</main>
+<script src="global-menu.js"></script>
+</body>
+</html>

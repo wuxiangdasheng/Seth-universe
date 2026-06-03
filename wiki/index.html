@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="concept-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>赛斯(Seth)宇宙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#050508;
+  --bg-surface:#0c0c12;
+  --bg-elevated:#141420;
+  --bg-card:#101018;
+  --bg-card-hover:#181824;
+  --border-subtle:rgba(255,255,255,0.04);
+  --border-active:rgba(180,160,100,0.3);
+  --gold:#b4a064;
+  --gold-bright:#d4c088;
+  --gold-dim:#8a7a52;
+  --gold-glow:rgba(180,160,100,0.08);
+  --gold-glow2:rgba(180,160,100,0.04);
+  --star:#e8e0d0;
+  --text-primary:#e0dcd0;
+  --text-secondary:#a09880;
+  --text-muted:#4a4538;
+  --accent-ethereal:#6b8fa3;
+  --accent-mystic:#8b6ba3;
+  --accent-life:#6ba37a;
+  --accent-warm:#a37a5a;
+  --accent-rose:#a35a7a;
+  --font-serif:'EB Garamond',serif;
+  --font-display:'Instrument Serif','EB Garamond',serif;
+  --font-zh-title:'Noto Serif SC',serif;
+  --font-zh-body:'Noto Sans SC',sans-serif;
+  --prism-expanded-w:260px;
+  --prism-collapsed-w:56px;
+  --sidebar-w:280px;
+  --header-h:52px;
+}
+
+html{scroll-behavior:smooth;font-size:16px}
+body{
+  background:var(--bg-deep);
+  color:var(--text-primary);
+  font-family:var(--font-zh-body);
+  line-height:1.7;
+  overflow-x:hidden;
+  min-height:100vh;
+}
+
+/* Star field background */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.6;
+  background-image:
+    radial-gradient(1px 1px at 10% 20%,rgba(200,190,160,0.4),transparent),
+    radial-gradient(1px 1px at 25% 45%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1.2px 1.2px at 40% 15%,rgba(220,210,180,0.5),transparent),
+    radial-gradient(1px 1px at 55% 70%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 70% 30%,rgba(200,190,160,0.4),transparent),
+    radial-gradient(1.5px 1.5px at 85% 55%,rgba(220,210,180,0.5),transparent),
+    radial-gradient(1px 1px at 15% 80%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 30% 60%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1.2px 1.2px at 50% 85%,rgba(220,210,180,0.4),transparent),
+    radial-gradient(1px 1px at 75% 10%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1px 1px at 90% 75%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1px 1px at 5% 50%,rgba(200,190,160,0.3),transparent),
+    radial-gradient(1.3px 1.3px at 60% 40%,rgba(220,210,180,0.4),transparent),
+    radial-gradient(1px 1px at 35% 90%,rgba(200,190,160,0.2),transparent),
+    radial-gradient(1px 1px at 95% 20%,rgba(200,190,160,0.3),transparent);
+}
+
+/* Subtle noise texture */
+body::after{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.015;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.12);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:rgba(180,160,100,0.25)}
+
+/* ===== HEADER ===== */
+.header{
+  position:fixed;top:0;left:0;right:0;height:var(--header-h);
+  background:rgba(5,5,8,0.85);
+  backdrop-filter:blur(20px) saturate(1.1);
+  border-bottom:1px solid var(--border-subtle);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:100;
+}
+.header-logo{display:flex;align-items:center;gap:12px}
+.header-logo .logo-mark{
+  width:24px;height:24px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:20px;
+  color:var(--gold);font-style:italic;
+  opacity:0.8;
+}
+.header-logo span{
+  font-family:var(--font-zh-title);font-size:24px;font-weight:600;
+  letter-spacing:0.08em;color:var(--text-primary);
+}
+.header-tagline{
+  font-family:var(--font-serif);font-size:26px;
+  color:var(--text-muted);font-style:italic;
+  letter-spacing:0.08em;
+  display:none;
+}
+@media(min-width:900px){.header-tagline{display:block}}
+.header-actions{display:flex;align-items:center;gap:12px}
+.search-toggle{
+  background:none;border:1px solid var(--border-subtle);
+  color:var(--text-secondary);width:32px;height:32px;
+  border-radius:4px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.2s;
+}
+.search-toggle:hover{border-color:var(--gold);color:var(--gold)}
+.search-shortcut{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);padding:3px 8px;
+  border:1px solid var(--border-subtle);border-radius:3px;
+  display:none;letter-spacing:0.02em;
+}
+@media(min-width:900px){.search-shortcut{display:block}}
+.menu-toggle{
+  display:none;background:none;border:none;
+  color:var(--text-primary);cursor:pointer;padding:4px;
+}
+.menu-toggle svg{width:20px;height:20px}
+
+/* ===== PRISM NAV (global-menu.js) ===== */
+#prism-nav{
+  position:fixed;top:var(--header-h);left:0;bottom:0;
+  width:var(--prism-expanded-w);
+  background:var(--bg-surface);
+  border-right:1px solid var(--border-subtle);
+  z-index:55;
+  display:flex;flex-direction:column;
+  padding:0;
+  transition:width 0.3s cubic-bezier(0.4,0,0.2,1);
+  overflow:visible;
+}
+#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
+.pn-inner{
+  flex:1;overflow-y:auto;overflow-x:hidden;
+  display:flex;flex-direction:column;
+  padding:20px 0 12px;
+}
+.pn-inner::-webkit-scrollbar{width:3px}
+.pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}
+.pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
+.pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
+.pn-node-trigger{
+  display:flex;align-items:center;gap:10px;padding:10px 8px;
+  text-decoration:none;color:var(--text-secondary);
+  transition:all 0.2s;position:relative;border-radius:8px;
+}
+.pn-node-trigger:hover{background:rgba(255,255,255,0.02);color:var(--text-primary)}
+.pn-node-icon{
+  width:18px;height:18px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pn-node-icon svg{width:100%;height:100%}
+.pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
+.pn-node-label{
+  font-size:16px;font-weight:500;white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;
+}
+.pn-node-label-en{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);white-space:nowrap;
+  overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;
+}
+.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{
+  opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden;
+}
+.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
+.pn-node-glow{
+  position:absolute;left:0;top:10%;bottom:10%;width:2.5px;
+  background:linear-gradient(180deg,transparent,var(--gold),transparent);
+  border-radius:0 1.5px 1.5px 0;
+}
+.pn-collapsed .pn-node-glow{left:-1px}
+.pn-node-subs{
+  max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;
+  opacity:0;padding:0 6px 0 34px;
+}
+.pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
+.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
+.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
+.pn-sub:hover{background:rgba(255,255,255,0.02)}
+.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0;transition:all 0.15s}
+.pn-sub:hover .pn-sub-dot{background:var(--gold)}
+.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
+.pn-sub:hover .pn-sub-label{color:var(--text-primary)}
+.pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn-toggle{
+  position:absolute;top:50%;right:-11px;transform:translateY(-50%);
+  width:22px;height:48px;background:var(--bg-elevated);
+  border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text-muted);font-size:14px;transition:all 0.2s;z-index:56;
+}
+.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
+
+/* ===== SIDEBAR ===== */
+.sidebar{
+  position:fixed;top:var(--header-h);left:var(--prism-w);bottom:0;
+  width:var(--sidebar-w);
+  background:var(--bg-surface);
+  border-right:1px solid var(--border-subtle);
+  overflow-y:auto;z-index:50;
+  padding:0;
+  transition:transform 0.3s ease;
+}
+.sidebar-search-wrap{
+  padding:10px 12px;
+  position:sticky;top:0;
+  background:var(--bg-surface);
+  z-index:2;
+  border-bottom:0.5px solid var(--border-subtle);
+}
+.sidebar-search{
+  width:100%;
+  background:var(--bg-elevated);
+  border:0.5px solid var(--border-subtle);
+  border-radius:4px;
+  padding:7px 10px 7px 28px;
+  font-size:13px;color:var(--text-primary);
+  font-family:var(--font-zh-body);
+  outline:none;
+  transition:border-color 0.15s;
+}
+.sidebar-search:focus{border-color:var(--gold-dim)}
+.sidebar-search::placeholder{color:var(--text-muted)}
+.sidebar-search-icon{
+  position:absolute;left:20px;top:50%;
+  transform:translateY(-50%);
+  width:14px;height:14px;
+  color:var(--text-muted);pointer-events:none;
+}
+.sidebar-content{
+  padding:12px 0;
+}
+.sidebar-section{margin-bottom:2px}
+.sidebar-section-title{
+  padding:8px 16px;
+  font-family:var(--font-serif);
+  font-size:14px;font-weight:400;
+  text-transform:uppercase;letter-spacing:0.2em;
+  color:var(--text-muted);
+}
+.sidebar-item{
+  display:flex;align-items:center;gap:12px;
+  padding:8px 16px;cursor:pointer;
+  transition:all 0.12s;position:relative;
+}
+.sidebar-item:hover{background:rgba(255,255,255,0.02)}
+.sidebar-item.active{background:var(--gold-glow)}
+.sidebar-item.active::after{
+  content:'';position:absolute;left:0;top:6px;bottom:6px;
+  width:1.5px;background:var(--gold);
+}
+.sidebar-item .item-icon{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--text-muted);flex-shrink:0;
+  transition:all 0.15s;
+}
+.sidebar-item.active .item-icon{background:var(--gold)}
+.sidebar-item .item-label{
+  font-size:16px;color:var(--text-secondary);
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  transition:color 0.15s;
+}
+.sidebar-item.active .item-label{color:var(--text-primary);font-weight:500}
+.sidebar-item .item-label-en{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.sidebar-item.active .item-label-en{color:var(--gold-dim)}
+.sidebar-sub-item{
+  display:flex;align-items:center;gap:6px;
+  padding:5px 16px 5px 34px;cursor:pointer;
+  transition:all 0.12s;
+}
+.sidebar-sub-item:hover{background:rgba(255,255,255,0.015)}
+.sidebar-sub-item.active{background:var(--gold-glow2)}
+.sidebar-sub-item.active::after{
+  content:'';position:absolute;left:0;top:5px;bottom:5px;
+  width:1px;background:var(--gold-dim);opacity:0.4;
+}
+.sidebar-sub-item .sub-dot{width:2.5px;height:2.5px;border-radius:50%;background:var(--text-muted);flex-shrink:0}
+.sidebar-sub-item.active .sub-dot{background:var(--gold-dim)}
+.sidebar-sub-item .sub-label{font-size:16px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-sub-item.active .sub-label{color:var(--text-secondary)}
+
+/* ===== MAIN CONTENT ===== */
+.main{
+  margin-left:calc(var(--prism-w) + var(--sidebar-w));
+  margin-top:var(--header-h);
+  min-height:calc(100vh - var(--header-h));
+  padding:40px 40px 100px;
+  transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ===== WELCOME / HERO ===== */
+.hero{
+  position:relative;
+}
+.hero-ornament{
+  display:flex;align-items:center;gap:16px;margin-bottom:28px;
+}
+.hero-ornament .line{flex:1;height:0.5px;background:linear-gradient(90deg,transparent,var(--gold-dim),transparent)}
+.hero-ornament .center-mark{
+  width:6px;height:6px;
+  border:0.5px solid var(--gold-dim);
+  transform:rotate(45deg);flex-shrink:0;
+}
+
+.hero-eyebrow{
+  font-family:var(--font-serif);font-size:14px;
+  text-transform:uppercase;letter-spacing:0.3em;
+  color:var(--gold);margin-bottom:20px;
+  opacity:0;animation:fadeUp 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.hero h1{
+  font-family:var(--font-zh-title);
+  font-size:clamp(32px,5vw,48px);
+  font-weight:300;line-height:1.2;
+  margin-bottom:6px;
+  color:var(--star);
+  opacity:0;animation:fadeUp 0.6s 0.15s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.hero .subtitle-en{
+  font-family:var(--font-display);
+  font-size:clamp(16px,2vw,20px);
+  color:var(--text-muted);font-weight:400;
+  margin-bottom:32px;font-style:italic;
+  opacity:0;animation:fadeUp 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.hero-desc{
+  font-size:16px;color:var(--text-secondary);
+  line-height:2;margin-bottom:32px;
+  opacity:0;animation:fadeUp 0.6s 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+/* Stats */
+.stats-bar{
+  display:flex;gap:0;
+  margin-bottom:36px;
+  opacity:0;animation:fadeUp 0.6s 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.stat-item{
+  flex:1;
+  padding:20px 16px;
+  text-align:center;
+  position:relative;
+}
+.stat-item:not(:last-child)::after{
+  content:'';position:absolute;right:0;top:20%;bottom:20%;
+  width:0.5px;background:var(--border-subtle);
+}
+.stat-num{
+  font-family:var(--font-display);
+  font-size:28px;color:var(--gold);line-height:1;
+  margin-bottom:6px;
+  font-style:italic;
+}
+.stat-label{
+  font-family:var(--font-serif);
+  font-size:14px;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:0.18em;
+}
+
+/* Featured Quote */
+.featured-quote{
+  position:relative;
+  padding:28px 32px;
+  margin-bottom:40px;
+  border-left:1px solid var(--gold-dim);
+  opacity:0;animation:fadeUp 0.6s 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.featured-quote::before{
+  content:'';position:absolute;top:0;left:0;bottom:0;right:0;
+  background:linear-gradient(135deg,var(--gold-glow2),transparent);
+  pointer-events:none;
+}
+.featured-quote .fq-text{
+  font-family:var(--font-display);
+  font-size:16px;color:var(--text-primary);
+  line-height:1.85;font-style:italic;
+  position:relative;z-index:1;
+  margin-bottom:10px;
+}
+.featured-quote .fq-zh{
+  font-size:16px;color:var(--text-secondary);line-height:1.85;
+  position:relative;z-index:1;
+}
+.featured-quote .fq-source{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);margin-top:20px;
+  letter-spacing:0.1em;
+}
+
+/* Section Header */
+.section-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:24px;
+  opacity:0;animation:fadeUp 0.6s 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.section-header h2{
+  font-family:var(--font-zh-title);font-size:14px;font-weight:600;
+  display:flex;align-items:center;gap:8px;
+  letter-spacing:0.04em;
+}
+.section-header h2::before{
+  content:'';width:2px;height:14px;
+  background:var(--gold);border-radius:1px;
+}
+.section-header .count{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);letter-spacing:0.05em;
+}
+
+/* Concept Grid */
+.concept-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
+  gap:12px;
+  opacity:0;animation:fadeUp 0.6s 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+.category-separator{
+  grid-column:1/-1;
+  margin-top:28px;margin-bottom:12px;
+  padding-bottom:8px;
+  border-bottom:0.5px solid var(--border-subtle);
+}
+.category-separator .cat-label{
+  font-family:var(--font-zh-title);font-size:14px;font-weight:600;
+  color:var(--gold);letter-spacing:0.1em;
+  display:flex;align-items:center;gap:8px;
+}
+.category-separator .cat-count{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);font-weight:400;
+}
+.concept-preview{
+  background:var(--bg-card);
+  border:0.5px solid var(--border-subtle);
+  border-radius:6px;padding:16px;
+  cursor:pointer;transition:all 0.2s;
+  position:relative;overflow:hidden;
+}
+.concept-preview:hover{
+  border-color:var(--border-active);
+  background:var(--bg-card-hover);
+  transform:translateY(-1px);
+}
+.concept-preview .cp-num{
+  font-family:var(--font-serif);font-size:14px;
+  color:var(--text-muted);margin-bottom:6px;
+  letter-spacing:0.08em;
+}
+.concept-preview h3{
+  font-family:var(--font-zh-title);
+  font-size:16px;font-weight:600;
+  margin-bottom:2px;line-height:1.4;
+}
+.concept-preview .cp-en{
+  font-family:var(--font-display);font-size:14px;
+  color:var(--gold-dim);font-style:italic;
+  margin-bottom:8px;
+}
+.concept-preview p{
+  font-size:14px;color:var(--text-muted);
+  line-height:1.55;
+  display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden;
+}
+
+/* ===== CONCEPT DETAIL ===== */
+.concept-detail{
+  animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1);
+}
+.concept-detail .back-btn{
+  display:inline-flex;align-items:center;gap:5px;
+  background:none;border:none;
+  color:var(--text-muted);cursor:pointer;
+  font-family:var(--font-serif);font-size:14px;
+  margin-bottom:32px;transition:color 0.15s;padding:4px 0;
+  letter-spacing:0.05em;
+}
+.concept-detail .back-btn:hover{color:var(--gold)}
+.concept-detail .back-btn svg{width:14px;height:14px}
+
+.concept-header{margin-bottom:40px}
+.concept-header .category-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:3px 12px;border-radius:2px;
+  background:var(--gold-glow);
+  font-family:var(--font-serif);font-size:10px;
+  color:var(--gold);text-transform:uppercase;
+  letter-spacing:0.18em;margin-bottom:16px;
+}
+.concept-header h1{
+  font-family:var(--font-zh-title);
+  font-size:clamp(26px,4vw,40px);
+  font-weight:300;line-height:1.25;
+  margin-bottom:4px;color:var(--star);
+}
+.concept-header .title-en{
+  font-family:var(--font-display);
+  font-size:clamp(15px,2vw,19px);
+  color:var(--text-muted);font-style:italic;
+  margin-bottom:0px;
+}
+.concept-header .def-block{
+  background:var(--bg-card);
+  border:0.5px solid var(--border-subtle);
+  border-radius:4px;
+  overflow:hidden;
+}
+.concept-header .def-row{
+  padding:10px 24px;
+  line-height:1.9;
+  position:relative;
+}
+.concept-header .def-row + .def-row{
+  padding-top:0;
+  border-top:0.5px solid var(--border-subtle);
+}
+.concept-header .def-label{
+  font-family:var(--font-zh-title);font-size:14px;font-weight:600;
+  text-transform:uppercase;letter-spacing:0.12em;
+  color:var(--text-muted);margin-bottom:8px;
+  display:flex;align-items:center;
+}
+.concept-header .def-label .lbl-dot{
+  width:3px;height:3px;border-radius:50%;
+  flex-shrink:0;
+}
+.concept-header .def-zh{
+  font-size:18px;color:var(--text-primary);
+}
+.concept-header .def-zh .lbl-dot{background:var(--gold)}
+.concept-header .def-en{
+  font-family:var(--font-serif);
+  font-size:15px;color:var(--text-secondary);
+  font-style:italic;
+}
+.concept-header .def-en .lbl-dot{background:var(--text-muted)}
+.concept-header .def-source{
+  font-family:var(--font-serif);font-size:11px;color:var(--text-muted);
+  font-style:italic;letter-spacing:0.03em;
+}
+.concept-header .def-ai{
+  font-size:14px;color:var(--text-secondary);
+  line-height:1.85;
+}
+.concept-header .def-ai .lbl-dot{background:var(--accent-ethereal)}
+.def-item{
+  padding:14px 0;
+  border-bottom:0.5px solid var(--border-subtle);
+}
+.def-item:last-child{border-bottom:none}
+.def-item .def-label{
+  font-family:var(--font-serif);font-size:12px;
+  color:var(--gold);margin-bottom:6px;
+  letter-spacing:0.05em;
+}
+.def-item .def-zh{
+  font-size:16px;color:var(--text-primary);
+  line-height:1.85;margin-bottom:8px;
+}
+.def-item .def-en{
+  font-family:var(--font-serif);
+  font-size:14px;color:var(--text-muted);
+  font-style:italic;line-height:1.8;
+  padding-left:16px;position:relative;
+}
+.def-item .def-en::before{
+  content:'';position:absolute;left:0;top:4px;bottom:4px;
+  width:1px;background:var(--gold-dim);opacity:0.3;
+}
+.def-item .def-source{
+  font-family:var(--font-serif);font-size:11px;color:var(--text-muted);
+  font-style:italic;margin-top:6px;letter-spacing:0.03em;
+}
+
+/* Section Divider */
+.section-divider{
+  display:flex;align-items:center;gap:12px;
+  margin:20px 0 20px;
+}
+.section-divider .label{
+  font-family:var(--font-zh-title);font-size:18px;font-weight:600;
+  display:flex;align-items:center;gap:6px;
+  white-space:nowrap;letter-spacing:0.05em;
+}
+.section-divider .label .dot{width:4px;height:4px;border-radius:50%}
+
+/* Explanation */
+.explanation{
+  font-size:16px;color:var(--text-secondary);
+  line-height:2;margin-bottom:20px;
+}
+
+/* Quote Card */
+.quote-card{
+  background:var(--bg-card);
+  border:0.5px solid var(--border-subtle);
+  border-radius:4px;padding:20px 24px;
+  margin-bottom:12px;
+  transition:all 0.2s;
+  position:relative;
+}
+.quote-card:hover{border-color:var(--border-active)}
+.quote-delete-btn{
+  position:absolute;top:10px;right:10px;
+  width:22px;height:22px;
+  background:none;border:none;
+  color:var(--text-muted);cursor:pointer;
+  border-radius:3px;
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:all 0.15s;
+}
+.quote-card:hover .quote-delete-btn{opacity:1}
+.quote-delete-btn:hover{
+  background:rgba(180,60,60,0.1);
+  color:#c46060;
+}
+.quote-card .quote-zh{
+  font-size:18px;color:var(--text-primary);
+  line-height:1.85;
+  margin-bottom:10px;
+  padding-right:28px;
+}
+.quote-card .quote-en{
+  font-family:var(--font-serif);
+  font-size:16px;color:var(--text-muted);
+  line-height:1.8;font-style:italic;
+  padding-left:16px;
+  position:relative;
+}
+.quote-card .quote-en::before{
+  content:'';position:absolute;left:0;top:8px;bottom:8px;
+  width:1px;background:var(--gold-dim);opacity:0.4;
+}
+.quote-card .quote-source{
+  font-family:var(--font-serif);font-size:12px;
+  color:var(--text-muted);margin-top:14px;
+  letter-spacing:0.08em;
+}
+
+.back-to-top{
+  position:fixed;right:24px;bottom:24px;z-index:90;
+  width:40px;height:40px;border-radius:4px;
+  border:0.5px solid var(--border-active);
+  background:rgba(20,20,32,0.86);
+  color:var(--gold);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0;pointer-events:none;
+  transform:translateY(8px);
+  transition:opacity 0.18s,transform 0.18s,background 0.18s;
+  backdrop-filter:blur(14px);
+}
+.back-to-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
+.back-to-top:hover{background:var(--bg-card-hover);color:var(--gold-bright)}
+.back-to-top svg{width:18px;height:18px}
+
+/* Related Tags */
+.related-tags{display:flex;flex-wrap:wrap;gap:6px}
+.related-tag{
+  padding:5px 12px;
+  background:var(--bg-elevated);
+  border:0.5px solid var(--border-subtle);
+  border-radius:3px;
+  font-size:12px;color:var(--text-secondary);
+  cursor:pointer;transition:all 0.15s;
+}
+.related-tag:hover{border-color:var(--border-active);color:var(--gold)}
+
+/* Sub Concept List */
+.sub-concept-list{display:grid;gap:10px}
+.sub-concept-card{
+  background:var(--bg-card);
+  border:0.5px solid var(--border-subtle);
+  border-radius:4px;padding:16px 20px;
+  cursor:pointer;transition:all 0.2s;
+  display:flex;align-items:flex-start;gap:12px;
+}
+.sub-concept-card:hover{border-color:var(--border-active)}
+.sub-concept-card .sc-arrow{
+  color:var(--text-muted);font-size:14px;margin-top:1px;
+  transition:color 0.15s,transform 0.15s;
+}
+.sub-concept-card:hover .sc-arrow{color:var(--gold);transform:translateX(2px)}
+.sub-concept-card h3{font-family:var(--font-zh-title);font-size:13px;font-weight:600;margin-bottom:1px}
+.sub-concept-card .sc-en{font-family:var(--font-display);font-size:10px;color:var(--gold-dim);font-style:italic}
+.sub-concept-card p{font-size:11.5px;color:var(--text-muted);margin-top:5px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Search Modal */
+.search-modal{
+  position:fixed;inset:0;z-index:200;
+  background:rgba(0,0,0,0.5);
+  backdrop-filter:blur(12px);
+  display:none;align-items:flex-start;justify-content:center;
+  padding-top:80px;
+}
+.search-modal.active{display:flex}
+.search-box{
+  width:min(560px,92vw);
+  background:var(--bg-elevated);
+  border:0.5px solid var(--border-active);
+  border-radius:6px;overflow:hidden;
+  animation:fadeDown 0.2s cubic-bezier(0.16,1,0.3,1);
+}
+.search-input-wrap{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border-subtle)}
+.search-input-wrap svg{width:16px;height:16px;color:var(--text-muted);flex-shrink:0}
+.search-input-wrap input{
+  flex:1;background:none;border:none;outline:none;
+  font-size:14px;color:var(--text-primary);font-family:var(--font-zh-body);
+}
+.search-input-wrap input::placeholder{color:var(--text-muted)}
+.search-results{max-height:360px;overflow-y:auto;padding:4px}
+.search-result-item{
+  padding:12px 14px;border-radius:4px;cursor:pointer;transition:background 0.1s;
+}
+.search-result-item:hover{background:rgba(255,255,255,0.02)}
+.search-result-item h4{font-size:12.5px;font-weight:500;margin-bottom:1px}
+.search-result-item .sr-en{font-family:var(--font-display);font-size:10px;color:var(--gold-dim);font-style:italic}
+.search-result-item p{font-size:10.5px;color:var(--text-muted);margin-top:3px;display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden}
+
+/* Animations */
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-12px)}to{opacity:1;transform:translateY(0)}}
+
+/* Responsive */
+@media(min-width:900px){
+  .concept-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+}
+@media(max-width:768px){
+  #prism-nav{display:none}
+  .sidebar{left:0;transform:translateX(-100%);width:260px;box-shadow:4px 0 24px rgba(0,0,0,0.5)}
+  .sidebar.open{transform:translateX(0)}
+  .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:40;display:none}
+  .sidebar-overlay.active{display:block}
+  .menu-toggle{display:block}
+  .main{margin-left:0;padding:24px 16px 60px;max-width:100vw}
+  .hero h1{font-size:28px}
+  .stats-bar{flex-wrap:wrap}
+  .stat-item{padding:16px 12px}
+  .stat-num{font-size:24px}
+  .concept-grid{grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+  .concept-preview{padding:14px}
+  .featured-quote{padding:24px}
+  .concept-header .def-row{padding:16px 18px}
+  .back-to-top{right:16px;bottom:16px}
+}
+@media(max-width:480px){
+  .stat-num{font-size:20px}
+  .stat-label{font-size:8px}
+  .concept-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <button class="menu-toggle" onclick="toggleSidebar()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+    <div class="logo-mark">S</div>
+    <span>赛斯宇宙</span>
+  </div>
+  <div class="header-tagline">You Create Your Own Reality</div>
+  <div class="header-actions">
+    <span class="search-shortcut">⌘K</span>
+    <button class="search-toggle" onclick="toggleSearch()" aria-label="搜索">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar"></nav>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<main class="main" id="main"></main>
+<button class="back-to-top" id="backToTop" onclick="scrollToPageTop()" aria-label="返回页头" title="返回页头">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 19V5"/>
+    <path d="m5 12 7-7 7 7"/>
+  </svg>
+</button>
+
+<div class="search-modal" id="searchModal" onclick="if(event.target===this)toggleSearch()">
+  <div class="search-box">
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <input type="text" id="searchInput" placeholder="搜索概念、定义、引文..." oninput="handleSearch(this.value)" autocomplete="off">
+    </div>
+    <div class="search-results" id="searchResults"></div>
+  </div>
+</div>
+
+<script>
+let allConcepts = [];
+let flatConcepts = [];
+let conceptMap = {};
+let quotesCache = {};
+const READING_STATE_KEY = 'seth_universe_reading_state_v1';
+let currentView = { type: 'home' };
+let saveScrollTimer = null;
+let isRestoringScroll = false;
+
+function init() {
+  fetch('concepts-lite.json')
+    .then(r => {
+      if (!r.ok) throw new Error('Failed to load concepts: ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      allConcepts = Array.isArray(data) ? data : data.concepts;
+      flatConcepts = [];
+      conceptMap = {};
+      allConcepts.forEach(c => {
+        flatConcepts.push(c);
+        conceptMap[c.id] = c;
+        (c.sub_concepts || []).forEach(sc => {
+          flatConcepts.push({...sc, parentId: c.id});
+          conceptMap[sc.id] = {...sc, parentId: c.id};
+        });
+      });
+      renderSidebar();
+      restoreLastView();
+    });
+}
+
+function getViewKey(view) {
+  if (!view || view.type === 'home') return 'home';
+  return 'concept:' + view.id + (view.parentId ? ':' + view.parentId : '');
+}
+
+function readReadingState() {
+  try {
+    var stored = '';
+    if (window.localStorage) {
+      stored = window.localStorage.getItem(READING_STATE_KEY) || '';
+    }
+    if (!stored) {
+      var match = document.cookie.match(new RegExp('(?:^|; )' + READING_STATE_KEY + '=([^;]*)'));
+      stored = match ? decodeURIComponent(match[1]) : '';
+    }
+    return JSON.parse(stored || '{}');
+  } catch(e) {
+    return {};
+  }
+}
+
+function writeReadingState(state) {
+  var serialized = JSON.stringify(state);
+  try {
+    if (window.localStorage) {
+      window.localStorage.setItem(READING_STATE_KEY, serialized);
+      return;
+    }
+  } catch(e) {}
+  try {
+    document.cookie = READING_STATE_KEY + '=' + encodeURIComponent(serialized) + '; path=/; max-age=31536000; SameSite=Lax';
+  } catch(e) {}
+}
+
+function saveReadingPosition() {
+  if (isRestoringScroll) return;
+  const state = readReadingState();
+  state.lastView = currentView;
+  state.positions = state.positions || {};
+  state.positions[getViewKey(currentView)] = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+  writeReadingState(state);
+}
+
+function scheduleSaveReadingPosition() {
+  updateBackToTopVisibility();
+  clearTimeout(saveScrollTimer);
+  saveScrollTimer = setTimeout(saveReadingPosition, 120);
+}
+
+function restoreScrollForCurrentView(defaultY) {
+  const state = readReadingState();
+  const positions = state.positions || {};
+  const savedY = positions[getViewKey(currentView)];
+  const targetY = typeof savedY === 'number' ? savedY : (defaultY || 0);
+  isRestoringScroll = true;
+  requestAnimationFrame(function() {
+    window.scrollTo(0, targetY);
+    updateBackToTopVisibility();
+    setTimeout(function() { isRestoringScroll = false; }, 160);
+  });
+}
+
+function restoreLastView() {
+  const state = readReadingState();
+  const last = state.lastView || { type: 'home' };
+  if (last.type === 'concept' && conceptMap[last.id]) {
+    showConcept(last.id, last.parentId, { restore: true, skipSave: true });
+  } else {
+    showWelcome({ restore: true, skipSave: true });
+  }
+}
+
+function updateBackToTopVisibility() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+  btn.classList.toggle('visible', (window.scrollY || document.documentElement.scrollTop || 0) > 360);
+}
+
+function scrollToPageTop() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const state = readReadingState();
+  state.positions = state.positions || {};
+  state.positions[getViewKey(currentView)] = 0;
+  state.lastView = currentView;
+  writeReadingState(state);
+  updateBackToTopVisibility();
+}
+
+function renderSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  sidebar.innerHTML = '<div class="sidebar-search-wrap"><svg class="sidebar-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input class="sidebar-search" id="sidebarSearch" type="text" placeholder="搜索概念..." oninput="filterSidebar(this.value)"></div><div class="sidebar-content" id="sidebarContent"></div>';
+  renderSidebarContent(allConcepts);
+}
+
+function renderSidebarContent(concepts) {
+  const container = document.getElementById('sidebarContent');
+  if (!container) return;
+  const groups = [];
+  const assigned = new Set();
+
+  function addGroup(key, label, matches) {
+    const matched = concepts.filter(function(c) {
+      return matches(c) && !assigned.has(c.id);
+    });
+    if (matched.length > 0) {
+      matched.forEach(function(c) { assigned.add(c.id); });
+      groups.push({ key: key, label: label, concepts: matched });
+    }
+  }
+
+  addGroup('consciousness', '意识', function(c) {
+    return /consciousness/i.test(c.name_en);
+  });
+  addGroup('ego', '自我', function(c) {
+    return /ego/i.test(c.name_en);
+  });
+  addGroup('self', '自身', function(c) {
+    return /self/i.test(c.name_en) && !/ego/i.test(c.name_en);
+  });
+  addGroup('identity', '身份', function(c) {
+    return /identity/i.test(c.name_en);
+  });
+  addGroup('reality', '现实', function(c) {
+    return /reality/i.test(c.name_en);
+  });
+  addGroup('belief', '信念', function(c) {
+    return /belief/i.test(c.name_en);
+  });
+  addGroup('perception', '感知', function(c) {
+    return /percep|filter/i.test(c.name_en) || /senses/i.test(c.name_en);
+  });
+  addGroup('dream', '梦境', function(c) {
+    return /dream/i.test(c.name_en);
+  });
+  addGroup('time', '时间', function(c) {
+    return /time/i.test(c.name_en);
+  });
+  addGroup('space', '空间', function(c) {
+    return /space/i.test(c.name_en);
+  });
+  addGroup('body', '身体', function(c) {
+    return /body|cell|health|disease/i.test(c.name_en);
+  });
+  addGroup('emotion', '情感', function(c) {
+    return /emotion|feeling|anger|fear|love/i.test(c.name_en);
+  });
+  addGroup('creation', '创造', function(c) {
+    return /creat|materializ/i.test(c.name_en);
+  });
+  addGroup('camouflage', '伪装', function(c) {
+    return /camouflage/i.test(c.name_en);
+  });
+  addGroup('mass', '群体', function(c) {
+    return /mass|collective|group|social|cultural|civilization|racial/i.test(c.name_en);
+  });
+  addGroup('evolution', '进化', function(c) {
+    return /evolution/i.test(c.name_en);
+  });
+  addGroup('value', '价值', function(c) {
+    return /value/i.test(c.name_en);
+  });
+  addGroup('spontaneity', '自发', function(c) {
+    return /spontan|play|rhythm|guidance|grace|magical/i.test(c.name_en);
+  });
+  addGroup('death', '死亡', function(c) {
+    return /death|after-death|reincarnation|simultaneous/i.test(c.name_en);
+  });
+  addGroup('entity', '实体', function(c) {
+    return /entity|soul|fragment|multidimensional/i.test(c.name_en);
+  });
+  addGroup('religion', '宗教', function(c) {
+    return /religion|myth|spiritual/i.test(c.name_en) || /god/i.test(c.name_en) || /all that is/i.test(c.name_en);
+  });
+  addGroup('science', '科学', function(c) {
+    return /science|scientific|physic|electron/i.test(c.name_en);
+  });
+  addGroup('energy', '能量', function(c) {
+    return /energy|intensity|stream|gestalt|electromagnetic/i.test(c.name_en);
+  });
+  addGroup('moment', '时刻', function(c) {
+    return /moment/i.test(c.name_en) || /point of power/i.test(c.name_en) || /eternal/i.test(c.name_en);
+  });
+  addGroup('natural', '自然', function(c) {
+    return /natural/i.test(c.name_en);
+  });
+  addGroup('psychological', '心理', function(c) {
+    return /psychological|psychic/i.test(c.name_en);
+  });
+
+  var unassigned = concepts.filter(function(c) { return !assigned.has(c.id); });
+  if (unassigned.length > 0) {
+    groups.push({ key: 'other', label: '其他', concepts: unassigned });
+  }
+
+  let html = '';
+  for (var g = 0; g < groups.length; g++) {
+    var group = groups[g];
+    html += '<div class="sidebar-section"><div class="sidebar-section-title">' + group.label + '</div>';
+    for (var i = 0; i < group.concepts.length; i++) {
+      var c = group.concepts[i];
+      html += '<div class="sidebar-item" data-id="' + c.id + '" onclick="showConcept(\'' + c.id + '\')">';
+      html += '<div class="item-icon"></div>';
+      html += '<div style="min-width:0"><div class="item-label">' + c.name_zh + '</div><div class="item-label-en">' + c.name_en + '</div></div>';
+      html += '</div>';
+      var subs = c.sub_concepts || [];
+      for (var j = 0; j < subs.length; j++) {
+        var sc = subs[j];
+        html += '<div class="sidebar-sub-item" data-id="' + sc.id + '" onclick="showConcept(\'' + sc.id + '\',\'' + c.id + '\')">';
+        html += '<div class="sub-dot"></div>';
+        html += '<div class="sub-label">' + sc.name_zh + '</div>';
+        html += '</div>';
+      }
+    }
+    html += '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function definitionToText(definition) {
+  if (!definition) return '';
+  if (typeof definition === 'string') return definition;
+  if (Array.isArray(definition)) {
+    return definition.map(function(def) {
+      if (!def) return '';
+      if (typeof def === 'string') return def;
+      return [def.zh, def.en, def.source].filter(Boolean).join(' ');
+    }).filter(Boolean).join(' ');
+  }
+  if (typeof definition === 'object') {
+    return [definition.zh, definition.en, definition.source].filter(Boolean).join(' ');
+  }
+  return String(definition);
+}
+
+function filterSidebar(query) {
+  if (!query || !query.trim()) {
+    renderSidebarContent(allConcepts);
+    return;
+  }
+  var q = query.toLowerCase();
+  var filtered = allConcepts.filter(function(c) {
+    return c.name_zh.indexOf(query) !== -1 ||
+           c.name_en.toLowerCase().indexOf(q) !== -1 ||
+           definitionToText(c.definition).toLowerCase().indexOf(q) !== -1;
+  });
+  renderSidebarContent(filtered);
+}
+
+function setActiveSidebar(id) {
+  document.querySelectorAll('.sidebar-item,.sidebar-sub-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.id === id);
+  });
+}
+
+function countTotalQuotes() {
+  let total = 0;
+  allConcepts.forEach(c => {
+    total += (c.quotes || []).length;
+    (c.sub_concepts || []).forEach(sc => { total += (sc.quotes || []).length; });
+  });
+  return total;
+}
+
+function showWelcome(options) {
+  options = options || {};
+  if (!options.skipSave) saveReadingPosition();
+  currentView = { type: 'home' };
+  setActiveSidebar('');
+  const main = document.getElementById('main');
+  const totalQuotes = countTotalQuotes();
+
+  const categories = {};
+  allConcepts.forEach(c => {
+    const cat = c.category || '其他';
+    if (!categories[cat]) categories[cat] = [];
+    categories[cat].push(c);
+  });
+
+  let gridHtml = '';
+  let globalIdx = 0;
+  for (const [cat, concepts] of Object.entries(categories)) {
+    gridHtml += `<div class="category-separator">
+      <div class="cat-label">${cat} <span class="cat-count">${concepts.length}</span></div>
+    </div>`;
+    gridHtml += concepts.map((c) => {
+      globalIdx++;
+      return `<div class="concept-preview" onclick="showConcept('${c.id}')" style="animation-delay:${Math.min(globalIdx * 0.015, 0.6)}s">
+        <div class="cp-num">${String(globalIdx).padStart(3, '0')}</div>
+        <h3>${c.name_zh}</h3>
+        <div class="cp-en">${c.name_en}</div>
+        <p>${definitionToText(c.definition)}</p>
+      </div>`;
+    }).join('');
+  }
+
+  main.innerHTML = `<div class="hero">
+    <div class="hero-ornament"><div class="line"></div><div class="center-mark"></div><div class="line"></div></div>
+    <div class="hero-eyebrow">The Seth Universe</div>
+    <h1>赛斯宇宙</h1>
+    <div class="subtitle-en">You Create Your Own Reality</div>
+    <p class="hero-desc">赛斯书是指人类有史以来最全面系统、连贯严密和具体实用的哲学和信仰体系。它具有英语哲学界的正统性、规范性，也不乏宗教的震撼与感召，对占据至尊地位的学术界、思想界极具说服力的；对那些偏好理性、逻辑，而对那些超越感官的信仰领域心存疑虑的人来说这是极其难得的入道法门。它现在为世界各地百万人竞相阅读。其手稿作为唯一的形而上学著作被存放在耶鲁大学，据耶鲁大学称那是人们最常参观的地方。
+  
+  </br>赛斯是个曾经在地球上投生过许多次，而今已不再贯注于物质形态存在的能量人格本质；赛斯书则是赛斯借女作家简·罗布兹之口口授下来的关于我们人类物质形态存在的本质、结构和发展以及宇宙演化根本规律的一系列书籍。。</p>
+    
+    <div class="featured-quote">
+      <div class="fq-text">"Basically you are no more of a physical being than I am... Consciousness creates form. It is not the other way around."</div>
+      <div class="fq-zh">"从根本上说，你不比我更具有物理存在的本质……意识创造形式，而非相反。"</div>
+      <div class="fq-source">— SETH SPEAKS, CHAPTER 1</div>
+    </div>
+    <div class="section-header">
+      <h2>概念体系</h2>
+      <span class="count">${allConcepts.length} concepts · ${Object.keys(categories).length} categories</span>
+    </div>
+    <div class="concept-grid">${gridHtml}</div>
+  </div>`;
+  closeSidebarMobile();
+  if (options.restore) {
+    restoreScrollForCurrentView(0);
+  } else {
+    window.scrollTo(0, 0);
+    updateBackToTopVisibility();
+    saveReadingPosition();
+  }
+}
+
+function showConcept(id, parentId, options) {
+  options = options || {};
+  if (!options.skipSave) saveReadingPosition();
+  currentView = { type: 'concept', id: id, parentId: parentId || '' };
+  const c = conceptMap[id];
+  if (!c) return;
+  setActiveSidebar(id);
+  const main = document.getElementById('main');
+
+  const parent = parentId ? conceptMap[parentId] : null;
+  const relatedTags = (c.related_concepts || []).map(rid => {
+    const rc = conceptMap[rid];
+    return rc ? `<span class="related-tag" onclick="showConcept('${rid}')">${rc.name_zh}</span>` : '';
+  }).join('');
+
+  const subs = (c.sub_concepts || []).map(sc =>
+    `<div class="sub-concept-card" onclick="showConcept('${sc.id}','${id}')">
+      <span class="sc-arrow">→</span>
+      <div>
+        <h3>${sc.name_zh}</h3>
+        <div class="sc-en">${sc.name_en}</div>
+        <p>${sc.definition}</p>
+      </div>
+    </div>`
+  ).join('');
+
+  let backBtn = '';
+  if (parent) {
+    backBtn = `<button class="back-btn" onclick="showConcept('${parent.id}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      返回：${parent.name_zh}
+    </button>`;
+  } else {
+    backBtn = `<button class="back-btn" onclick="showWelcome()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+      返回首页
+    </button>`;
+  }
+
+  const quoteCount = c.quotes_count || 0;
+  const subCount = c.sub_concepts_count || 0;
+  const relatedCount = c.related_count || 0;
+
+  // Check if quotes are already cached
+  if (quotesCache[id]) {
+    // Merge full data from cached API response or load fresh
+    fetch('/api/concepts/' + id)
+      .then(r => r.json())
+      .then(fullData => {
+        var merged = Object.assign({}, c, {
+          explanation: fullData.explanation || '',
+          definition: fullData.definition || '',
+          definition_en: fullData.definition_en || '',
+          definition_ai: fullData.definition_ai || '',
+          definition_source: fullData.definition_source || '',
+        });
+        renderConceptDetail(main, merged, quotesCache[id] || fullData.quotes || [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
+        restoreScrollForCurrentView(0);
+      })
+      .catch(function() {
+        renderConceptDetail(main, c, quotesCache[id], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
+        restoreScrollForCurrentView(0);
+      });
+    return;
+  }
+
+  // Render without quotes first, then load them
+  renderConceptDetail(main, c, [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount, true);
+
+  // Load quotes via API
+  fetch('/api/concepts/' + id)
+    .then(r => r.json())
+    .then(fullData => {
+      quotesCache[id] = fullData.quotes || [];
+      // Merge full data (explanation, definition, etc.) into lite object
+      var merged = Object.assign({}, c, {
+        explanation: fullData.explanation || '',
+        definition: fullData.definition || '',
+        definition_en: fullData.definition_en || '',
+        definition_ai: fullData.definition_ai || '',
+        definition_source: fullData.definition_source || '',
+      });
+      renderConceptDetail(main, merged, fullData.quotes || [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
+      restoreScrollForCurrentView(0);
+    })
+    .catch(function() {
+      // If API fails, show quotes count only
+      var placeholder = document.getElementById('quotes-loading-' + id);
+      if (placeholder) {
+        placeholder.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text-muted);font-size:14px">' + quoteCount + ' 条摘录 — 加载失败</div>';
+      }
+    });
+}
+
+function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount, isPlaceholder) {
+  isPlaceholder = isPlaceholder || false;
+
+  let quotesHtml = '';
+  if (quotes.length > 0) {
+    quotesHtml = quotes.map(function(q, qi) {
+      var quoteId = String(q.id || '');
+      return '<div class="quote-card" data-quote-id="' + quoteId + '">' +
+        '<button class="quote-delete-btn" onclick="deleteQuote(\'' + c.id + '\',\'' + quoteId + '\')" title="删除此摘录及原数据">' +
+        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
+        '</button>' +
+        (q.translation ? '<div class="quote-zh">' + q.translation + '</div>' : '') +
+        '<div class="quote-en">' + q.text + '</div>' +
+        '<div class="quote-source">— ' + q.source + '</div>' +
+        '</div>';
+    }).join('');
+  } else if (quoteCount > 0 && isPlaceholder) {
+    quotesHtml = '<div id="quotes-loading-' + c.id + '" style="padding:24px;text-align:center;color:var(--text-muted);font-size:14px">加载中 ' + quoteCount + ' 条摘录...</div>';
+  }
+
+  var subsHtml = '';
+  if (subs && subs.length > 0) {
+    subsHtml = '<div class="section-divider">' +
+      '<div class="line"></div>' +
+      '<div class="label"><div class="dot" style="background:var(--accent-life)"></div>子概念 · ' + subCount + '</div>' +
+      '<div class="line"></div>' +
+      '</div><div class="sub-concept-list">' + subs + '</div>';
+  }
+
+  main.innerHTML = '<div class="concept-detail">' +
+    backBtn +
+    '<div class="concept-header">' +
+    '<div class="category-badge">Core Concept</div>' +
+    '<h1>' + c.name_zh + '</h1>' +
+    '<div class="title-en">' + c.name_en + '</div>' +
+    '<div class="explanation">' + c.explanation + '</div>' +
+    '<div class="def-block">' +
+    buildDefinitionHtml(c.definition || []) +
+    (c.definition_ai ? '<div class="def-row"><div class="def-label"><span class="lbl-dot"></span>AI阐释</div><div class="def-ai">' + c.definition_ai + '</div></div>' : '') +
+    '</div>' +
+    (relatedTags ? '<div class="related-tags" style="margin-top:16px;padding:0 0px 16px">' + relatedTags + '</div>' : '') +
+    '</div>'+
+
+    (quotesHtml ? '<div class="section-divider">' +
+    '<div class="label" id="quoteCountLabel"><div class="dot" style="background:var(--accent-ethereal)"></div>原文摘录 · ' + quoteCount + '</div>' +
+    '<div class="line"></div>' +
+    '</div>' + quotesHtml : '') +
+    subsHtml +
+    '</div>';
+  closeSidebarMobile();
+}
+
+function buildDefinitionHtml(definitions) {
+  if (!definitions || definitions.length === 0) return '';
+  
+  // Handle both old format (string) and new format (array)
+  if (typeof definitions === 'string') {
+    return '<div class="def-row"><div class="def-label"><span class="lbl-dot"></span>定义原文</div><div class="def-zh">' + definitions + '</div></div>';
+  }
+  
+  var html = '';
+  definitions.forEach(function(def, i) {
+    var zh = def.zh || '';
+    var en = def.en || '';
+    var source = def.source || '';
+    html += '<div class="def-row def-item">' +
+      '<div class="def-label"><span class="lbl-dot"></span>' + (i + 1) + '</div>' +
+      (zh ? '<div class="def-zh">' + zh + '</div>' : '') +
+      (en ? '<div class="def-en">' + en + '</div>' : '') +
+      (source ? '<div class="def-source">— ' + source + '</div>' : '') +
+      '</div>';
+  });
+  return html;
+}
+
+function deleteQuote(conceptId, quoteId) {
+  if (!confirm('确定删除这条摘录及其对应原数据？')) return;
+  fetch('/api/concepts/' + conceptId + '/quotes/' + encodeURIComponent(quoteId), { method: 'DELETE' })
+    .then(r => r.json())
+    .then(data => {
+      if (data.ok) {
+        if (quotesCache[conceptId]) {
+          quotesCache[conceptId] = quotesCache[conceptId].filter(function(q) { return q.id !== quoteId; });
+        }
+        var c = conceptMap[conceptId];
+        if (c) c.quotes_count = data.remaining;
+        var card = document.querySelector('.quote-card[data-quote-id="' + CSS.escape(quoteId) + '"]');
+        if (card) {
+          card.style.transition = 'opacity 0.18s ease, transform 0.18s ease, margin 0.18s ease, padding 0.18s ease, border-width 0.18s ease';
+          card.style.opacity = '0';
+          card.style.transform = 'translateX(8px)';
+          setTimeout(function() { card.remove(); }, 180);
+        }
+        var label = document.getElementById('quoteCountLabel');
+        if (label) label.innerHTML = '<div class="dot" style="background:var(--accent-ethereal)"></div>原文摘录 · ' + data.remaining;
+      } else {
+        alert('删除失败：' + (data.error || '未知错误'));
+      }
+    })
+    .catch(function(e) {
+      alert('删除请求失败：' + e.message);
+    });
+}
+
+function toggleSearch() {
+  const modal = document.getElementById('searchModal');
+  modal.classList.toggle('active');
+  if (modal.classList.contains('active')) {
+    setTimeout(() => document.getElementById('searchInput').focus(), 100);
+  } else {
+    document.getElementById('searchInput').value = '';
+    document.getElementById('searchResults').innerHTML = '';
+  }
+}
+
+function handleSearch(query) {
+  const results = document.getElementById('searchResults');
+  if (!query.trim()) { results.innerHTML = ''; return; }
+  const q = query.toLowerCase();
+  const matches = flatConcepts.filter(c =>
+    c.name_zh.toLowerCase().includes(q) ||
+    c.name_en.toLowerCase().includes(q) ||
+    definitionToText(c.definition).toLowerCase().includes(q) ||
+    (c.explanation && c.explanation.toLowerCase().includes(q))
+  ).slice(0, 20);
+
+  results.innerHTML = matches.length ? matches.map(c => {
+    const parent = c.parentId ? conceptMap[c.parentId] : null;
+    const breadcrumb = parent ? `<span style="color:var(--text-muted);font-size:10px">${parent.name_zh} / </span>` : '';
+    return `<div class="search-result-item" onclick="showConcept('${c.id}',${parent ? `'${c.parentId}'` : 'undefined'});toggleSearch()">
+      <h4>${breadcrumb}${c.name_zh}</h4>
+      <div class="sr-en">${c.name_en}</div>
+      <p>${c.definition}</p>
+    </div>`;
+  }).join('') : '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:11.5px">没有找到匹配的概念</div>';
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+function closeSidebarMobile() {
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sidebarOverlay').classList.remove('active');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    const modal = document.getElementById('searchModal');
+    if (modal.classList.contains('active')) toggleSearch();
+    closeSidebarMobile();
+  }
+  if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+    e.preventDefault();
+    toggleSearch();
+  }
+});
+
+window.addEventListener('scroll', scheduleSaveReadingPosition, { passive: true });
+window.addEventListener('beforeunload', saveReadingPosition);
+
+init();
+</script>
+<script src="global-menu.js"></script>
+</body>
+</html>
