@@ -121,6 +121,14 @@ def _create_backup_package(dst):
                     rel = os.path.relpath(fpath, source_dir)
                     zf.write(fpath, os.path.join(arc_dir, rel))
 
+def _create_manual_backup():
+    if not os.path.exists(BACKUP_DIR):
+        os.makedirs(BACKUP_DIR)
+    ts = datetime.now().strftime('%Y%m%d_%H%M%S_%f')
+    dst = os.path.join(BACKUP_DIR, f'seth-data.{ts}.zip')
+    _create_backup_package(dst)
+    return dst
+
 def _restore_backup_package(src):
     with zipfile.ZipFile(src, 'r') as zf:
         names = set(zf.namelist())
@@ -322,12 +330,7 @@ class H(BaseHTTPRequestHandler):
             if path == '/api/backups/restore':
                 pass  # handled in POST
             if path == '/api/backups/manual':
-                # Manual backup now
-                if not os.path.exists(BACKUP_DIR):
-                    os.makedirs(BACKUP_DIR)
-                ts = datetime.now().strftime('%Y%m%d_%H%M%S')
-                dst = os.path.join(BACKUP_DIR, f'seth-data.{ts}.zip')
-                _create_backup_package(dst)
+                dst = _create_manual_backup()
                 self._json(200, {'ok': True, 'file': dst})
                 return
             if path == '/api/topics/concepts':
@@ -421,6 +424,10 @@ class H(BaseHTTPRequestHandler):
                     return
                 _save_bookmark(body)
                 self._json(200, {'ok': True, 'bookmark': body})
+                return
+            if path == '/api/backups/manual':
+                dst = _create_manual_backup()
+                self._json(200, {'ok': True, 'file': dst})
                 return
             if path == '/api/concepts':
                 cid = body.get('id', '')
