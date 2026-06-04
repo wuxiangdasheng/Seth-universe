@@ -2,6 +2,26 @@
 02-processed/
 concept-quotes-full/
 concept-quotes/
+reports/
 
 # 备份文件
 backup/
+scripts/backup/
+
+# 运行时/生成数据
+wiki/bookmark.json
+wiki/concept-graph.json
+wiki/concepts.json
+wiki/concepts-lite.json
+wiki/quotes.json
+wiki/topics.json
+wiki/relations.json
+
+# 本地工具和系统文件
+.DS_Store
+**/.DS_Store
+.codex/
+.opencode/
+.reasonix/
+__pycache__/
+*.pyc

@@ -19,26 +19,38 @@ import os
 import re
 import sys
 import time
+import shutil
+from datetime import datetime
 from openai import OpenAI
+try:
+    from concept_utils import BASE_DIR, safe_concept_name
+except ImportError:
+    from scripts.concept_utils import BASE_DIR, safe_concept_name
 
 # ============================
 # API 配置
 # ============================
-API_KEY = 'sk-5b523bc2e0674033b240ea536041cf60'
+API_KEY = os.environ.get('DEEPSEEK_API_KEY', '')
 BASE_URL = 'https://api.deepseek.com'
 MODEL = 'deepseek-chat'
 
-client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+client = None
 
-BASE_DIR = '/Users/sunpeng/cola/outputs/千问-赛斯测试'
+BASE_DIR = str(BASE_DIR)
 FULL_DIR = os.path.join(BASE_DIR, 'concept-quotes-full')
 CONCEPTS_FILE = os.path.join(BASE_DIR, 'wiki', 'concepts.json')
+BACKUP_DIR = os.path.join(BASE_DIR, 'backup')
 
 MAX_EXPLANATION_CHARS = 300
 MAX_DEFINITIONS = 5
 
 
 def call_llm(prompt, system_prompt, max_retries=2):
+    global client
+    if not API_KEY:
+        raise RuntimeError('缺少 DEEPSEEK_API_KEY 环境变量，无法调用 DeepSeek。')
+    if client is None:
+        client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(
@@ -199,6 +211,13 @@ def load_concepts():
 
 
 def save_concepts(data):
+    os.makedirs(BACKUP_DIR, exist_ok=True)
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_path = os.path.join(BACKUP_DIR, f'concepts.metadata.{timestamp}.json')
+    shutil.copy2(CONCEPTS_FILE, backup_path)
+    existing = sorted(f for f in os.listdir(BACKUP_DIR) if f.startswith('concepts.metadata.'))
+    for old_file in existing[:-10]:
+        os.remove(os.path.join(BACKUP_DIR, old_file))
     with open(CONCEPTS_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
@@ -238,7 +257,7 @@ def main():
     for c in to_process:
         concept_en = c.get('name_en', '')
         concept_zh = c.get('name_zh', '')
-        safe_name = concept_en.replace('/', '_').replace(' ', '_')
+        safe_name = safe_concept_name(concept_en)
         full_file = os.path.join(FULL_DIR, f"{safe_name}.json")
 
         print(f"\n{'='*50}")
