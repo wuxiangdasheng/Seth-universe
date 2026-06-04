@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """赛斯宇宙 Wiki 服务器 - Threading + 内存缓存"""
-import json, os, re
+import json, os, re, glob, shutil, zipfile
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse
+from datetime import datetime
 
 DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_FILE = os.path.join(DIR, 'concepts.json')
@@ -11,10 +12,17 @@ LITE_FILE = os.path.join(DIR, 'concepts-lite.json')
 QUOTES_FILE = os.path.join(DIR, 'quotes.json')
 TOPICS_FILE = os.path.join(DIR, 'topics.json')
 RELATIONS_FILE = os.path.join(DIR, 'relations.json')
+BOOKMARK_FILE = os.path.join(DIR, 'bookmark.json')
+BOOKMARK_VERSION = 'bookmark-v6'
 BASE_DIR = os.path.dirname(DIR)
 QUOTE_SOURCE_DIRS = [
     os.path.join(BASE_DIR, 'concept-quotes-full'),
     os.path.join(BASE_DIR, 'concept-quotes'),
+]
+BACKUP_DIR = os.path.join(DIR, '..', 'backup')
+BACKUP_INCLUDE_DIRS = [
+    ('concept-quotes-full', os.path.join(BASE_DIR, 'concept-quotes-full')),
+    ('concept-quotes', os.path.join(BASE_DIR, 'concept-quotes')),
 ]
 
 with open(DATA_FILE, 'r', encoding='utf-8') as f:
@@ -45,9 +53,21 @@ def _save_relations(data):
     with open(RELATIONS_FILE, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
 
+def _load_bookmark():
+    if not os.path.exists(BOOKMARK_FILE):
+        return {}
+    with open(BOOKMARK_FILE, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def _save_bookmark(data):
+    with open(BOOKMARK_FILE, 'w', encoding='utf-8') as f:
+        json.dump(data or {}, f, ensure_ascii=False, indent=2)
+
 def _save_concepts():
-    with open(DATA_FILE, 'w', encoding='utf-8') as f:
+    tmp = DATA_FILE + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
         json.dump(ALL_DATA, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, DATA_FILE)
 
 def _save_lite():
     lite = []
@@ -79,6 +99,43 @@ def _save_lite():
         lite.append(lc)
     with open(LITE_FILE, 'w', encoding='utf-8') as f:
         json.dump(lite, f, ensure_ascii=False)
+
+def _backup_package_manifest():
+    manifest = {
+        'version': 1,
+        'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+        'includes': ['wiki/concepts.json'] + [name + '/' for name, _ in BACKUP_INCLUDE_DIRS],
+    }
+    return manifest
+
+def _create_backup_package(dst):
+    with zipfile.ZipFile(dst, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
+        zf.writestr('manifest.json', json.dumps(_backup_package_manifest(), ensure_ascii=False, indent=2))
+        zf.write(DATA_FILE, 'wiki/concepts.json')
+        for arc_dir, source_dir in BACKUP_INCLUDE_DIRS:
+            if not os.path.isdir(source_dir):
+                continue
+            for root, _, files in os.walk(source_dir):
+                for fname in files:
+                    fpath = os.path.join(root, fname)
+                    rel = os.path.relpath(fpath, source_dir)
+                    zf.write(fpath, os.path.join(arc_dir, rel))
+
+def _restore_backup_package(src):
+    with zipfile.ZipFile(src, 'r') as zf:
+        names = set(zf.namelist())
+        if 'wiki/concepts.json' not in names:
+            raise ValueError('backup package missing wiki/concepts.json')
+        zf.extract('wiki/concepts.json', BASE_DIR)
+        for arc_dir, target_dir in BACKUP_INCLUDE_DIRS:
+            prefix = arc_dir + '/'
+            members = [name for name in names if name.startswith(prefix) and not name.endswith('/')]
+            if members:
+                if os.path.isdir(target_dir):
+                    shutil.rmtree(target_dir)
+                os.makedirs(target_dir, exist_ok=True)
+                for name in members:
+                    zf.extract(name, BASE_DIR)
 
 def _safe_quote_file_name(name):
     return (name or '').replace('/', '_').replace(' ', '_') + '.json'
@@ -188,6 +245,8 @@ class H(BaseHTTPRequestHandler):
                 self.send_header('Content-Length', str(len(compressed)))
                 self.send_header('Vary', 'Accept-Encoding')
                 self.send_header('Access-Control-Allow-Origin', '*')
+                self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                self.send_header('Pragma', 'no-cache')
                 self.end_headers()
                 self.wfile.write(compressed)
                 return
@@ -195,6 +254,8 @@ class H(BaseHTTPRequestHandler):
         self.send_header('Content-Type', 'application/json; charset=utf-8')
         self.send_header('Content-Length', str(len(body)))
         self.send_header('Access-Control-Allow-Origin', '*')
+        self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+        self.send_header('Pragma', 'no-cache')
         self.end_headers()
         self.wfile.write(body)
 
@@ -203,6 +264,9 @@ class H(BaseHTTPRequestHandler):
         try:
             if path == '/api/concepts':
                 self._json(200, {'concepts': FLAT, 'total': len(FLAT)})
+                return
+            if path == '/api/bookmark':
+                self._json(200, _load_bookmark())
                 return
             if path.startswith('/api/concepts/'):
                 cid = path.split('/')[-1]
@@ -234,6 +298,37 @@ class H(BaseHTTPRequestHandler):
             if path == '/api/relations':
                 data = _load_relations()
                 self._json(200, data)
+                return
+            if path == '/api/backups':
+                backups = []
+                if os.path.exists(BACKUP_DIR):
+                    for f in sorted(os.listdir(BACKUP_DIR)):
+                        fpath = os.path.join(BACKUP_DIR, f)
+                        if os.path.isfile(fpath):
+                            stat = os.stat(fpath)
+                            created_ts = getattr(stat, 'st_birthtime', stat.st_ctime)
+                            backups.append({
+                                'name': f,
+                                'size': stat.st_size,
+                                'mtime': datetime.fromtimestamp(created_ts).strftime('%Y-%m-%d %H:%M:%S'),
+                                'created_ts': created_ts,
+                                'type': 'package' if f.endswith('.zip') else 'concepts_json',
+                                'path': fpath,
+                            })
+                current_size = os.path.getsize(DATA_FILE) if os.path.exists(DATA_FILE) else 0
+                backups.sort(key=lambda b: b.get('created_ts', 0), reverse=True)
+                self._json(200, {'backups': backups, 'current_size': current_size})
+                return
+            if path == '/api/backups/restore':
+                pass  # handled in POST
+            if path == '/api/backups/manual':
+                # Manual backup now
+                if not os.path.exists(BACKUP_DIR):
+                    os.makedirs(BACKUP_DIR)
+                ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+                dst = os.path.join(BACKUP_DIR, f'seth-data.{ts}.zip')
+                _create_backup_package(dst)
+                self._json(200, {'ok': True, 'file': dst})
                 return
             if path == '/api/topics/concepts':
                 tid = self._qp('topic_id', '')
@@ -289,6 +384,8 @@ class H(BaseHTTPRequestHandler):
                     self.send_header('Content-Length', str(len(compressed)))
                     self.send_header('Vary', 'Accept-Encoding')
                     self.send_header('Access-Control-Allow-Origin', '*')
+                    self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+                    self.send_header('Pragma', 'no-cache')
                     self.end_headers()
                     self.wfile.write(compressed)
                     return
@@ -296,6 +393,8 @@ class H(BaseHTTPRequestHandler):
             self.send_header('Content-Type', ct)
             self.send_header('Content-Length', str(len(body)))
             self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            self.send_header('Pragma', 'no-cache')
             self.end_headers()
             self.wfile.write(body)
         except Exception:
@@ -316,6 +415,13 @@ class H(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get('Content-Length', 0))
             body = json.loads(self.rfile.read(length).decode('utf-8')) if length else {}
+            if path == '/api/bookmark':
+                if body.get('clientVersion') != BOOKMARK_VERSION:
+                    self._json(409, {'ok': False, 'error': 'stale bookmark client ignored', 'requiredVersion': BOOKMARK_VERSION})
+                    return
+                _save_bookmark(body)
+                self._json(200, {'ok': True, 'bookmark': body})
+                return
             if path == '/api/concepts':
                 cid = body.get('id', '')
                 if not cid:
@@ -434,6 +540,47 @@ class H(BaseHTTPRequestHandler):
                 _save_topics(data)
                 self._json(200, {'ok': True})
                 return
+            if path == '/api/backups/restore':
+                backup_file = body.get('file', '')
+                backup_file_abs = os.path.abspath(backup_file)
+                backup_dir_abs = os.path.abspath(BACKUP_DIR)
+                if not backup_file or not os.path.exists(backup_file_abs):
+                    self._json(400, {'error': 'backup file not found'})
+                    return
+                if not backup_file_abs.startswith(backup_dir_abs + os.sep):
+                    self._json(400, {'error': 'not a backup file'})
+                    return
+                # Backup current before restore
+                if not os.path.exists(BACKUP_DIR):
+                    os.makedirs(BACKUP_DIR)
+                ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+                pre_restore = os.path.join(BACKUP_DIR, f'seth-data.before_restore_{ts}.zip')
+                _create_backup_package(pre_restore)
+                # Restore
+                if backup_file_abs.endswith('.zip'):
+                    _restore_backup_package(backup_file_abs)
+                else:
+                    shutil.copyfile(backup_file_abs, DATA_FILE)
+                # Reload in-memory data
+                globals()['ALL_DATA'] = json.loads(open(DATA_FILE, 'r', encoding='utf-8').read())
+                globals()['CONCEPTS'] = globals()['ALL_DATA'].get('concepts', [])
+                _rebuild_flat()
+                _save_lite()
+                self._json(200, {'ok': True, 'restored_from': backup_file_abs, 'pre_restore_backup': pre_restore})
+                return
+            if path == '/api/backups/delete':
+                backup_file = body.get('file', '')
+                backup_file_abs = os.path.abspath(backup_file)
+                backup_dir_abs = os.path.abspath(BACKUP_DIR)
+                if not backup_file or not os.path.exists(backup_file_abs):
+                    self._json(400, {'error': 'backup file not found'})
+                    return
+                if not backup_file_abs.startswith(backup_dir_abs + os.sep):
+                    self._json(400, {'error': 'not a backup file'})
+                    return
+                os.remove(backup_file_abs)
+                self._json(200, {'ok': True, 'deleted': backup_file_abs})
+                return
             self._json(404, {'error': 'not found'})
         except Exception:
             import traceback; traceback.print_exc()
@@ -528,9 +675,43 @@ class H(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
         self.send_response(200)
         self.send_header('Access-Control-Allow-Origin', '*')
-        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS')
+        self.send_header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
         self.send_header('Access-Control-Allow-Headers', 'Content-Type')
         self.end_headers()
+
+    def do_PATCH(self):
+        path = urlparse(self.path).path
+        try:
+            length = int(self.headers.get('Content-Length', 0))
+            body = json.loads(self.rfile.read(length).decode('utf-8')) if length else {}
+            if re.match(r'^/api/concepts/[^/]+/quotes/\d+/metadata$', path):
+                parts = path.split('/')
+                cid = parts[3]
+                qidx = int(parts[5])
+                _, c = _find_concept_by_id(cid)
+                if not c:
+                    self._json(404, {'error': 'concept not found'})
+                    return
+                quotes = c.get('quotes', [])
+                if qidx < 0 or qidx >= len(quotes):
+                    self._json(404, {'error': 'quote not found'})
+                    return
+                quote = quotes[qidx]
+                if 'quote_role' in body:
+                    quote['quote_role'] = body.get('quote_role') or ''
+                if 'semantic_score' in body:
+                    quote['semantic_score'] = body.get('semantic_score')
+                if 'reading_order' in body:
+                    quote['reading_order'] = body.get('reading_order')
+                _save_concepts()
+                _save_lite()
+                _rebuild_flat()
+                self._json(200, {'ok': True, 'quote': quote})
+                return
+            self._json(404, {'error': 'not found'})
+        except Exception:
+            import traceback; traceback.print_exc()
+            self._json(500, {'error': 'internal error'})
 
     def do_PUT(self):
         path = urlparse(self.path).path

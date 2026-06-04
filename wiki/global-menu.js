@@ -111,6 +111,7 @@
 
   /* 设置初始CSS变量 */
   document.documentElement.style.setProperty('--prism-w', state.collapsed ? 'var(--prism-collapsed-w)' : 'var(--prism-expanded-w)');
+  document.documentElement.style.setProperty('--prism-shift', state.collapsed ? 'calc(var(--prism-collapsed-w) - var(--prism-expanded-w))' : '0px');
 
   nav.innerHTML = `
     <div class="pn-inner">
@@ -141,11 +142,13 @@
           `;
         }).join('')}
       </div>
+      <div class="pn-footer">
+        <button class="pn-toggle" aria-label="${state.collapsed ? '展开' : '收起'}">
+          <span class="pn-toggle-icon">${state.collapsed ? '›' : '‹'}</span>
+          <span class="pn-toggle-text">${state.collapsed ? '展开' : '收起'}</span>
+        </button>
+      </div>
     </div>
-
-    <button class="pn-toggle" aria-label="${state.collapsed ? '展开' : '收起'}">
-      <span class="pn-toggle-arrow">${state.collapsed ? '‹' : '›'}</span>
-    </button>
   `;
 
   document.body.appendChild(nav);
@@ -153,6 +156,7 @@
   /* 绑定事件 */
   const toggle = nav.querySelector('.pn-toggle');
   toggle.addEventListener('click', function() {
+    nav.classList.add('pn-animating');
     state.collapsed = !state.collapsed;
     if (!state.collapsed && !state.expandedNode) {
       state.expandedNode = ACTIVE;
@@ -167,6 +171,7 @@
       if (state.collapsed) {
         state.collapsed = false;
         state.expandedNode = this.closest('.pn-node').dataset.node;
+        nav.classList.add('pn-animating');
         save();
         updateView();
       } else {
@@ -206,10 +211,16 @@
 
     /* 更新CSS变量 */
     document.documentElement.style.setProperty('--prism-w', collapsed ? 'var(--prism-collapsed-w)' : 'var(--prism-expanded-w)');
+    document.documentElement.style.setProperty('--prism-shift', collapsed ? 'calc(var(--prism-collapsed-w) - var(--prism-expanded-w))' : '0px');
 
     /* 更新按钮 */
-    toggle.querySelector('.pn-toggle-arrow').textContent = collapsed ? '‹' : '›';
+    toggle.querySelector('.pn-toggle-icon').textContent = collapsed ? '›' : '‹';
+    toggle.querySelector('.pn-toggle-text').textContent = collapsed ? '展开' : '收起';
     toggle.setAttribute('aria-label', collapsed ? '展开' : '收起');
+    clearTimeout(nav._pnTimer);
+    nav._pnTimer = setTimeout(function() {
+      nav.classList.remove('pn-animating');
+    }, 320);
   }
 
   /* 初始化视图 */

@@ -2,6 +2,12 @@
 <html lang="zh-CN" data-activeWorld="concept-world">
 <head>
 <meta charset="UTF-8">
+<script>
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>赛斯(Seth)宇宙</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -42,7 +48,7 @@
   --header-h:52px;
 }
 
-html{scroll-behavior:smooth;font-size:16px}
+html{scroll-behavior:auto;font-size:16px}
 body{
   background:var(--bg-deep);
   color:var(--text-primary);
@@ -50,6 +56,11 @@ body{
   line-height:1.7;
   overflow-x:hidden;
   min-height:100vh;
+}
+
+*,*::before,*::after{
+  animation:none!important;
+  scroll-behavior:auto!important;
 }
 
 /* Star field background */
@@ -144,18 +155,23 @@ body::after{
   z-index:55;
   display:flex;flex-direction:column;
   padding:0;
-  transition:width 0.3s cubic-bezier(0.4,0,0.2,1);
-  overflow:visible;
+  transition:width 0.28s cubic-bezier(0.22,1,0.36,1);
+  overflow:hidden;
+  will-change:width;
+  contain:layout paint style;
 }
 #prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
 .pn-inner{
-  flex:1;overflow-y:auto;overflow-x:hidden;
+  flex:1;overflow:hidden;
   display:flex;flex-direction:column;
-  padding:20px 0 12px;
+  padding:20px 0 0;
+}
+.pn-nodes{
+  display:flex;flex-direction:column;gap:4px;
+  padding:0 8px;flex:1;overflow-y:auto;overflow-x:hidden;
 }
 .pn-inner::-webkit-scrollbar{width:3px}
 .pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
-.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}
 .pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
 .pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
 .pn-node-trigger{
@@ -173,15 +189,17 @@ body::after{
 .pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
 .pn-node-label{
   font-size:16px;font-weight:500;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;
+  overflow:hidden;text-overflow:ellipsis;
+  transition:opacity 0.12s ease;
 }
 .pn-node-label-en{
   font-family:var(--font-serif);font-size:14px;
   color:var(--text-muted);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s;
+  overflow:hidden;text-overflow:ellipsis;
+  transition:opacity 0.12s ease;
 }
 .pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{
-  opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden;
+  opacity:0;pointer-events:none;
 }
 .pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
 .pn-node-glow{
@@ -194,6 +212,7 @@ body::after{
   max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;
   opacity:0;padding:0 6px 0 34px;
 }
+.pn-animating .pn-node-subs{transition:none!important}
 .pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
 .pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
 .pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
@@ -204,24 +223,34 @@ body::after{
 .pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
 .pn-sub:hover .pn-sub-label{color:var(--text-primary)}
 .pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn-footer{
+  flex-shrink:0;padding:10px 8px 12px;
+  border-top:1px solid var(--border-subtle);
+  background:var(--bg-surface);
+}
 .pn-toggle{
-  position:absolute;top:50%;right:-11px;transform:translateY(-50%);
-  width:22px;height:48px;background:var(--bg-elevated);
-  border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;
-  color:var(--text-muted);font-size:14px;transition:all 0.2s;z-index:56;
+  width:100%;height:36px;background:var(--bg-elevated);
+  border:1px solid var(--border-subtle);border-radius:6px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  color:var(--text-muted);font-size:13px;transition:background 0.18s,color 0.18s,border-color 0.18s;z-index:56;
 }
 .pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
+.pn-toggle-icon{font-size:16px;line-height:1;transition:transform 0.2s}
+.pn-toggle-text{white-space:nowrap;overflow:hidden;max-width:48px;opacity:1;transition:opacity 0.16s,max-width 0.2s}
+.pn-collapsed .pn-toggle{width:40px;margin:0 auto;gap:0}
+.pn-collapsed .pn-toggle-text{max-width:0;opacity:0}
 
 /* ===== SIDEBAR ===== */
 .sidebar{
-  position:fixed;top:var(--header-h);left:var(--prism-w);bottom:0;
+  position:fixed;top:var(--header-h);left:var(--prism-expanded-w);bottom:0;
   width:var(--sidebar-w);
   background:var(--bg-surface);
   border-right:1px solid var(--border-subtle);
   overflow-y:auto;z-index:50;
   padding:0;
-  transition:transform 0.3s ease;
+  transition:transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  transform:translateX(var(--prism-shift, 0px));
+  will-change:transform;
 }
 .sidebar-search-wrap{
   padding:10px 12px;
@@ -282,7 +311,7 @@ body::after{
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   transition:color 0.15s;
 }
-.sidebar-item.active .item-label{color:var(--text-primary);font-weight:500}
+.sidebar-item.active .item-label{color:var(--text-primary);font-weight:500;font-size:24px}
 .sidebar-item .item-label-en{
   font-family:var(--font-serif);font-size:14px;
   color:var(--text-muted);margin-top:2px;
@@ -307,11 +336,16 @@ body::after{
 
 /* ===== MAIN CONTENT ===== */
 .main{
-  margin-left:calc(var(--prism-w) + var(--sidebar-w));
+  margin-left:calc(var(--prism-expanded-w) + var(--sidebar-w));
   margin-top:var(--header-h);
   min-height:calc(100vh - var(--header-h));
   padding:40px 40px 100px;
-  transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);
+  transition:transform 0.28s cubic-bezier(0.22,1,0.36,1);
+  transform:translateX(var(--prism-shift, 0px));
+  will-change:transform;
+}
+.main.is-bookmark-restoring{
+  visibility:hidden;
 }
 
 /* ===== WELCOME / HERO ===== */
@@ -332,7 +366,7 @@ body::after{
   font-family:var(--font-serif);font-size:14px;
   text-transform:uppercase;letter-spacing:0.3em;
   color:var(--gold);margin-bottom:20px;
-  opacity:0;animation:fadeUp 0.6s 0.1s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .hero h1{
   font-family:var(--font-zh-title);
@@ -340,26 +374,26 @@ body::after{
   font-weight:300;line-height:1.2;
   margin-bottom:6px;
   color:var(--star);
-  opacity:0;animation:fadeUp 0.6s 0.15s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .hero .subtitle-en{
   font-family:var(--font-display);
   font-size:clamp(16px,2vw,20px);
   color:var(--text-muted);font-weight:400;
   margin-bottom:32px;font-style:italic;
-  opacity:0;animation:fadeUp 0.6s 0.2s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .hero-desc{
   font-size:16px;color:var(--text-secondary);
   line-height:2;margin-bottom:32px;
-  opacity:0;animation:fadeUp 0.6s 0.25s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 
 /* Stats */
 .stats-bar{
   display:flex;gap:0;
   margin-bottom:36px;
-  opacity:0;animation:fadeUp 0.6s 0.3s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .stat-item{
   flex:1;
@@ -389,7 +423,7 @@ body::after{
   padding:28px 32px;
   margin-bottom:40px;
   border-left:1px solid var(--gold-dim);
-  opacity:0;animation:fadeUp 0.6s 0.35s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .featured-quote::before{
   content:'';position:absolute;top:0;left:0;bottom:0;right:0;
@@ -417,7 +451,7 @@ body::after{
 .section-header{
   display:flex;align-items:center;justify-content:space-between;
   margin-bottom:24px;
-  opacity:0;animation:fadeUp 0.6s 0.4s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .section-header h2{
   font-family:var(--font-zh-title);font-size:14px;font-weight:600;
@@ -438,7 +472,7 @@ body::after{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(200px,1fr));
   gap:12px;
-  opacity:0;animation:fadeUp 0.6s 0.45s cubic-bezier(0.16,1,0.3,1) forwards;
+  opacity:1;
 }
 .category-separator{
   grid-column:1/-1;
@@ -491,7 +525,7 @@ body::after{
 
 /* ===== CONCEPT DETAIL ===== */
 .concept-detail{
-  animation:fadeUp 0.5s cubic-bezier(0.16,1,0.3,1);
+  animation:none;
 }
 .concept-detail .back-btn{
   display:inline-flex;align-items:center;gap:5px;
@@ -610,6 +644,132 @@ body::after{
 }
 .section-divider .label .dot{width:4px;height:4px;border-radius:50%}
 
+/* Concept Graph */
+.graph-stage{
+  margin-top:28px;
+  border:0.5px solid var(--border-subtle);
+  background:rgba(20,20,32,0.5);
+  min-height:560px;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 260px;
+  position:relative;
+  overflow:hidden;
+}
+.graph-canvas-wrap{
+  position:relative;
+  min-height:560px;
+}
+.graph-canvas{
+  width:100%;
+  height:560px;
+  display:block;
+}
+.graph-edge{
+  stroke:rgba(180,160,100,0.24);
+  stroke-linecap:round;
+}
+.graph-edge.graph-active{stroke:rgba(212,192,136,0.72)}
+.graph-node{cursor:pointer}
+.graph-node circle{
+  fill:rgb(24,24,36);
+  stroke:rgba(180,160,100,0.58);
+  stroke-width:1;
+  transition:fill 0.15s,stroke 0.15s,filter 0.15s;
+}
+.graph-node:hover circle,
+.graph-node.graph-active circle{
+  fill:rgb(34,32,44);
+  stroke:var(--gold-bright);
+  filter:drop-shadow(0 0 12px rgba(180,160,100,0.22));
+}
+.graph-node text{
+  fill:var(--text-primary);
+  font-family:var(--font-zh-title);
+  font-size:13px;
+  text-anchor:middle;
+  pointer-events:none;
+}
+.graph-node .graph-node-en{
+  fill:var(--text-muted);
+  font-family:var(--font-serif);
+  font-size:10px;
+  font-style:italic;
+}
+.graph-node.graph-muted{opacity:0.28}
+.graph-edge.graph-muted{opacity:0.12}
+.graph-panel{
+  border-left:0.5px solid var(--border-subtle);
+  background:rgba(10,10,16,0.24);
+  padding:18px;
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+.graph-panel-title{
+  font-family:var(--font-zh-title);
+  font-size:18px;
+  color:var(--star);
+}
+.graph-panel-sub{
+  font-family:var(--font-serif);
+  color:var(--text-muted);
+  font-style:italic;
+  font-size:13px;
+}
+.graph-stats{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+}
+.graph-stat{
+  border:0.5px solid var(--border-subtle);
+  padding:8px;
+}
+.graph-stat strong{
+  display:block;
+  color:var(--gold);
+  font-family:var(--font-display);
+  font-size:18px;
+  font-weight:400;
+}
+.graph-stat span{
+  color:var(--text-muted);
+  font-size:11px;
+}
+.graph-neighbors{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+}
+.graph-neighbor{
+  border:0.5px solid var(--border-subtle);
+  background:none;
+  color:var(--text-muted);
+  font-size:12px;
+  padding:5px 8px;
+  border-radius:3px;
+  cursor:pointer;
+}
+.graph-neighbor:hover{
+  color:var(--gold);
+  border-color:var(--border-active);
+}
+.graph-open-btn{
+  width:100%;
+  border:0.5px solid var(--border-active);
+  background:var(--gold-glow);
+  color:var(--gold);
+  padding:9px 12px;
+  border-radius:3px;
+  cursor:pointer;
+}
+.graph-open-btn:hover{color:var(--gold-bright)}
+@media(max-width:900px){
+  .graph-stage{grid-template-columns:1fr}
+  .graph-panel{border-left:none;border-top:0.5px solid var(--border-subtle)}
+  .graph-canvas,.graph-canvas-wrap{height:460px;min-height:460px}
+}
+
 /* Explanation */
 .explanation{
   font-size:16px;color:var(--text-secondary);
@@ -646,21 +806,97 @@ body::after{
   margin-bottom:10px;
   padding-right:28px;
 }
+.quote-card .quote-meta-row{
+  display:flex;align-items:center;justify-content:space-between;
+  gap:12px;margin:8px 0 10px;
+}
+.quote-card .quote-source{
+  font-family:var(--font-serif);font-size:12px;
+  color:var(--text-muted);
+  letter-spacing:0.08em;
+  min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.quote-related-tags{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin:2px 0 12px;
+}
+.quote-related-tag{
+  border:0.5px solid var(--border-subtle);
+  background:rgba(180,160,100,0.05);
+  color:var(--text-muted);
+  font-size:12px;line-height:1;
+  padding:5px 8px;border-radius:3px;
+  cursor:pointer;transition:all 0.15s;
+}
+.quote-related-tag:hover{
+  border-color:var(--border-active);
+  color:var(--gold);
+  background:var(--gold-glow);
+}
+.quote-card .quote-actions{
+  display:flex;align-items:center;gap:4px;flex-shrink:0;
+}
+.quote-action-btn{
+  width:26px;height:26px;border:0.5px solid transparent;
+  background:none;color:var(--text-muted);
+  border-radius:3px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+}
+.quote-action-btn:hover{
+  color:var(--gold);background:var(--gold-glow);
+  border-color:var(--border-active);
+}
+.quote-action-btn svg{width:14px;height:14px;stroke-width:1.8}
 .quote-card .quote-en{
   font-family:var(--font-serif);
   font-size:16px;color:var(--text-muted);
   line-height:1.8;font-style:italic;
   padding-left:16px;
   position:relative;
+  overflow:hidden;
+  display:none;
+}
+.quote-card.quote-expanded .quote-en{
+  display:block;
+}
+.quote-card.quote-expanded .quote-expand-icon{
+  transform:rotate(180deg);
 }
 .quote-card .quote-en::before{
   content:'';position:absolute;left:0;top:8px;bottom:8px;
   width:1px;background:var(--gold-dim);opacity:0.4;
 }
-.quote-card .quote-source{
-  font-family:var(--font-serif);font-size:12px;
-  color:var(--text-muted);margin-top:14px;
-  letter-spacing:0.08em;
+.quote-filter-bar{
+  display:flex;flex-wrap:wrap;gap:6px;
+  margin:-8px 0 14px;
+}
+.quote-filter-btn{
+  border:0.5px solid var(--border-subtle);
+  background:none;
+  color:var(--text-muted);
+  font-size:12px;
+  padding:5px 9px;
+  border-radius:3px;
+  cursor:pointer;
+  transition:all 0.15s;
+}
+.quote-filter-btn:hover,
+.quote-filter-btn.active{
+  color:var(--gold);
+  border-color:var(--border-active);
+  background:var(--gold-glow);
+}
+.quote-role-badge{
+  display:inline-flex;
+  align-items:center;
+  border:0.5px solid var(--border-subtle);
+  color:var(--text-muted);
+  font-size:11px;
+  line-height:1;
+  padding:4px 6px;
+  border-radius:3px;
+  margin-right:8px;
 }
 
 .back-to-top{
@@ -678,6 +914,55 @@ body::after{
 .back-to-top.visible{opacity:1;pointer-events:auto;transform:translateY(0)}
 .back-to-top:hover{background:var(--bg-card-hover);color:var(--gold-bright)}
 .back-to-top svg{width:18px;height:18px}
+
+.bookmark-fab{
+  position:fixed;right:24px;bottom:76px;z-index:91;
+  width:40px;height:40px;border-radius:4px;
+  border:0.5px solid var(--border-subtle);
+  background:rgba(20,20,32,0.86);
+  color:var(--text-muted);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;opacity:0.72;
+  transition:opacity 0.18s,transform 0.18s,background 0.18s,color 0.18s,border-color 0.18s;
+  backdrop-filter:blur(14px);
+}
+.bookmark-fab.active{
+  opacity:1;color:var(--gold);
+  border-color:var(--border-active);
+  box-shadow:0 0 0 1px rgba(180,160,100,0.06),0 10px 30px rgba(0,0,0,0.24);
+}
+.bookmark-fab:hover{background:var(--bg-card-hover);color:var(--gold-bright);transform:translateY(-1px)}
+.bookmark-fab svg{width:18px;height:18px}
+.bookmark-fab .bookmark-dot{
+  position:absolute;right:6px;top:6px;
+  width:5px;height:5px;border-radius:50%;
+  background:var(--gold-bright);
+  box-shadow:0 0 8px rgba(212,192,136,0.7);
+  opacity:0;
+}
+.bookmark-fab.active .bookmark-dot{opacity:1}
+.bookmark-status{
+  position:fixed;right:72px;bottom:76px;z-index:91;
+  min-width:96px;max-width:180px;
+  padding:6px 9px;border-radius:4px;
+  border:0.5px solid var(--border-subtle);
+  background:rgba(20,20,32,0.88);
+  color:var(--text-secondary);
+  font-size:11px;line-height:1.35;
+  backdrop-filter:blur(14px);
+  opacity:0.78;pointer-events:none;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.bookmark-status.active{
+  color:var(--gold);
+  border-color:var(--border-active);
+  opacity:1;
+}
+.bookmark-status .bookmark-version{
+  font-family:var(--font-serif);
+  color:var(--gold-dim);
+  margin-left:4px;
+}
 
 /* Related Tags */
 .related-tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -767,6 +1052,8 @@ body::after{
   .featured-quote{padding:24px}
   .concept-header .def-row{padding:16px 18px}
   .back-to-top{right:16px;bottom:16px}
+  .bookmark-fab{right:16px;bottom:68px}
+  .bookmark-status{right:64px;bottom:68px;max-width:132px}
 }
 @media(max-width:480px){
   .stat-num{font-size:20px}
@@ -804,6 +1091,13 @@ body::after{
     <path d="m5 12 7-7 7 7"/>
   </svg>
 </button>
+<button class="bookmark-fab" id="readingBookmark" onclick="jumpToBookmark()" aria-label="回到书签" title="正在记录书签">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+  </svg>
+  <span class="bookmark-dot"></span>
+</button>
+<div class="bookmark-status" id="bookmarkStatus">书签 <span class="bookmark-version">v5</span></div>
 
 <div class="search-modal" id="searchModal" onclick="if(event.target===this)toggleSearch()">
   <div class="search-box">
@@ -816,22 +1110,45 @@ body::after{
 </div>
 
 <script>
+if (window.location.protocol === 'file:') {
+  window.location.replace('http://localhost:8081/index.html');
+}
+if ('scrollRestoration' in history) {
+  history.scrollRestoration = 'manual';
+}
+window.scrollTo(0, 0);
+
 let allConcepts = [];
 let flatConcepts = [];
 let conceptMap = {};
+let conceptGraph = { nodes: [], edges: [], metadata: {} };
 let quotesCache = {};
+let conceptDetailCache = {};
 const READING_STATE_KEY = 'seth_universe_reading_state_v1';
+const BOOKMARK_API = '/api/bookmark';
+const BOOKMARK_VERSION = 'bookmark-v6';
 let currentView = { type: 'home' };
 let saveScrollTimer = null;
+let saveBookmarkTimer = null;
 let isRestoringScroll = false;
+let restoreScrollTimer = null;
+let restoreScrollAttempts = 0;
+let pendingScrollRestore = null;
+let activeBookmark = null;
+let bookmarkStore = { clientVersion: BOOKMARK_VERSION, lastView: { type: 'home' }, bookmarks: {} };
+let suppressBookmarkSaveUntil = 0;
+let userScrolledSinceRender = false;
 
 function init() {
-  fetch('concepts-lite.json')
-    .then(r => {
+  Promise.all([
+    fetch('concepts-lite.json').then(r => {
       if (!r.ok) throw new Error('Failed to load concepts: ' + r.status);
       return r.json();
-    })
-    .then(data => {
+    }),
+    fetch('concept-graph.json').then(r => r.ok ? r.json() : { nodes: [], edges: [], metadata: {} }).catch(() => ({ nodes: [], edges: [], metadata: {} }))
+  ])
+    .then(([data, graphData]) => {
+      conceptGraph = graphData || { nodes: [], edges: [], metadata: {} };
       allConcepts = Array.isArray(data) ? data : data.concepts;
       flatConcepts = [];
       conceptMap = {};
@@ -845,6 +1162,13 @@ function init() {
       });
       renderSidebar();
       restoreLastView();
+    })
+    .catch(err => {
+      const main = document.getElementById('main');
+      if (main) {
+        main.innerHTML = '<div class="concept-detail"><div class="concept-header"><div class="category-badge">Load Error</div><h1>数据加载失败</h1><div class="explanation">请通过本地服务器访问：<br><a style="color:var(--gold)" href="http://localhost:8081/index.html">http://localhost:8081/index.html</a></div></div></div>';
+      }
+      console.error(err);
     });
 }
 
@@ -882,13 +1206,183 @@ function writeReadingState(state) {
   } catch(e) {}
 }
 
-function saveReadingPosition() {
-  if (isRestoringScroll) return;
+function sanitizeBookmark(bookmark) {
+  if (!bookmark || !bookmark.view || !bookmark.view.type) return null;
+  var y = Number(bookmark.y || 0);
+  return {
+    view: {
+      type: bookmark.view.type,
+      id: bookmark.view.id || '',
+      parentId: bookmark.view.parentId || ''
+    },
+    y: isFinite(y) ? Math.max(0, y) : 0,
+    quoteId: bookmark.quoteId || '',
+    quoteOffset: isFinite(Number(bookmark.quoteOffset)) ? Number(bookmark.quoteOffset) : 0,
+    label: bookmark.label || '',
+    updatedAt: bookmark.updatedAt || '',
+    clientVersion: bookmark.clientVersion || ''
+  };
+}
+
+function readLocalBookmark() {
   const state = readReadingState();
+  const store = sanitizeBookmarkStore(state.bookmarkStore || state);
+  const key = getViewKey(currentView);
+  return store.bookmarks[key] || null;
+}
+
+function sanitizeBookmarkStore(data) {
+  var store = {
+    clientVersion: BOOKMARK_VERSION,
+    lastView: { type: 'home' },
+    bookmarks: {}
+  };
+  if (!data || typeof data !== 'object') return store;
+
+  if (data.bookmarks && typeof data.bookmarks === 'object') {
+    Object.keys(data.bookmarks).forEach(function(key) {
+      var bookmark = sanitizeBookmark(data.bookmarks[key]);
+      if (bookmark) store.bookmarks[key] = bookmark;
+    });
+    store.lastView = data.lastView || store.lastView;
+  } else {
+    var single = sanitizeBookmark(data.bookmark || data);
+    if (single) {
+      var singleKey = getViewKey(single.view);
+      store.bookmarks[singleKey] = single;
+      store.lastView = single.view;
+    }
+  }
+  store.clientVersion = BOOKMARK_VERSION;
+  return store;
+}
+
+function getBookmarkForView(view) {
+  var key = getViewKey(view);
+  return sanitizeBookmark(bookmarkStore.bookmarks[key]);
+}
+
+function writeLocalBookmarkStore(store) {
+  bookmarkStore = sanitizeBookmarkStore(store);
+  const state = readReadingState();
+  state.bookmarkStore = bookmarkStore;
+  state.lastView = bookmarkStore.lastView || state.lastView || { type: 'home' };
+  state.positions = state.positions || {};
+  Object.keys(bookmarkStore.bookmarks).forEach(function(key) {
+    state.positions[key] = bookmarkStore.bookmarks[key].y || 0;
+  });
+  var currentBookmark = getBookmarkForView(currentView);
+  if (currentBookmark) {
+    state.bookmark = currentBookmark;
+    activeBookmark = currentBookmark;
+  }
+  writeReadingState(state);
+  updateBookmarkIndicator();
+}
+
+function loadBookmark() {
+  return new Promise(function(resolve) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', '/bookmark.json?t=' + Date.now(), true);
+    xhr.setRequestHeader('Cache-Control', 'no-cache');
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState !== 4) return;
+      if (xhr.status >= 200 && xhr.status < 300) {
+        try {
+          var data = JSON.parse(xhr.responseText || '{}');
+          var store = sanitizeBookmarkStore(data);
+          writeLocalBookmarkStore(store);
+          resolve(store);
+          return;
+        } catch(e) {}
+      }
+      var fallbackStore = sanitizeBookmarkStore(readReadingState().bookmarkStore || readReadingState());
+      writeLocalBookmarkStore(fallbackStore);
+      resolve(fallbackStore);
+    };
+    xhr.onerror = function() {
+      var fallbackStore = sanitizeBookmarkStore(readReadingState().bookmarkStore || readReadingState());
+      writeLocalBookmarkStore(fallbackStore);
+      resolve(fallbackStore);
+    };
+    xhr.send();
+  });
+}
+
+function persistBookmarkRemote(store) {
+  if (!store) return;
+  fetch(BOOKMARK_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(store)
+  }).catch(function() {});
+}
+
+function scheduleBookmarkRemoteSave(store) {
+  clearTimeout(saveBookmarkTimer);
+  saveBookmarkTimer = setTimeout(function() {
+    persistBookmarkRemote(store);
+  }, 700);
+}
+
+function getCurrentViewLabel() {
+  if (currentView.type === 'home') return '首页';
+  var concept = currentView.id ? conceptMap[currentView.id] : null;
+  return concept ? concept.name_zh : '当前位置';
+}
+
+function getVisibleQuoteBookmark() {
+  var cards = document.querySelectorAll('.quote-card[data-quote-id]');
+  var best = null;
+  var headerBottom = 72;
+  cards.forEach(function(card) {
+    if (best) return;
+    var rect = card.getBoundingClientRect();
+    if (rect.bottom > headerBottom && rect.top < window.innerHeight) {
+      best = {
+        id: card.dataset.quoteId || '',
+        offset: Math.max(0, (window.scrollY || document.documentElement.scrollTop || 0) - (rect.top + window.scrollY))
+      };
+    }
+  });
+  return best || { id: '', offset: 0 };
+}
+
+function buildCurrentBookmark() {
+  var y = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+  var visibleQuote = getVisibleQuoteBookmark();
+  return {
+    view: {
+      type: currentView.type,
+      id: currentView.id || '',
+      parentId: currentView.parentId || ''
+    },
+    y: y,
+    quoteId: visibleQuote.id,
+    quoteOffset: visibleQuote.offset || 0,
+    label: getCurrentViewLabel(),
+    updatedAt: new Date().toISOString(),
+    clientVersion: BOOKMARK_VERSION
+  };
+}
+
+function saveReadingPosition() {
+  if (isRestoringScroll || Date.now() < suppressBookmarkSaveUntil || !userScrolledSinceRender) return;
+  const state = readReadingState();
+  const bookmark = buildCurrentBookmark();
+  const key = getViewKey(bookmark.view);
+  bookmarkStore.bookmarks[key] = bookmark;
+  bookmarkStore.lastView = bookmark.view;
+  bookmarkStore.clientVersion = BOOKMARK_VERSION;
   state.lastView = currentView;
   state.positions = state.positions || {};
-  state.positions[getViewKey(currentView)] = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+  state.positions[key] = bookmark.y;
+  state.bookmark = bookmark;
+  state.bookmarkStore = bookmarkStore;
+  activeBookmark = bookmark;
   writeReadingState(state);
+  updateBookmarkIndicator();
+  scheduleBookmarkRemoteSave(bookmarkStore);
 }
 
 function scheduleSaveReadingPosition() {
@@ -897,27 +1391,117 @@ function scheduleSaveReadingPosition() {
   saveScrollTimer = setTimeout(saveReadingPosition, 120);
 }
 
-function restoreScrollForCurrentView(defaultY) {
+function restoreScrollForCurrentView(defaultY, bookmark) {
   const state = readReadingState();
   const positions = state.positions || {};
-  const savedY = positions[getViewKey(currentView)];
+  const savedY = bookmark && typeof bookmark.y === 'number' ? bookmark.y : positions[getViewKey(currentView)];
   const targetY = typeof savedY === 'number' ? savedY : (defaultY || 0);
+  const targetKey = getViewKey(currentView);
+
+  clearTimeout(restoreScrollTimer);
   isRestoringScroll = true;
+  restoreScrollAttempts = 0;
+  pendingScrollRestore = {
+    key: targetKey,
+    y: Math.max(0, targetY),
+    quoteId: bookmark && bookmark.quoteId ? bookmark.quoteId : '',
+    quoteOffset: bookmark && isFinite(Number(bookmark.quoteOffset)) ? Number(bookmark.quoteOffset) : 0
+  };
+  applyPendingScrollRestore();
+}
+
+function getBookmarkTargetY(pending) {
+  if (!pending) return 0;
+  if (pending.quoteId) {
+    var selector = '.quote-card[data-quote-id="' + CSS.escape(pending.quoteId) + '"]';
+    var card = document.querySelector(selector);
+    if (card) {
+      var rect = card.getBoundingClientRect();
+      var pageY = rect.top + (window.scrollY || document.documentElement.scrollTop || 0);
+      return Math.max(0, pageY + (pending.quoteOffset || 0));
+    }
+  }
+  return Math.max(0, pending.y || 0);
+}
+
+function applyPendingScrollRestore() {
+  if (!pendingScrollRestore) {
+    isRestoringScroll = false;
+    setBookmarkRestoringVisibility(false);
+    return;
+  }
+  if (pendingScrollRestore.key !== getViewKey(currentView)) {
+    pendingScrollRestore = null;
+    isRestoringScroll = false;
+    setBookmarkRestoringVisibility(false);
+    return;
+  }
+
   requestAnimationFrame(function() {
+    const doc = document.documentElement;
+    const maxY = Math.max(0, doc.scrollHeight - window.innerHeight);
+    var rawTargetY = getBookmarkTargetY(pendingScrollRestore);
+    const targetY = Math.min(Math.max(0, rawTargetY), maxY);
     window.scrollTo(0, targetY);
     updateBackToTopVisibility();
-    setTimeout(function() { isRestoringScroll = false; }, 160);
+    restoreScrollAttempts += 1;
+
+    const currentY = window.scrollY || doc.scrollTop || 0;
+    const quoteResolved = !pendingScrollRestore.quoteId || !!document.querySelector('.quote-card[data-quote-id="' + CSS.escape(pendingScrollRestore.quoteId) + '"]');
+    const hasEnoughHeight = maxY >= rawTargetY;
+    const reachedTarget = Math.abs(currentY - targetY) <= 2;
+
+    if ((quoteResolved && hasEnoughHeight && reachedTarget) || restoreScrollAttempts >= 36) {
+      clearTimeout(restoreScrollTimer);
+      setTimeout(function() {
+        pendingScrollRestore = null;
+        isRestoringScroll = false;
+        suppressBookmarkSaveUntil = Date.now() + 1500;
+        setBookmarkRestoringVisibility(false);
+        updateBackToTopVisibility();
+      }, 120);
+      return;
+    }
+
+    restoreScrollTimer = setTimeout(applyPendingScrollRestore, 80);
   });
 }
 
-function restoreLastView() {
-  const state = readReadingState();
-  const last = state.lastView || { type: 'home' };
-  if (last.type === 'concept' && conceptMap[last.id]) {
-    showConcept(last.id, last.parentId, { restore: true, skipSave: true });
-  } else {
-    showWelcome({ restore: true, skipSave: true });
+function positionAfterRender(options) {
+  userScrolledSinceRender = false;
+  if (!(options && options.keepHiddenUntilRestore)) {
+    setBookmarkRestoringVisibility(false);
   }
+  if (options && options.restore) {
+    restoreScrollForCurrentView(0, options.bookmark || null);
+  } else {
+    window.scrollTo(0, 0);
+    updateBackToTopVisibility();
+  }
+  activeBookmark = getBookmarkForView(currentView) || null;
+  updateBookmarkIndicator();
+}
+
+function shouldDeferQuoteBookmarkRestore(options) {
+  return !!(options && options.restore && options.bookmark && options.bookmark.quoteId && currentView.type === 'concept');
+}
+
+function setBookmarkRestoringVisibility(hidden) {
+  var main = document.getElementById('main');
+  if (main) main.classList.toggle('is-bookmark-restoring', !!hidden);
+}
+
+function restoreLastView() {
+  suppressBookmarkSaveUntil = Date.now() + 1500;
+  loadBookmark().then(function(store) {
+    store = sanitizeBookmarkStore(store);
+    bookmarkStore = store;
+    isRestoringScroll = false;
+    showWelcome({ skipSave: true });
+  }).catch(function() {
+    isRestoringScroll = false;
+    showWelcome({ skipSave: true });
+  });
 }
 
 function updateBackToTopVisibility() {
@@ -926,13 +1510,45 @@ function updateBackToTopVisibility() {
   btn.classList.toggle('visible', (window.scrollY || document.documentElement.scrollTop || 0) > 360);
 }
 
+function updateBookmarkIndicator() {
+  const btn = document.getElementById('readingBookmark');
+  const status = document.getElementById('bookmarkStatus');
+  if (!btn) return;
+  const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
+  btn.classList.toggle('active', !!bookmark);
+  if (status) status.classList.toggle('active', !!bookmark);
+  if (!bookmark) {
+    btn.setAttribute('title', '正在记录书签 · ' + BOOKMARK_VERSION);
+    if (status) status.innerHTML = '书签 <span class="bookmark-version">' + BOOKMARK_VERSION.replace('bookmark-', '') + '</span>';
+    return;
+  }
+  var label = bookmark.label || '当前位置';
+  var y = Math.round(bookmark.y || 0);
+  btn.setAttribute('title', '书签：' + label + ' · 位置 ' + y + '。点击回到这里 · ' + BOOKMARK_VERSION);
+  if (status) status.innerHTML = label + ' · ' + y + ' <span class="bookmark-version">' + BOOKMARK_VERSION.replace('bookmark-', '') + '</span>';
+}
+
+function jumpToBookmark() {
+  const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
+  if (!bookmark) {
+    saveReadingPosition();
+    return;
+  }
+  activeBookmark = bookmark;
+  if (bookmark.view.type === 'concept' && conceptMap[bookmark.view.id]) {
+    if (currentView.type === 'concept' && currentView.id === bookmark.view.id && (currentView.parentId || '') === (bookmark.view.parentId || '')) {
+      if (renderConceptForBookmark(bookmark)) return;
+      restoreScrollForCurrentView(0, bookmark);
+    } else {
+      showConcept(bookmark.view.id, bookmark.view.parentId, { restore: true, skipSave: true, bookmark: bookmark });
+    }
+  } else {
+    showWelcome({ restore: true, skipSave: true, bookmark: bookmark });
+  }
+}
+
 function scrollToPageTop() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const state = readReadingState();
-  state.positions = state.positions || {};
-  state.positions[getViewKey(currentView)] = 0;
-  state.lastView = currentView;
-  writeReadingState(state);
+  window.scrollTo(0, 0);
   updateBackToTopVisibility();
 }
 
@@ -1105,10 +1721,280 @@ function setActiveSidebar(id) {
 function countTotalQuotes() {
   let total = 0;
   allConcepts.forEach(c => {
-    total += (c.quotes || []).length;
+    total += c.quotes_count || (c.quotes || []).length || 0;
     (c.sub_concepts || []).forEach(sc => { total += (sc.quotes || []).length; });
   });
   return total;
+}
+
+function getGraphNodeStats(nodeId) {
+  const edges = (conceptGraph.edges || []).filter(e => e.source === nodeId || e.target === nodeId);
+  const neighbors = edges.map(e => e.source === nodeId ? e.target : e.source);
+  return {
+    edgeCount: edges.length,
+    weight: edges.reduce((sum, e) => sum + (e.weight || 0), 0),
+    neighbors: Array.from(new Set(neighbors)).map(id => conceptMap[id]).filter(Boolean)
+  };
+}
+
+function renderGraphPanel(node) {
+  const panel = document.getElementById('graphPanel');
+  if (!panel || !node) return;
+  const concept = conceptMap[node.id] || node;
+  const stats = getGraphNodeStats(node.id);
+  const neighbors = stats.neighbors
+    .sort((a, b) => (b.quotes_count || 0) - (a.quotes_count || 0))
+    .slice(0, 12)
+    .map(n => `<button class="graph-neighbor" onclick="focusGraphNode('${n.id}')">${n.name_zh}</button>`)
+    .join('');
+  panel.innerHTML = `
+    <div>
+      <div class="graph-panel-title">${concept.name_zh}</div>
+      <div class="graph-panel-sub">${concept.name_en}</div>
+    </div>
+    <div class="graph-stats">
+      <div class="graph-stat"><strong>${concept.quotes_count || 0}</strong><span>摘录</span></div>
+      <div class="graph-stat"><strong>${stats.edgeCount}</strong><span>关联</span></div>
+    </div>
+    <div class="graph-panel-sub">相邻概念</div>
+    <div class="graph-neighbors">${neighbors || '<span style="color:var(--text-muted);font-size:12px">暂无可展示关系</span>'}</div>
+    <button class="graph-open-btn" onclick="showConcept('${node.id}')">打开概念页</button>
+  `;
+}
+
+function focusGraphNode(nodeId) {
+  const svg = document.getElementById('conceptGraphSvg');
+  if (!svg) return;
+  const node = (conceptGraph.nodes || []).find(n => n.id === nodeId);
+  if (!node) return;
+  const related = new Set([nodeId]);
+  (conceptGraph.edges || []).forEach(e => {
+    if (e.source === nodeId) related.add(e.target);
+    if (e.target === nodeId) related.add(e.source);
+  });
+  svg.querySelectorAll('.graph-node').forEach(el => {
+    const active = el.dataset.id === nodeId;
+    el.classList.toggle('graph-active', active);
+    el.classList.toggle('graph-muted', !related.has(el.dataset.id));
+  });
+  svg.querySelectorAll('.graph-edge').forEach(el => {
+    const active = el.dataset.source === nodeId || el.dataset.target === nodeId;
+    el.classList.toggle('graph-active', active);
+    el.classList.toggle('graph-muted', !active);
+  });
+  renderGraphPanel(node);
+}
+
+const QUOTE_ROLE_LABELS = {
+  definition: '定义',
+  principle: '原则',
+  mechanism: '机制',
+  distinction: '区别',
+  practice: '方法',
+  example: '例子',
+  warning: '提醒',
+  background: '背景',
+  other: '其他'
+};
+
+function quoteSortKey(q) {
+  return [
+    Number(q.reading_order || 90),
+    -Number(q.semantic_score || 0),
+    -Number(q.score || 0),
+    q.source || ''
+  ];
+}
+
+function sortQuotesForReading(quotes) {
+  return (quotes || []).slice().sort(function(a, b) {
+    var ak = quoteSortKey(a);
+    var bk = quoteSortKey(b);
+    for (var i = 0; i < ak.length; i++) {
+      if (ak[i] < bk[i]) return -1;
+      if (ak[i] > bk[i]) return 1;
+    }
+    return 0;
+  });
+}
+
+function filterQuotesByRole(conceptId, role) {
+  var cached = quotesCache[conceptId] || [];
+  var detail = conceptDetailCache[conceptId] || conceptMap[conceptId];
+  if (!detail) return;
+  var filtered = role === 'all' ? cached : cached.filter(q => (q.quote_role || 'other') === role);
+  var main = document.getElementById('main');
+  var relatedTags = (detail.related_concepts || []).map(rid => {
+    const rc = conceptMap[rid];
+    return rc ? `<span class="related-tag" onclick="showConcept('${rid}')">${rc.name_zh}</span>` : '';
+  }).join('');
+  var subs = (detail.sub_concepts || []).map(sc =>
+    `<div class="sub-concept-card" onclick="showConcept('${sc.id}','${conceptId}')">
+      <span class="sc-arrow">→</span>
+      <div><h3>${sc.name_zh}</h3><div class="sc-en">${sc.name_en}</div><p>${sc.definition}</p></div>
+    </div>`
+  ).join('');
+  var backBtn = `<button class="back-btn" onclick="showWelcome()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    返回首页
+  </button>`;
+  renderConceptDetail(main, detail, filtered, null, backBtn, relatedTags, subs, detail.quotes_count || cached.length, detail.sub_concepts_count || 0, detail.related_count || 0, false, role);
+}
+
+function renderConceptForBookmark(bookmark) {
+  if (!bookmark || !bookmark.view || bookmark.view.type !== 'concept') return false;
+  var conceptId = bookmark.view.id;
+  var cached = quotesCache[conceptId];
+  if (!cached || !cached.length) return false;
+
+  if (bookmark.quoteId) {
+    var hasQuote = cached.some(function(q) { return String(q.id || '') === String(bookmark.quoteId); });
+    if (!hasQuote) return false;
+  }
+
+  var detail = conceptDetailCache[conceptId] || conceptMap[conceptId];
+  if (!detail) return false;
+
+  var main = document.getElementById('main');
+  var parentId = bookmark.view.parentId || '';
+  var parent = parentId ? conceptMap[parentId] : null;
+  var relatedTags = (detail.related_concepts || []).map(function(rid) {
+    var rc = conceptMap[rid];
+    return rc ? `<span class="related-tag" onclick="showConcept('${rid}')">${rc.name_zh}</span>` : '';
+  }).join('');
+  var subs = (detail.sub_concepts || []).map(function(sc) {
+    return `<div class="sub-concept-card" onclick="showConcept('${sc.id}','${conceptId}')">
+      <span class="sc-arrow">→</span>
+      <div><h3>${sc.name_zh}</h3><div class="sc-en">${sc.name_en}</div><p>${sc.definition}</p></div>
+    </div>`;
+  }).join('');
+  var backBtn = parent ? `<button class="back-btn" onclick="showConcept('${parent.id}')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    返回：${parent.name_zh}
+  </button>` : `<button class="back-btn" onclick="showWelcome()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg>
+    返回首页
+  </button>`;
+
+  renderConceptDetail(main, detail, cached, parent, backBtn, relatedTags, subs, detail.quotes_count || cached.length, detail.sub_concepts_count || 0, detail.related_count || 0, false, 'all');
+  restoreScrollForCurrentView(0, bookmark);
+  updateBookmarkIndicator();
+  return true;
+}
+
+function renderConceptGraph() {
+  const svg = document.getElementById('conceptGraphSvg');
+  if (!svg) return;
+  const nodes = (conceptGraph.nodes || []).filter(n => conceptMap[n.id]).map(n => Object.assign({}, n));
+  const edges = (conceptGraph.edges || []).filter(e => conceptMap[e.source] && conceptMap[e.target]).map(e => Object.assign({}, e));
+  const width = svg.clientWidth || 800;
+  const height = svg.clientHeight || 560;
+  svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
+  svg.innerHTML = '';
+  if (!nodes.length) return;
+
+  const maxQuotes = Math.max.apply(null, nodes.map(n => n.quotes_count || 1));
+  const maxWeight = Math.max.apply(null, edges.map(e => e.weight || 1).concat([1]));
+  const byId = {};
+  nodes.forEach((n, i) => {
+    const angle = (Math.PI * 2 * i) / nodes.length - Math.PI / 2;
+    const radius = Math.min(width, height) * (0.24 + ((i % 3) * 0.045));
+    n.x = width / 2 + Math.cos(angle) * radius;
+    n.y = height / 2 + Math.sin(angle) * radius;
+    n.vx = 0;
+    n.vy = 0;
+    n.r = 20 + Math.sqrt((n.quotes_count || 1) / maxQuotes) * 18;
+    byId[n.id] = n;
+  });
+
+  for (let tick = 0; tick < 180; tick++) {
+    edges.forEach(e => {
+      const a = byId[e.source];
+      const b = byId[e.target];
+      if (!a || !b) return;
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+      const target = 170 - Math.min(70, (e.weight / maxWeight) * 70);
+      const force = (dist - target) * 0.0025;
+      const fx = dx / dist * force;
+      const fy = dy / dist * force;
+      a.vx += fx; a.vy += fy;
+      b.vx -= fx; b.vy -= fy;
+    });
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        const a = nodes[i], b = nodes[j];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
+        const minDist = a.r + b.r + 28;
+        if (dist < minDist) {
+          const force = (minDist - dist) * 0.004;
+          const fx = dx / dist * force;
+          const fy = dy / dist * force;
+          a.vx -= fx; a.vy -= fy;
+          b.vx += fx; b.vy += fy;
+        }
+      }
+    }
+    nodes.forEach(n => {
+      n.vx += (width / 2 - n.x) * 0.0008;
+      n.vy += (height / 2 - n.y) * 0.0008;
+      n.vx *= 0.82;
+      n.vy *= 0.82;
+      n.x = Math.max(n.r + 20, Math.min(width - n.r - 20, n.x + n.vx));
+      n.y = Math.max(n.r + 20, Math.min(height - n.r - 20, n.y + n.vy));
+    });
+  }
+
+  const edgeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  const nodeLayer = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  svg.appendChild(edgeLayer);
+  svg.appendChild(nodeLayer);
+
+  edges.forEach(e => {
+    const a = byId[e.source], b = byId[e.target];
+    if (!a || !b) return;
+    const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+    line.setAttribute('class', 'graph-edge');
+    line.setAttribute('data-source', e.source);
+    line.setAttribute('data-target', e.target);
+    line.setAttribute('x1', a.x);
+    line.setAttribute('y1', a.y);
+    line.setAttribute('x2', b.x);
+    line.setAttribute('y2', b.y);
+    line.setAttribute('stroke-width', Math.max(1, Math.min(7, 1 + (e.weight / maxWeight) * 6)));
+    edgeLayer.appendChild(line);
+  });
+
+  nodes.forEach(n => {
+    const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+    g.setAttribute('class', 'graph-node');
+    g.setAttribute('data-id', n.id);
+    g.setAttribute('transform', 'translate(' + n.x + ',' + n.y + ')');
+    g.addEventListener('mouseenter', () => focusGraphNode(n.id));
+    g.addEventListener('click', () => showConcept(n.id));
+
+    const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    circle.setAttribute('r', n.r);
+    g.appendChild(circle);
+
+    const zh = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    zh.setAttribute('y', -2);
+    zh.textContent = n.name_zh;
+    g.appendChild(zh);
+
+    const en = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+    en.setAttribute('class', 'graph-node-en');
+    en.setAttribute('y', 15);
+    en.textContent = n.name_en.length > 18 ? n.name_en.slice(0, 17) + '…' : n.name_en;
+    g.appendChild(en);
+    nodeLayer.appendChild(g);
+  });
+
+  const first = nodes.slice().sort((a, b) => (b.degree || 0) - (a.degree || 0))[0] || nodes[0];
+  focusGraphNode(first.id);
 }
 
 function showWelcome(options) {
@@ -1143,6 +2029,8 @@ function showWelcome(options) {
     }).join('');
   }
 
+  const graphNodes = (conceptGraph.nodes || []).length || allConcepts.length;
+  const graphEdges = (conceptGraph.edges || []).length || 0;
   main.innerHTML = `<div class="hero">
     <div class="hero-ornament"><div class="line"></div><div class="center-mark"></div><div class="line"></div></div>
     <div class="hero-eyebrow">The Seth Universe</div>
@@ -1152,20 +2040,26 @@ function showWelcome(options) {
   
   </br>赛斯是个曾经在地球上投生过许多次，而今已不再贯注于物质形态存在的能量人格本质；赛斯书则是赛斯借女作家简·罗布兹之口口授下来的关于我们人类物质形态存在的本质、结构和发展以及宇宙演化根本规律的一系列书籍。。</p>
     
-    <div class="featured-quote">
-      <div class="fq-text">"Basically you are no more of a physical being than I am... Consciousness creates form. It is not the other way around."</div>
-      <div class="fq-zh">"从根本上说，你不比我更具有物理存在的本质……意识创造形式，而非相反。"</div>
-      <div class="fq-source">— SETH SPEAKS, CHAPTER 1</div>
-    </div>
     <div class="section-header">
-      <h2>概念体系</h2>
+      <h2>核心概念关系图</h2>
+      <span class="count">${graphNodes} concepts · ${graphEdges} relations · ${totalQuotes} excerpts</span>
+    </div>
+    <div class="graph-stage">
+      <div class="graph-canvas-wrap">
+        <svg class="graph-canvas" id="conceptGraphSvg" role="img" aria-label="核心概念关系图"></svg>
+      </div>
+      <aside class="graph-panel" id="graphPanel"></aside>
+    </div>
+    <div class="section-header" style="margin-top:34px">
+      <h2>概念索引</h2>
       <span class="count">${allConcepts.length} concepts · ${Object.keys(categories).length} categories</span>
     </div>
     <div class="concept-grid">${gridHtml}</div>
   </div>`;
+  renderConceptGraph();
   closeSidebarMobile();
   if (options.restore) {
-    restoreScrollForCurrentView(0);
+    restoreScrollForCurrentView(0, options.bookmark || null);
   } else {
     window.scrollTo(0, 0);
     updateBackToTopVisibility();
@@ -1177,6 +2071,12 @@ function showConcept(id, parentId, options) {
   options = options || {};
   if (!options.skipSave) saveReadingPosition();
   currentView = { type: 'concept', id: id, parentId: parentId || '' };
+  if (!options.restore) {
+    var viewBookmark = getBookmarkForView(currentView);
+    if (viewBookmark) {
+      options = Object.assign({}, options, { restore: true, bookmark: viewBookmark });
+    }
+  }
   const c = conceptMap[id];
   if (!c) return;
   setActiveSidebar(id);
@@ -1216,34 +2116,17 @@ function showConcept(id, parentId, options) {
   const subCount = c.sub_concepts_count || 0;
   const relatedCount = c.related_count || 0;
 
-  // Check if quotes are already cached
-  if (quotesCache[id]) {
-    // Merge full data from cached API response or load fresh
-    fetch('/api/concepts/' + id)
-      .then(r => r.json())
-      .then(fullData => {
-        var merged = Object.assign({}, c, {
-          explanation: fullData.explanation || '',
-          definition: fullData.definition || '',
-          definition_en: fullData.definition_en || '',
-          definition_ai: fullData.definition_ai || '',
-          definition_source: fullData.definition_source || '',
-        });
-        renderConceptDetail(main, merged, quotesCache[id] || fullData.quotes || [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
-        restoreScrollForCurrentView(0);
-      })
-      .catch(function() {
-        renderConceptDetail(main, c, quotesCache[id], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
-        restoreScrollForCurrentView(0);
-      });
-    return;
-  }
-
   // Render without quotes first, then load them
   renderConceptDetail(main, c, [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount, true);
+  if (shouldDeferQuoteBookmarkRestore(options)) {
+    setBookmarkRestoringVisibility(true);
+    positionAfterRender(Object.assign({}, options, { restore: false, keepHiddenUntilRestore: true }));
+  } else {
+    positionAfterRender(options);
+  }
 
   // Load quotes via API
-  fetch('/api/concepts/' + id)
+  fetch('/api/concepts/' + id + '?t=' + Date.now())
     .then(r => r.json())
     .then(fullData => {
       quotesCache[id] = fullData.quotes || [];
@@ -1255,10 +2138,12 @@ function showConcept(id, parentId, options) {
         definition_ai: fullData.definition_ai || '',
         definition_source: fullData.definition_source || '',
       });
+      conceptDetailCache[id] = merged;
       renderConceptDetail(main, merged, fullData.quotes || [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
-      restoreScrollForCurrentView(0);
+      positionAfterRender(options);
     })
     .catch(function() {
+      setBookmarkRestoringVisibility(false);
       // If API fails, show quotes count only
       var placeholder = document.getElementById('quotes-loading-' + id);
       if (placeholder) {
@@ -1267,24 +2152,62 @@ function showConcept(id, parentId, options) {
     });
 }
 
-function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount, isPlaceholder) {
+function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount, isPlaceholder, activeRole) {
   isPlaceholder = isPlaceholder || false;
+  activeRole = activeRole || 'all';
 
   let quotesHtml = '';
   if (quotes.length > 0) {
-    quotesHtml = quotes.map(function(q, qi) {
+    quotesHtml = sortQuotesForReading(quotes).map(function(q, qi) {
       var quoteId = String(q.id || '');
+      var role = q.quote_role || 'other';
+      var roleLabel = QUOTE_ROLE_LABELS[role] || role;
+      var quoteRelatedTags = (q.related_concepts || []).map(function(rc) {
+        if (!rc || !rc.id) return '';
+        if (!conceptMap[rc.id]) return '';
+        return `<button class="quote-related-tag" onclick="event.stopPropagation();showConcept('${rc.id}')" title="${rc.name_en || ''}">${rc.name_zh || rc.name_en || ''}</button>`;
+      }).filter(Boolean).join('');
       return '<div class="quote-card" data-quote-id="' + quoteId + '">' +
         '<button class="quote-delete-btn" onclick="deleteQuote(\'' + c.id + '\',\'' + quoteId + '\')" title="删除此摘录及原数据">' +
         '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
         '</button>' +
         (q.translation ? '<div class="quote-zh">' + q.translation + '</div>' : '') +
+        '<div class="quote-meta-row">' +
+          '<div class="quote-source"><span class="quote-role-badge">' + roleLabel + '</span>— ' + q.source + '</div>' +
+          '<div class="quote-actions">' +
+            '<button class="quote-action-btn" onclick="copyQuoteCard(this)" title="复制摘录">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
+            '</button>' +
+            '<button class="quote-action-btn" onclick="shareQuoteCard(this)" title="生成分享图片">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4"/><path d="m15.4 6.5-6.8 4"/></svg>' +
+            '</button>' +
+            '<button class="quote-action-btn" onclick="toggleQuoteEnglish(this)" title="展开英文原文">' +
+              '<svg class="quote-expand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m6 9 6 6 6-6"/></svg>' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+        (quoteRelatedTags ? '<div class="quote-related-tags">' + quoteRelatedTags + '</div>' : '') +
         '<div class="quote-en">' + q.text + '</div>' +
-        '<div class="quote-source">— ' + q.source + '</div>' +
         '</div>';
     }).join('');
   } else if (quoteCount > 0 && isPlaceholder) {
     quotesHtml = '<div id="quotes-loading-' + c.id + '" style="padding:24px;text-align:center;color:var(--text-muted);font-size:14px">加载中 ' + quoteCount + ' 条摘录...</div>';
+  }
+
+  var roleCounts = {};
+  (quotesCache[c.id] || quotes || []).forEach(function(q) {
+    var role = q.quote_role || 'other';
+    roleCounts[role] = (roleCounts[role] || 0) + 1;
+  });
+  var roleOrder = ['all','definition','principle','mechanism','distinction','practice','example','warning','background','other'];
+  var filterHtml = '';
+  if ((quotesCache[c.id] || quotes || []).length > 0) {
+    filterHtml = '<div class="quote-filter-bar">' + roleOrder.map(function(role) {
+      var count = role === 'all' ? (quotesCache[c.id] || quotes || []).length : (roleCounts[role] || 0);
+      if (role !== 'all' && count === 0) return '';
+      var label = role === 'all' ? '全部' : (QUOTE_ROLE_LABELS[role] || role);
+      return `<button class="quote-filter-btn ${activeRole === role ? 'active' : ''}" onclick="filterQuotesByRole('${c.id}','${role}')">${label} ${count}</button>`;
+    }).join('') + '</div>';
   }
 
   var subsHtml = '';
@@ -1313,7 +2236,7 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
     (quotesHtml ? '<div class="section-divider">' +
     '<div class="label" id="quoteCountLabel"><div class="dot" style="background:var(--accent-ethereal)"></div>原文摘录 · ' + quoteCount + '</div>' +
     '<div class="line"></div>' +
-    '</div>' + quotesHtml : '') +
+    '</div>' + filterHtml + quotesHtml : '') +
     subsHtml +
     '</div>';
   closeSidebarMobile();
@@ -1340,6 +2263,185 @@ function buildDefinitionHtml(definitions) {
       '</div>';
   });
   return html;
+}
+
+function getQuoteCardData(button) {
+  var card = button.closest('.quote-card');
+  if (!card) return null;
+  return {
+    card: card,
+    zh: (card.querySelector('.quote-zh') || {}).textContent || '',
+    en: (card.querySelector('.quote-en') || {}).textContent || '',
+    source: ((card.querySelector('.quote-source') || {}).textContent || '').replace(/^—\s*/, '')
+  };
+}
+
+function setActionFeedback(button, text) {
+  var oldTitle = button.getAttribute('title') || '';
+  button.setAttribute('title', text);
+  button.style.color = 'var(--gold-bright)';
+  setTimeout(function() {
+    button.setAttribute('title', oldTitle);
+    button.style.color = '';
+  }, 900);
+}
+
+function copyQuoteCard(button) {
+  var data = getQuoteCardData(button);
+  if (!data) return;
+  var text = [
+    data.zh,
+    data.en,
+    data.source ? '— ' + data.source : ''
+  ].filter(Boolean).join('\n\n');
+
+  function fallbackCopy() {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.left = '-9999px';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    ta.remove();
+  }
+
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function() {
+      setActionFeedback(button, '已复制');
+    }).catch(function() {
+      fallbackCopy();
+      setActionFeedback(button, '已复制');
+    });
+  } else {
+    fallbackCopy();
+    setActionFeedback(button, '已复制');
+  }
+}
+
+function wrapCanvasText(ctx, text, maxWidth) {
+  var chars = String(text || '').split('');
+  var lines = [];
+  var line = '';
+  chars.forEach(function(ch) {
+    var test = line + ch;
+    if (ctx.measureText(test).width > maxWidth && line) {
+      lines.push(line);
+      line = ch;
+    } else {
+      line = test;
+    }
+  });
+  if (line) lines.push(line);
+  return lines;
+}
+
+function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
+  var lines = wrapCanvasText(ctx, text, maxWidth);
+  if (maxLines && lines.length > maxLines) {
+    lines = lines.slice(0, maxLines);
+    lines[lines.length - 1] = lines[lines.length - 1].replace(/.{0,2}$/, '') + '...';
+  }
+  lines.forEach(function(line, i) {
+    ctx.fillText(line, x, y + i * lineHeight);
+  });
+  return y + lines.length * lineHeight;
+}
+
+function shareQuoteCard(button) {
+  var data = getQuoteCardData(button);
+  if (!data) return;
+
+  var canvas = document.createElement('canvas');
+  var scale = 2;
+  var width = 900;
+  var padding = 64;
+  var maxTextWidth = width - padding * 2;
+  var zhLines, enLines;
+  var measure = canvas.getContext('2d');
+  measure.font = '28px serif';
+  zhLines = wrapCanvasText(measure, data.zh, maxTextWidth);
+  measure.font = '20px serif';
+  enLines = wrapCanvasText(measure, data.en, maxTextWidth);
+  var height = Math.min(1200, Math.max(560, padding * 2 + zhLines.length * 44 + Math.min(enLines.length, 9) * 32 + 150));
+
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+  canvas.style.width = width + 'px';
+  canvas.style.height = height + 'px';
+  var ctx = canvas.getContext('2d');
+  ctx.scale(scale, scale);
+
+  ctx.fillStyle = '#050508';
+  ctx.fillRect(0, 0, width, height);
+  ctx.fillStyle = '#101018';
+  ctx.fillRect(24, 24, width - 48, height - 48);
+  ctx.strokeStyle = 'rgba(180,160,100,0.32)';
+  ctx.lineWidth = 1;
+  ctx.strokeRect(24.5, 24.5, width - 49, height - 49);
+
+  var brandText = '赛斯宇宙 x 星巢 丨Seth Universe';
+  var brandY = padding + 2;
+  var brandW = 360;
+  var brandH = 34;
+  var brandX = (width - brandW) / 2;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(180,160,100,0.34)';
+  ctx.fillStyle = 'rgba(180,160,100,0.055)';
+  ctx.beginPath();
+  ctx.moveTo(brandX + 17, brandY);
+  ctx.lineTo(brandX + brandW - 17, brandY);
+  ctx.quadraticCurveTo(brandX + brandW, brandY, brandX + brandW, brandY + 17);
+  ctx.lineTo(brandX + brandW, brandY + brandH - 17);
+  ctx.quadraticCurveTo(brandX + brandW, brandY + brandH, brandX + brandW - 17, brandY + brandH);
+  ctx.lineTo(brandX + 17, brandY + brandH);
+  ctx.quadraticCurveTo(brandX, brandY + brandH, brandX, brandY + brandH - 17);
+  ctx.lineTo(brandX, brandY + 17);
+  ctx.quadraticCurveTo(brandX, brandY, brandX + 17, brandY);
+  ctx.fill();
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(180,160,100,0.42)';
+  ctx.beginPath();
+  ctx.moveTo(padding, brandY + brandH / 2);
+  ctx.lineTo(brandX - 18, brandY + brandH / 2);
+  ctx.moveTo(brandX + brandW + 18, brandY + brandH / 2);
+  ctx.lineTo(width - padding, brandY + brandH / 2);
+  ctx.stroke();
+  ctx.fillStyle = '#d4c088';
+  ctx.font = '16px "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(brandText, width / 2, brandY + brandH / 2 + 0.5);
+  ctx.restore();
+
+  ctx.fillStyle = '#e0dcd0';
+  ctx.font = '28px "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif';
+  var y = padding + 86;
+  y = drawWrappedText(ctx, data.zh, padding, y, maxTextWidth, 44);
+
+  y += 28;
+  ctx.fillStyle = '#8a7a52';
+  ctx.fillRect(padding, y, 1, Math.min(260, height - y - 120));
+  ctx.fillStyle = '#a09880';
+  ctx.font = '20px "EB Garamond", serif';
+  y = drawWrappedText(ctx, data.en, padding + 20, y + 4, maxTextWidth - 20, 32, 9);
+
+  ctx.fillStyle = '#6f6754';
+  ctx.font = '15px serif';
+  ctx.fillText(data.source ? '— ' + data.source : '— Seth Material', padding, Math.min(height - 66, y + 44));
+
+  var link = document.createElement('a');
+  link.download = 'seth-quote-card.png';
+  link.href = canvas.toDataURL('image/png');
+  link.click();
+  setActionFeedback(button, '图片已生成');
+}
+
+function toggleQuoteEnglish(button) {
+  var card = button.closest('.quote-card');
+  if (!card) return;
+  var expanded = card.classList.toggle('quote-expanded');
+  button.setAttribute('title', expanded ? '收起英文原文' : '展开英文原文');
 }
 
 function deleteQuote(conceptId, quoteId) {
@@ -1425,8 +2527,18 @@ document.addEventListener('keydown', e => {
   }
 });
 
+function markUserScrollIntent() {
+  if (!isRestoringScroll) userScrolledSinceRender = true;
+}
+
+window.addEventListener('wheel', markUserScrollIntent, { passive: true });
+window.addEventListener('touchmove', markUserScrollIntent, { passive: true });
+window.addEventListener('keydown', function(e) {
+  if (['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' '].indexOf(e.key) !== -1) {
+    markUserScrollIntent();
+  }
+});
 window.addEventListener('scroll', scheduleSaveReadingPosition, { passive: true });
-window.addEventListener('beforeunload', saveReadingPosition);
 
 init();
 </script>

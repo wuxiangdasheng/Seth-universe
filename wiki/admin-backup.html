@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="concept-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>内容备份管理 - 赛斯宇宙</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;
+  --bg-card:#101018;--bg-card-hover:#181824;--bg-input:rgba(255,255,255,0.02);
+  --border-subtle:rgba(255,255,255,0.04);--border-active:rgba(180,160,100,0.3);
+  --gold:#b4a064;--gold-bright:#d4c088;--gold-dim:#8a7a52;
+  --gold-glow:rgba(180,160,100,0.08);--gold-glow2:rgba(180,160,100,0.04);
+  --star:#e8e0d0;--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#4a4538;
+  --accent-ethereal:#6b8fa3;--accent-red:#c04040;--accent-red-light:#e06060;
+  --accent-green:#50a050;
+  --font-serif:'EB Garamond',serif;--font-display:'Instrument Serif','EB Garamond',serif;
+  --font-zh-title:'Noto Serif SC',serif;--font-zh-body:'Noto Sans SC',sans-serif;
+  --prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px;
+  --sidebar-w:260px;--prism-w:var(--prism-expanded-w);
+}
+html{scroll-behavior:smooth;font-size:14px}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh-body);line-height:1.7;overflow-x:hidden;min-height:100vh}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.6;
+  background-image:radial-gradient(1px 1px at 10% 20%,rgba(200,190,160,0.4),transparent),
+  radial-gradient(1px 1px at 25% 45%,rgba(200,190,160,0.3),transparent),
+  radial-gradient(1.2px 1.2px at 40% 15%,rgba(220,210,180,0.5),transparent),
+  radial-gradient(1px 1px at 55% 70%,rgba(200,190,160,0.3),transparent),
+  radial-gradient(1px 1px at 70% 30%,rgba(200,190,160,0.4),transparent)}
+body::after{content:'';position:fixed;inset:0;pointer-events:none;z-index:9999;opacity:0.015;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.12);border-radius:2px}
+::-webkit-scrollbar-thumb:hover{background:rgba(180,160,100,0.25)}
+
+/* PRISM NAV */
+#prism-nav{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--prism-expanded-w);
+  background:var(--bg-surface);border-right:1px solid var(--border-subtle);z-index:55;
+  display:flex;flex-direction:column;padding:0;transition:width 0.3s cubic-bezier(0.4,0,0.2,1);overflow:visible;
+}
+#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
+.pn-inner{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding:20px 0 12px}
+.pn-inner::-webkit-scrollbar{width:3px}
+.pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}
+.pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
+.pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
+.pn-node-trigger{display:flex;align-items:center;gap:10px;padding:10px 8px;text-decoration:none;color:var(--text-secondary);
+  transition:all 0.2s;position:relative;border-radius:8px;
+}
+.pn-node-trigger:hover{background:rgba(255,255,255,0.02);color:var(--text-primary)}
+.pn-node-icon{width:18px;height:18px;flex-shrink:0;display:flex;align-items:center;justify-content:center;
+  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.pn-node-icon svg{width:100%;height:100%}
+.pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
+.pn-node-label{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-node-label-en{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:opacity 0.15s}
+.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden}
+.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
+.pn-node-glow{position:absolute;left:0;top:10%;bottom:10%;width:2.5px;
+  background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:0 1.5px 1.5px 0;
+}
+.pn-collapsed .pn-node-glow{left:-1px}
+.pn-node-subs{max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;opacity:0;padding:0 6px 0 34px}
+.pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
+.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
+.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
+.pn-sub:hover{background:rgba(255,255,255,0.02)}
+.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0;transition:all 0.15s}
+.pn-sub:hover .pn-sub-dot{background:var(--gold)}
+.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
+.pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
+.pn-sub:hover .pn-sub-label{color:var(--text-primary)}
+.pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pn-toggle{position:absolute;top:50%;right:-11px;transform:translateY(-50%);width:22px;height:48px;
+  background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;transition:all 0.2s;z-index:56;
+}
+.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
+
+/* HEADER */
+.header{position:fixed;top:0;left:var(--prism-w);right:0;height:var(--header-h);
+  background:rgba(5,5,8,0.85);backdrop-filter:blur(20px) saturate(1.1);
+  border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px;z-index:100;transition:left 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.header-logo{display:flex;align-items:center;gap:12px}
+.header-logo .logo-mark{width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-size:14px;color:var(--gold);font-style:italic;opacity:0.8;
+}
+.header-logo a{
+  font-family:var(--font-zh-title);font-size:14px;font-weight:600;color:var(--text-primary);
+  letter-spacing:0.08em;text-decoration:none;
+}
+.header-tagline{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);font-style:italic;letter-spacing:0.08em;display:none}
+@media(min-width:900px){.header-tagline{display:block}}
+.header-actions{display:flex;align-items:center;gap:12px}
+.header-actions .badge-admin{
+  padding:3px 10px;border-radius:2px;background:var(--gold-glow);
+  font-family:var(--font-serif);font-size:10px;color:var(--gold);
+  text-transform:uppercase;letter-spacing:0.15em;
+}
+
+/* LAYOUT: 3 columns */
+.layout{
+  display:flex;margin-left:var(--prism-w);margin-top:var(--header-h);
+  height:calc(100vh - var(--header-h));overflow:hidden;
+  transition:margin-left 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+
+
+
+/* Column 3: Main content */
+.main-content{
+  flex:1;overflow-y:auto;padding:32px 40px 100px;
+}
+.main-content::-webkit-scrollbar{width:4px}
+.main-content::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
+
+.page-header{margin-bottom:32px}
+.page-header h1{font-family:var(--font-zh-title);font-size:28px;font-weight:300;color:var(--star);margin-bottom:8px}
+.page-header p{color:var(--text-muted);font-size:14px}
+
+/* Stats */
+.stats-row{display:flex;gap:16px;margin-bottom:28px}
+.stat-card{flex:1;background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:4px;padding:20px 24px}
+.stat-card .sc-label{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);margin-bottom:4px}
+.stat-card .sc-value{font-family:var(--font-display);font-size:24px;color:var(--gold);font-style:italic}
+
+/* Actions */
+.actions-row{display:flex;gap:12px;margin-bottom:28px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:8px 16px;font-family:var(--font-zh-body);font-size:13px;font-weight:500;
+  border:0.5px solid var(--border-subtle);border-radius:4px;cursor:pointer;
+  transition:all 0.15s;text-decoration:none;background:var(--bg-elevated);color:var(--text-secondary);
+}
+.btn:hover{background:var(--bg-card-hover);color:var(--text-primary);border-color:var(--border-active)}
+.btn-primary{background:var(--gold);color:var(--bg-deep);border-color:var(--gold)}
+.btn-primary:hover{background:var(--gold-bright);border-color:var(--gold-bright);color:var(--bg-deep)}
+.btn-danger{background:rgba(192,64,64,0.15);color:var(--accent-red-light);border-color:rgba(192,64,64,0.2)}
+.btn-danger:hover{background:rgba(192,64,64,0.25);border-color:rgba(192,64,64,0.3)}
+
+/* Backup table */
+.backup-table{width:100%;background:var(--bg-card);border:0.5px solid var(--border-subtle);border-radius:4px;overflow:hidden}
+.backup-table-header{display:grid;grid-template-columns:1fr 120px 200px 200px;padding:12px 20px;background:var(--bg-elevated);font-size:12px;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.1em}
+.backup-row{display:grid;grid-template-columns:1fr 120px 120px 200px 200px;padding:12px 20px;border-top:0.5px solid var(--border-subtle);align-items:center;transition:background 0.12s}
+.backup-row:hover{background:rgba(255,255,255,0.01)}
+.backup-row .br-name{font-family:var(--font-serif);font-size:15px;color:var(--text-primary)}
+.backup-row .br-size{font-family:var(--font-serif);font-size:14px;color:var(--text-muted)}
+.backup-row .br-type{font-size:13px;color:var(--gold-dim)}
+.backup-row .br-time{font-size:14px;color:var(--text-secondary)}
+.backup-row .br-actions{display:flex;gap:8px}
+.backup-row .br-actions .btn{padding:4px 10px;font-size:12px}
+
+.empty-state{text-align:center;padding:60px 20px;color:var(--text-muted)}
+.empty-state svg{width:48px;height:48px;color:var(--text-muted);opacity:0.3;margin-bottom:16px}
+
+/* Toast */
+.toast-container{position:fixed;top:64px;right:20px;z-index:200;display:flex;flex-direction:column;gap:8px}
+.toast{padding:12px 16px;border-radius:4px;background:var(--bg-elevated);border:0.5px solid var(--border-subtle);display:flex;align-items:center;gap:8px;opacity:0;transform:translateX(20px);transition:all 0.25s;font-size:14px}
+.toast.show{opacity:1;transform:translateX(0)}
+.toast.success{border-color:var(--accent-green)}
+.toast.error{border-color:var(--accent-red)}
+.toast-icon{font-size:16px}
+
+/* Modal */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);z-index:150;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--bg-elevated);border:0.5px solid var(--border-subtle);border-radius:6px;width:min(440px,92vw);padding:24px}
+.modal h3{font-family:var(--font-zh-title);font-size:16px;font-weight:500;margin-bottom:12px}
+.modal p{color:var(--text-secondary);margin-bottom:20px;font-size:14px}
+.modal-actions{display:flex;justify-content:flex-end;gap:8px}
+
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:var(--text-muted)}
+.loading::before{content:'';width:24px;height:24px;border:2px solid var(--border-subtle);border-top-color:var(--gold);border-radius:50%;animation:spin 0.8s linear infinite;margin-right:12px}
+@keyframes spin{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-logo">
+    <div class="logo-mark">✦</div>
+    <a href="index.html">赛斯宇宙</a>
+  </div>
+  <div class="header-tagline">The Seth Material — Concept Universe</div>
+  <div class="header-actions">
+    <span class="badge-admin">管理后台</span>
+  </div>
+</header>
+
+<div class="layout">
+  
+
+  <main class="main-content" id="mainContent">
+    <div class="page-header">
+      <h1>内容备份管理</h1>
+      <p>管理 concepts.json 的自动备份与手动备份，支持一键恢复</p>
+    </div>
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card">
+        <div class="sc-label">备份总数</div>
+        <div class="sc-value" id="statBackups">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">当前数据大小</div>
+        <div class="sc-value" id="statCurrentSize">-</div>
+      </div>
+      <div class="stat-card">
+        <div class="sc-label">最大备份</div>
+        <div class="sc-value" id="statLargest">-</div>
+      </div>
+    </div>
+
+    <div class="actions-row">
+      <button class="btn btn-primary" onclick="manualBackup()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        立即备份
+      </button>
+      <button class="btn" onclick="loadBackups()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        刷新列表
+      </button>
+    </div>
+
+    <div id="backupList"></div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-overlay" id="restoreModal">
+  <div class="modal">
+    <h3>确认恢复</h3>
+    <p id="restoreMsg">恢复后当前数据将被覆盖。恢复前会自动创建备份。</p>
+    <div class="modal-actions">
+      <button class="btn" onclick="closeRestoreModal()">取消</button>
+      <button class="btn btn-primary" id="confirmRestoreBtn">确认恢复</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let pendingRestoreFile = '';
+let conceptData = [];
+
+// === Sidebar concept list ===
+function loadConcepts() {
+  fetch('/api/concepts')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      conceptData = data.concepts || [];
+      renderConceptList(conceptData);
+      var totalQ = 0;
+      for (var i = 0; i < conceptData.length; i++) { totalQ += (conceptData[i].quotes_count || 0); }
+      document.getElementById('statTotal').textContent = conceptData.length;
+      document.getElementById('statQuotes').textContent = totalQ;
+      populateCategories();
+    });
+}
+
+function renderConceptList(list) {
+  var container = document.getElementById('conceptList');
+  var html = '';
+  for (var i = 0; i < list.length; i++) {
+    var c = list[i];
+    html += '<div class="sidebar-concept-item" data-id="' + c.id + '" onclick="showConceptDetail(\'' + c.id + '\')">' +
+      '<div class="sci-dot"></div>' +
+      '<div><div class="sci-name">' + escapeHtml(c.name_zh) + '</div>' +
+      '<div class="sci-name-en">' + escapeHtml(c.name_en) + '</div></div>' +
+      '<div class="sci-badge">' + (c.quotes_count || 0) + '</div>' +
+      '</div>';
+  }
+  container.innerHTML = html;
+}
+
+function populateCategories() {
+  var cats = {};
+  for (var i = 0; i < conceptData.length; i++) {
+    var cat = conceptData[i].category;
+    if (cat) cats[cat] = true;
+  }
+  var sel = document.getElementById('categoryFilter');
+  sel.innerHTML = '<option value="">全部分类</option>';
+  var keys = Object.keys(cats);
+  for (var i = 0; i < keys.length; i++) {
+    sel.innerHTML += '<option value="' + escapeHtml(keys[i]) + '">' + escapeHtml(keys[i]) + '</option>';
+  }
+}
+
+function handleSearch() {
+  var q = document.getElementById('searchInput').value.toLowerCase();
+  var cat = document.getElementById('categoryFilter').value;
+  var filtered = [];
+  for (var i = 0; i < conceptData.length; i++) {
+    var c = conceptData[i];
+    var matchQ = !q || c.name_zh.toLowerCase().indexOf(q) !== -1 || c.name_en.toLowerCase().indexOf(q) !== -1;
+    var matchCat = !cat || c.category === cat;
+    if (matchQ && matchCat) filtered.push(c);
+  }
+  renderConceptList(filtered);
+}
+
+function showConceptDetail(id) {
+  window.location.href = 'admin.html?id=' + id;
+}
+
+// === Backup functions ===
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+function loadBackups() {
+  var container = document.getElementById('backupList');
+  container.innerHTML = '<div class="loading">加载备份列表...</div>';
+
+  fetch('/api/backups')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      var backups = data.backups || [];
+      document.getElementById('statBackups').textContent = backups.length;
+      document.getElementById('statCurrentSize').textContent = formatSize(data.current_size || 0);
+
+      if (backups.length === 0) {
+        container.innerHTML = '<div class="empty-state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg><p>暂无备份</p></div>';
+        document.getElementById('statLargest').textContent = '-';
+        return;
+      }
+
+      var largest = 0;
+      var rows = '';
+      for (var i = 0; i < backups.length; i++) {
+        var b = backups[i];
+        var sz = b.size || 0;
+        if (sz > largest) largest = sz;
+        var canRestore = b.name.indexOf('concepts') !== -1 || b.name.indexOf('seth-data') !== -1 || b.name.endsWith('.zip');
+        var backupType = b.type === 'package' || b.name.endsWith('.zip') ? '全量包' : '主数据';
+        rows += '<div class="backup-row">' +
+          '<div class="br-name">' + escapeHtml(b.name) + '</div>' +
+          '<div class="br-size">' + formatSize(sz) + '</div>' +
+          '<div class="br-type">' + backupType + '</div>' +
+          '<div class="br-time">' + escapeHtml(b.mtime) + '</div>' +
+          '<div class="br-actions">' +
+            (canRestore ? '<button class="btn" onclick="confirmRestore(\'' + escapeJs(b.path) + '\')">恢复</button>' : '') +
+            '<button class="btn btn-danger" onclick="deleteBackup(\'' + escapeJs(b.path) + '\')">删除</button>' +
+          '</div>' +
+        '</div>';
+      }
+
+      document.getElementById('statLargest').textContent = formatSize(largest);
+
+      container.innerHTML = '<div class="backup-table">' +
+        '<div class="backup-table-header">' +
+          '<div>文件名</div><div>大小</div><div>类型</div><div>时间</div><div>操作</div>' +
+        '</div>' +
+        rows +
+      '</div>';
+    })
+    .catch(function(e) {
+      container.innerHTML = '<div class="empty-state">加载失败：' + escapeHtml(e.message) + '</div>';
+    });
+}
+
+function manualBackup() {
+  fetch('/api/backups/manual')
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        showToast('备份成功：' + data.file, 'success');
+        loadBackups();
+      } else {
+        showToast('备份失败：' + data.error, 'error');
+      }
+    })
+    .catch(function(e) {
+      showToast('请求失败：' + e.message, 'error');
+    });
+}
+
+function confirmRestore(filePath) {
+  pendingRestoreFile = filePath;
+  document.getElementById('restoreMsg').textContent = '即将恢复备份：' + filePath.split('/').pop() + '。恢复前会自动创建当前数据的备份。';
+  document.getElementById('restoreModal').classList.add('active');
+}
+
+function closeRestoreModal() {
+  pendingRestoreFile = '';
+  document.getElementById('restoreModal').classList.remove('active');
+}
+
+document.getElementById('confirmRestoreBtn').addEventListener('click', function() {
+  var btn = document.getElementById('confirmRestoreBtn');
+  btn.disabled = true;
+  btn.textContent = '恢复中...';
+
+  fetch('/api/backups/restore', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({file: pendingRestoreFile})
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      btn.disabled = false;
+      btn.textContent = '确认恢复';
+      closeRestoreModal();
+      if (data.ok) {
+        showToast('恢复成功，数据已重载', 'success');
+        loadConcepts();
+        loadBackups();
+      } else {
+        showToast('恢复失败：' + data.error, 'error');
+      }
+    })
+    .catch(function(e) {
+      btn.disabled = false;
+      btn.textContent = '确认恢复';
+      showToast('请求失败：' + e.message, 'error');
+    });
+});
+
+function deleteBackup(filePath) {
+  if (!confirm('确定删除此备份？')) return;
+  fetch('/api/backups/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({file: filePath})
+  })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+      if (data.ok) {
+        showToast('已删除', 'success');
+        loadBackups();
+      } else {
+        showToast('删除失败：' + data.error, 'error');
+      }
+    })
+    .catch(function(e) {
+      showToast('请求失败：' + e.message, 'error');
+    });
+}
+
+function showToast(message, type) {
+  type = type || 'success';
+  var container = document.getElementById('toastContainer');
+  var toast = document.createElement('div');
+  toast.className = 'toast ' + type;
+  var icon = type === 'success' ? '&#x2705;' : '&#x274c;';
+  toast.innerHTML = '<span class="toast-icon">' + icon + '</span><span class="toast-message">' + escapeHtml(message) + '</span>';
+  container.appendChild(toast);
+  requestAnimationFrame(function() { toast.classList.add('show'); });
+  setTimeout(function() { toast.classList.remove('show'); setTimeout(function() { toast.remove(); }, 300); }, 3000);
+}
+
+function escapeHtml(str) { if (!str) return ''; var div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+function escapeJs(str) { return str.replace(/\\/g, '\\\\').replace(/'/g, "\\'"); }
+
+// === Init ===
+loadConcepts();
+loadBackups();
+</script>
+<script src="admin-menu.js"></script>
+</body>
+</html>
