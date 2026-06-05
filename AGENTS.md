@@ -360,11 +360,11 @@ Cloudflare Pages 推荐配置：
 
 ```text
 Framework preset: None
-Build command: python3 scripts/build_public_site.py
+Build command: 留空
 Build output directory: public-site
 ```
 
-更新内容后，先在本地后台备份内容数据，再重新运行 `build_public_site.py`，然后提交/推送 `public-site/` 或让 Cloudflare 在构建时生成它。
+注意：`wiki/concepts.json`、`wiki/concepts-lite.json` 等源内容数据不进 Git，所以 Cloudflare 线上构建环境拿不到这些源数据。更新内容后，先在本地后台备份内容数据，再在本地运行 `python3 scripts/build_public_site.py`，然后提交/推送重新生成的 `public-site/`。Cloudflare Pages 只负责发布已提交的 `public-site/` 目录。
 
 ## 最近后台改造记录
 
