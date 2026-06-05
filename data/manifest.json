@@ -1,0 +1,20 @@
+{
+  "type": "seth-universe-public-site",
+  "created_at": "2026-06-05 19:40:55",
+  "concepts": 48,
+  "lite_items": 48,
+  "includes": [
+    "reader-facing HTML/CSS/JS",
+    "data/concepts-lite.json",
+    "data/concept-graph.json",
+    "data/concepts/{concept-id}.json"
+  ],
+  "excludes": [
+    "admin pages",
+    "server.py",
+    "backup/",
+    "02-processed/",
+    "concept-quotes-full/",
+    "local bookmark state"
+  ]
+}

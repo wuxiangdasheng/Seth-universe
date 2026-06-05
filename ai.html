@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="ai-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI赛斯 - 赛斯宇宙</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--border-subtle:rgba(255,255,255,.055);--border-active:rgba(74,143,161,.36);--accent:#4a8fa1;--accent-bright:#78c1d0;--gold:var(--accent);--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#5a5548;--font-serif:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh-title:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-display:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px}
+html{font-size:16px}body{min-height:100vh;background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh);line-height:1.7;overflow:hidden}body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 68% 18%,rgba(74,143,161,.12),transparent 32%),radial-gradient(circle at 24% 86%,rgba(180,160,100,.07),transparent 36%);opacity:.9}
+.main{position:relative;z-index:1;margin-left:var(--prism-w);margin-top:var(--header-h);height:calc(100vh - var(--header-h));transition:margin-left .28s;padding:28px}.chat-shell{height:100%;max-width:980px;margin:0 auto;display:grid;grid-template-rows:auto 1fr auto;border:1px solid var(--border-subtle);background:rgba(12,12,18,.78);backdrop-filter:blur(14px);border-radius:8px;overflow:hidden}.chat-head{padding:22px 24px;border-bottom:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:space-between;gap:16px}.chat-head h1{font-family:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;font-size:26px}.chat-head .en{font-family:var(--font-serif);color:var(--accent-bright);font-size:15px}.status{font-size:13px;color:var(--text-muted);border:1px solid var(--border-subtle);border-radius:999px;padding:5px 10px}.messages{overflow:auto;padding:24px;display:flex;flex-direction:column;gap:16px}.msg{max-width:78%;padding:14px 16px;border-radius:8px;font-size:15px}.msg.ai{align-self:flex-start;background:rgba(74,143,161,.1);border:1px solid rgba(74,143,161,.18)}.msg.user{align-self:flex-end;background:rgba(180,160,100,.1);border:1px solid rgba(180,160,100,.18)}.msg-label{font-family:var(--font-serif);font-size:13px;color:var(--accent-bright);margin-bottom:6px}.composer{display:flex;gap:10px;padding:16px;border-top:1px solid var(--border-subtle);background:rgba(5,5,8,.45)}.composer input{flex:1;height:44px;background:var(--bg-card);border:1px solid var(--border-subtle);border-radius:6px;color:var(--text-primary);padding:0 14px;font:15px var(--font-zh)}.composer input:focus{outline:0;border-color:var(--border-active)}.composer button{width:88px;border:1px solid var(--border-active);background:rgba(74,143,161,.13);color:var(--accent-bright);border-radius:6px;font-weight:600;cursor:pointer}
+@media(max-width:768px){body{overflow:auto}.main{margin-left:0;height:calc(100vh - var(--header-h));padding:14px}.msg{max-width:92%}}
+</style>
+<link rel="stylesheet" href="site-chrome.css">
+</head>
+<body>
+<header class="header"><div class="header-logo"><div class="logo-mark">S</div><span>赛斯宇宙</span></div><div class="header-tagline">You Create Your Own Reality</div><div class="header-actions"></div></header>
+<main class="main">
+  <section class="chat-shell">
+    <header class="chat-head"><div><h1>AI赛斯</h1><div class="en">Dialogue Interface</div></div><div class="status">本地界面预览</div></header>
+    <div class="messages" id="messages">
+      <div class="msg ai"><div class="msg-label">AI赛斯</div><div>你可以把一个问题放在这里。真正的知识库问答接口接入后，这里会以对话形式返回与赛斯文本相关的回答、出处与延伸概念。</div></div>
+    </div>
+    <form class="composer" id="chatForm">
+      <input id="chatInput" type="text" autocomplete="off" placeholder="输入你的问题...">
+      <button type="submit">发送</button>
+    </form>
+  </section>
+</main>
+<script>
+document.getElementById('chatForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var input = document.getElementById('chatInput');
+  var text = input.value.trim();
+  if (!text) return;
+  var messages = document.getElementById('messages');
+  messages.insertAdjacentHTML('beforeend', '<div class="msg user"><div class="msg-label">你</div><div>' + text.replace(/[&<>]/g, function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;'}[c];}) + '</div></div>');
+  messages.insertAdjacentHTML('beforeend', '<div class="msg ai"><div class="msg-label">AI赛斯</div><div>对话接口尚未接入。这一页已预留为 AI 赛斯的独立聊天界面。</div></div>');
+  input.value = '';
+  messages.scrollTop = messages.scrollHeight;
+});
+</script>
+<script src="global-menu.js"></script>
+</body>
+</html>
