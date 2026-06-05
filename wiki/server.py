@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """赛斯宇宙 Wiki 服务器 - Threading + 内存缓存"""
-import json, os, re, glob, shutil, zipfile
+import json, os, re, shutil, zipfile
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from socketserver import ThreadingMixIn
 from urllib.parse import urlparse
@@ -443,6 +443,7 @@ class H(BaseHTTPRequestHandler):
                 CONCEPTS.append(body)
                 _save_concepts()
                 _rebuild_flat()
+                _save_lite()
                 self._json(200, {'ok': True, 'id': cid})
                 return
             if path.startswith('/api/concepts/') and path.endswith('/save-quotes'):
@@ -454,6 +455,7 @@ class H(BaseHTTPRequestHandler):
                 c['quotes'] = body.get('quotes', [])
                 _save_concepts()
                 _rebuild_flat()
+                _save_lite()
                 self._json(200, {'ok': True})
                 return
             if path == '/api/relations/concept-group':
@@ -638,6 +640,7 @@ class H(BaseHTTPRequestHandler):
                     del IDX[cid]
                 _save_concepts()
                 _rebuild_flat()
+                _save_lite()
                 self._json(200, {'ok': True})
                 return
             if path == '/api/relations/concept-group':
@@ -747,6 +750,7 @@ class H(BaseHTTPRequestHandler):
                     c['related_concepts'] = body['related_concepts']
                 _save_concepts()
                 _rebuild_flat()
+                _save_lite()
                 self._json(200, {'ok': True})
                 return
             self._json(404, {'error': 'not found'})
