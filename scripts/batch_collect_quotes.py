@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 """
-概念摘录批量预处理脚本 - 两阶段流程
+概念摘录批量预处理脚本
 
-阶段一：全书匹配 → 自然去重 → 全部翻译 → concept-quotes-full/{概念}.json (完整库)
-阶段二：从完整库精选 top N → concept-quotes/{概念}.json (精选库)
+全书匹配 → 自然去重 → 全部翻译 → concept-quotes-full/{概念}.json
 
 试点概念：Beliefs, Ego, Consciousness
 """
@@ -36,27 +35,22 @@ client = None
 # ============================
 BASE_DIR = str(BASE_DIR)
 PROCESSED_DIR = str(PROCESSED_DIR)
-FULL_DIR = os.path.join(BASE_DIR, 'concept-quotes-full')   # 完整库（去重后全部）
-SELECTED_DIR = os.path.join(BASE_DIR, 'concept-quotes')     # 精选库（top N）
+FULL_DIR = os.path.join(BASE_DIR, 'concept-quotes-full')   # 最终摘录库（机器 + 人工维护）
 REPORT_DIR = os.path.join(BASE_DIR, 'reports')
 os.makedirs(FULL_DIR, exist_ok=True)
-os.makedirs(SELECTED_DIR, exist_ok=True)
 os.makedirs(REPORT_DIR, exist_ok=True)
 
-MAX_SELECTED = 200
 DEDUP_SIMILARITY = 0.85
 REQUIRE_PREFIX_MATCH = os.environ.get('SETH_REQUIRE_PREFIX_MATCH', '0') == '1'
 RELATED_CONCEPT_STOPLIST = {'will'}
 QUOTE_ROLE_ORDER = {
     'definition': 10,
-    'principle': 20,
+    'description': 20,
     'mechanism': 30,
-    'distinction': 40,
+    'example': 40,
     'practice': 50,
-    'example': 60,
-    'warning': 70,
-    'background': 80,
-    'other': 90,
+    'warning': 60,
+    'uncategorized': 90,
 }
 
 BIOGRAPHICAL_NOTE_PATTERNS = [
@@ -100,7 +94,7 @@ QUOTE_ROLE_PATTERNS = [
         r'\b(?:try|practice|exercise|method|technique|write down|examine|ask yourself|suggestion[s]?)\b',
         r'\b(?:you should|you must|you can|you may)\b',
     ]),
-    ('distinction', [
+    ('description', [
         r'\b(?:distinction|difference|different from|not the same|rather than|instead of|unlike|separate from)\b',
     ]),
     ('warning', [
@@ -113,7 +107,7 @@ QUOTE_ROLE_PATTERNS = [
         r'\b(?:forms?|creates?|affects?|organizes?|operates?|functions?|directs?|focuses?|perceives?|expresses?|manifests?|materializes?)\b',
         r'\b(?:results?\s+in|leads?\s+to|is\s+responsible\s+for|is\s+connected\s+with|is\s+related\s+to)\b',
     ]),
-    ('principle', [
+    ('description', [
         r'\b(?:all|always|never|basically|essentially|fundamentally|the nature of|inherent|primary|basic)\b',
     ]),
 ]
@@ -202,7 +196,24 @@ CONCEPT_RULES = {
     "self": [r'\bself\b', r'\bselves\b'],
     "soul": [r'\bsoul[s]?\b'],
     "unconscious": [r'\bunconscious\b', r'\bunconsciously\b'],
-    "will": [r'\bwill\b'],
+    "will": {
+        "include": [
+            r'\bfree\s+will\b',
+            r'\bwill[-\s]?power\b',
+            r'\b(?:conscious|personal|inner|creative|directed)\s+will\b',
+            r'\b(?:exercise|exercising|use|using|focus|focusing|direct|directing)\s+(?:your\s+|the\s+|one\'s\s+|his\s+|her\s+|their\s+|its\s+|our\s+|own\s+)will\b',
+            r'\b(?:act|acts|action)\s+of\s+will\b',
+            r'\bwill\s+to\s+(?:live|create|choose|act|be|become|survive|change)\b',
+            r'\b(?:desire|intent|intention|choice|purpose)\s+and\s+will\b',
+            r'\bwill\s+and\s+(?:desire|intent|intention|choice|purpose)\b',
+            r'\bwilled\b',
+            r'\bwillingness\b',
+        ],
+        "context": [
+            r'\b(?:desire|intent|intention|choice|purpose|decision|action|creative|conscious|focus|power)\b',
+            r'\b(?:directs?|chooses?|creates?|acts?|focuses?|changes?|decides?)\b',
+        ],
+    },
     "dissociate/trance": {
         "include": [r'\bdissociat', r'\btrance\b'],
         "context": [
@@ -405,7 +416,7 @@ def is_semantically_relevant(text, concept_name, compiled_rule):
 def classify_quote(text, concept_name, semantic_reason='', score=0):
     normalized = re.sub(r'\s+', ' ', text or '').strip()
     lowered = normalized.lower()
-    role = 'other'
+    role = 'uncategorized'
 
     if semantic_reason == 'definition':
         role = 'definition'
@@ -416,23 +427,21 @@ def classify_quote(text, concept_name, semantic_reason='', score=0):
             if any(re.search(pattern, lowered, re.IGNORECASE) for pattern in patterns):
                 role = candidate_role
                 break
-        if role == 'other' and semantic_reason == 'mechanism_language':
+        if role == 'uncategorized' and semantic_reason == 'mechanism_language':
             role = 'mechanism'
-        elif role == 'other' and semantic_reason == 'teaching_language':
-            role = 'principle'
-        elif role == 'other' and semantic_reason == 'concept_context':
-            role = 'background'
+        elif role == 'uncategorized' and semantic_reason == 'teaching_language':
+            role = 'description'
+        elif role == 'uncategorized' and semantic_reason == 'concept_context':
+            role = 'description'
 
     if role == 'definition':
         semantic_score = 5
-    elif role in ('principle', 'mechanism', 'distinction'):
+    elif role in ('description', 'mechanism'):
         semantic_score = 4
     elif role in ('practice', 'example'):
         semantic_score = 3
     elif role == 'warning':
         semantic_score = 3
-    elif role == 'background':
-        semantic_score = 2
     else:
         semantic_score = 2 if score >= 50 else 1
 
@@ -504,7 +513,7 @@ def call_llm(prompt, system_prompt, max_retries=2):
                     {"role": "user", "content": prompt},
                 ],
                 temperature=0.3,
-                max_tokens=3000,
+                max_tokens=int(os.environ.get('SETH_TRANSLATE_MAX_TOKENS', '6000')),
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
@@ -515,7 +524,7 @@ def call_llm(prompt, system_prompt, max_retries=2):
 
 def batch_translate_quotes(quotes, concept_name, translation_cache=None):
     results = []
-    batch_size = 3
+    batch_size = max(1, int(os.environ.get('SETH_TRANSLATE_BATCH_SIZE', '6')))
     translation_cache = translation_cache or {}
     
     for i in range(0, len(quotes), batch_size):
@@ -616,7 +625,7 @@ def compact_text(text, max_len=220):
     return text if len(text) <= max_len else text[:max_len].rstrip() + '...'
 
 
-def write_quality_report(concept_name, zh_name, candidates, deduped, selected, translated_count, rejected_counts=None):
+def write_quality_report(concept_name, zh_name, candidates, deduped, translated_count, rejected_counts=None):
     rejected_counts = rejected_counts or {}
     safe_name = safe_concept_name(concept_name)
     report_file = os.path.join(REPORT_DIR, f'{safe_name}.md')
@@ -641,7 +650,6 @@ def write_quality_report(concept_name, zh_name, candidates, deduped, selected, t
         f'- 语义门槛排除: {rejected_counts.get("semantic_excluded", 0)}',
         f'- 前缀排除: {rejected_counts.get("prefix_excluded", 0)}',
         f'- 去重后: {len(deduped)}',
-        f'- 精选数: {len(selected)}',
         f'- 翻译成功: {translated_count} / {len(deduped)}',
         f'- Session 覆盖: {len(sessions)}',
         f'- 前 360 字符命中: {prefix_count} / {len(deduped)}',
@@ -654,8 +662,9 @@ def write_quality_report(concept_name, zh_name, candidates, deduped, selected, t
     if match_counts:
         lines.append(f'- 平均匹配次数: {sum(match_counts) / len(match_counts):.1f}')
 
+    top_samples = sorted(deduped, key=lambda ex: ex.get('score', 0), reverse=True)[:20]
     lines.extend(['', '## Top 20 样例', ''])
-    for idx, ex in enumerate(selected[:20], 1):
+    for idx, ex in enumerate(top_samples, 1):
         lines.extend([
             f'### {idx}. {ex.get("source_str", "")} / score {ex.get("score", 0):.1f}',
             '',
@@ -684,14 +693,11 @@ def process_concept(concept_name, zh_name, all_paragraphs):
     
     safe_name = safe_concept_name(concept_name)
     full_file = os.path.join(FULL_DIR, f"{safe_name}.json")
-    selected_file = os.path.join(SELECTED_DIR, f"{safe_name}.json")
     translation_cache = load_translation_cache(full_file)
     
     # 如果文件已存在，先备份
     if os.path.exists(full_file):
         auto_backup(full_file)
-    if os.path.exists(selected_file):
-        auto_backup(selected_file)
     
     compiled_rule = compile_rule(concept_name)
     patterns = compiled_rule['include']
@@ -772,14 +778,13 @@ def process_concept(concept_name, zh_name, all_paragraphs):
     deduped = deduplicate_excerpts(candidates)
     print(f"  去重后: {len(deduped)} 条（自然结果，无人工截断）")
     if not deduped:
-        write_quality_report(concept_name, zh_name, candidates, deduped, [], 0, rejected_counts)
+        write_quality_report(concept_name, zh_name, candidates, deduped, 0, rejected_counts)
         print("  无可用摘录，跳过翻译与保存")
         return {
             'concept': concept_name,
             'matched': len(candidates),
             'deduped': 0,
             'translated': 0,
-            'selected': 0,
         }
     
     unique_sessions = set()
@@ -808,42 +813,15 @@ def process_concept(concept_name, zh_name, all_paragraphs):
     with open(full_file, 'w', encoding='utf-8') as f:
         json.dump(full_output, f, ensure_ascii=False, indent=2)
     
-    print(f"\n[阶段一] 完整库已保存: {full_file}")
+    print(f"\n[阶段一] 最终摘录库已保存: {full_file}")
     print(f"  文件大小: {os.path.getsize(full_file)} bytes")
     print(f"  摘录数: {len(full_output['excerpts'])}")
-    
-    # === 阶段二：从完整库精选 top N → 保存精选库 ===
-    print(f"\n[阶段二] 从完整库精选 top {MAX_SELECTED}...")
-    deduped.sort(key=lambda x: -x['score'])
-    selected = deduped[:MAX_SELECTED]
-    selected_translations = translations_full[:MAX_SELECTED]
-    
-    scores = [ex['score'] for ex in selected]
-    matches = [ex['match_count'] for ex in selected]
-    print(f"  精选 {len(selected)} 条")
-    if selected:
-        print(f"  评分范围: {min(scores):.1f} ~ {max(scores):.1f} (平均 {sum(scores)/len(selected):.1f})")
-        print(f"  匹配次数: {min(matches)} ~ {max(matches)} (平均 {sum(matches)/len(selected):.1f})")
-    
-    selected_output = {
-        "concept_name_en": concept_name,
-        "concept_name_zh": zh_name,
-        "source": f"从 {len(deduped)} 条去重摘录中精选 top {MAX_SELECTED}",
-        "excerpts": build_excerpt_list(selected, selected_translations),
-    }
-    
-    with open(selected_file, 'w', encoding='utf-8') as f:
-        json.dump(selected_output, f, ensure_ascii=False, indent=2)
-    
-    print(f"[阶段二] 精选库已保存: {selected_file}")
-    print(f"  文件大小: {os.path.getsize(selected_file)} bytes")
 
     report_file = write_quality_report(
         concept_name,
         zh_name,
         candidates,
         deduped,
-        selected,
         translated_count,
         rejected_counts,
     )
@@ -857,7 +835,6 @@ def process_concept(concept_name, zh_name, all_paragraphs):
         'matched': len(candidates),
         'deduped': len(deduped),
         'translated': translated_count,
-        'selected': len(selected),
     }
 
 
@@ -890,10 +867,10 @@ def main():
     print(f"\n{'='*60}")
     print("试点概念处理完成总结")
     print(f"{'='*60}")
-    print(f"{'概念':<25} | {'初始匹配':>6} | {'去重后':>6} | {'已翻译':>6} | {'精选':>6}")
+    print(f"{'概念':<25} | {'初始匹配':>6} | {'去重后':>6} | {'已翻译':>6}")
     print("-" * 60)
     for r in results:
-        print(f"{r['concept']:<25} | {r['matched']:>6} | {r['deduped']:>6} | {r['translated']:>6} | {r['selected']:>6}")
+        print(f"{r['concept']:<25} | {r['matched']:>6} | {r['deduped']:>6} | {r['translated']:>6}")
 
 
 if __name__ == '__main__':

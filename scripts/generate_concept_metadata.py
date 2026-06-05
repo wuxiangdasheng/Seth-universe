@@ -50,7 +50,7 @@ def call_llm(prompt, system_prompt, max_retries=2):
     if not API_KEY:
         raise RuntimeError('缺少 DEEPSEEK_API_KEY 环境变量，无法调用 DeepSeek。')
     if client is None:
-        client = OpenAI(api_key=API_KEY, base_url=BASE_URL)
+        client = OpenAI(api_key=API_KEY, base_url=BASE_URL, timeout=60)
     for attempt in range(max_retries):
         try:
             response = client.chat.completions.create(

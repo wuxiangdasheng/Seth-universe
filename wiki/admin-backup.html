@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>内容备份管理 - 赛斯宇宙</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<noscript></noscript>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -19,8 +16,8 @@
   --star:#e8e0d0;--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#4a4538;
   --accent-ethereal:#6b8fa3;--accent-red:#c04040;--accent-red-light:#e06060;
   --accent-green:#50a050;
-  --font-serif:'EB Garamond',serif;--font-display:'Instrument Serif','EB Garamond',serif;
-  --font-zh-title:'Noto Serif SC',serif;--font-zh-body:'Noto Sans SC',sans-serif;
+  --font-serif:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-display:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-zh-title:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh-body:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px;
   --sidebar-w:260px;--prism-w:var(--prism-expanded-w);
 }
@@ -345,7 +342,7 @@ function loadBackups() {
         var sz = b.size || 0;
         if (sz > largest) largest = sz;
         var canRestore = b.name.indexOf('concepts') !== -1 || b.name.indexOf('seth-data') !== -1 || b.name.endsWith('.zip');
-        var backupType = b.type === 'package' || b.name.endsWith('.zip') ? '全量包' : '主数据';
+        var backupType = b.type === 'package' || b.name.endsWith('.zip') ? '内容包' : '主数据';
         rows += '<div class="backup-row">' +
           '<div class="br-name">' + escapeHtml(b.name) + '</div>' +
           '<div class="br-size">' + formatSize(sz) + '</div>' +

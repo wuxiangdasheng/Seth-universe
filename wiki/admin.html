@@ -4,10 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>内容管理 - 赛斯宇宙</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<noscript></noscript>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -16,7 +13,7 @@
   --gold:#b4a064;--gold-bright:#d4c088;--gold-dim:#8a7a52;--gold-glow:rgba(180,160,100,0.08);--gold-glow2:rgba(180,160,100,0.04);
   --star:#e8e0d0;--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#5d5645;
   --accent-red:#c96262;--accent-green:#6fa56f;--accent-blue:#6b8fa3;
-  --font-serif:'EB Garamond',serif;--font-display:'Instrument Serif','EB Garamond',serif;--font-zh-title:'Noto Serif SC',serif;--font-zh-body:'Noto Sans SC',sans-serif;
+  --font-serif:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-display:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh-title:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh-body:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --prism-expanded-w:260px;--prism-collapsed-w:56px;--prism-w:var(--prism-expanded-w);--header-h:56px;--list-w:340px;
 }
 html{font-size:15px;scroll-behavior:smooth}
@@ -350,7 +347,7 @@ button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,
     </div>
     <div class="confirm-actions">
       <button class="btn" type="button" onclick="closeConfirm()">取消</button>
-      <button class="btn btn-danger" type="button" onclick="doDelete()">确认删除</button>
+      <button class="btn btn-danger" type="button" id="confirmDeleteBtn" onclick="doDelete()">确认删除</button>
     </div>
   </div>
 </div>
@@ -364,6 +361,7 @@ let editingDefinition = [];
 let currentDefinitionSource = '';
 let currentId = null;
 let deleteTarget = null;
+let isDeleting = false;
 let quoteMetadataSaveTimers = {};
 let conceptAutosaveTimer = null;
 let isHydratingForm = false;
@@ -570,9 +568,9 @@ function renderQuoteList() {
     html += '<div class="flat-editor quote-en" contenteditable="true" data-placeholder="Click to edit" data-quote-index="' + i + '" data-quote-field="text">' + escapeHtml(q.text || '') + '</div>';
     html += '</div>';
     html += '<div class="quote-meta-grid">';
-    html += '<label class="quote-meta-field"><span class="quote-meta-label">摘录角色</span><select class="quote-meta-input" data-quote-index="' + i + '" data-quote-field="quote_role">' + renderQuoteRoleOptions(q.quote_role || '') + '</select></label>';
+    html += '<label class="quote-meta-field"><span class="quote-meta-label">分类</span><select class="quote-meta-input" data-quote-index="' + i + '" data-quote-field="quote_role">' + renderQuoteRoleOptions(q.quote_role || '') + '</select></label>';
     html += '<label class="quote-meta-field"><span class="quote-meta-label">语义评分</span><input class="quote-meta-input" type="number" step="1" value="' + escapeAttr(q.semantic_score === undefined || q.semantic_score === null ? '' : q.semantic_score) + '" data-quote-index="' + i + '" data-quote-field="semantic_score"></label>';
-    html += '<label class="quote-meta-field"><span class="quote-meta-label">阅读顺序</span><input class="quote-meta-input" type="number" step="1" value="' + escapeAttr(q.reading_order === undefined || q.reading_order === null ? '' : q.reading_order) + '" data-quote-index="' + i + '" data-quote-field="reading_order"></label>';
+    html += '<label class="quote-meta-field"><span class="quote-meta-label">分类顺序</span><input class="quote-meta-input" type="number" step="1" value="' + escapeAttr(q.reading_order === undefined || q.reading_order === null ? '' : q.reading_order) + '" data-quote-index="' + i + '" data-quote-field="reading_order"></label>';
     html += '<div class="quote-save-status" data-quote-save-status="' + i + '"></div>';
     html += '</div>';
     html += '</article>';
@@ -582,15 +580,14 @@ function renderQuoteList() {
 
 function renderQuoteRoleOptions(value) {
   var roles = [
-    ['', '未设置'],
+    ['', '未分类'],
     ['definition', '定义'],
-    ['principle', '原则'],
+    ['description', '阐述/描述'],
     ['mechanism', '机制'],
-    ['distinction', '区别'],
-    ['practice', '方法'],
     ['example', '例子'],
-    ['warning', '提醒'],
-    ['background', '背景']
+    ['practice', '实践/方法'],
+    ['warning', '警告/提醒'],
+    ['uncategorized', '未分类']
   ];
   return roles.map(function(role) {
     return '<option value="' + escapeAttr(role[0]) + '"' + (role[0] === value ? ' selected' : '') + '>' + escapeHtml(role[1]) + '</option>';
@@ -717,7 +714,7 @@ function confirmQuoteDelete(idx) {
   var preview = (quote.translation || quote.text || '').trim();
   if (preview.length > 48) preview = preview.slice(0, 48) + '...';
   document.getElementById('confirmText').textContent = '确定要删除摘录 #' + (idx + 1) + (preview ? '「' + preview + '」' : '') + '吗？';
-  document.getElementById('confirmOverlay').classList.add('active');
+  openConfirmDialog();
 }
 
 function removeQuote(idx) {
@@ -815,21 +812,42 @@ function confirmDelete() {
   deleteTarget = { type: 'concept', id: currentId };
   var item = concepts.find(function(c) { return c.id === currentId; });
   document.getElementById('confirmText').textContent = '确定要删除概念「' + (item ? item.name_zh : currentId) + '」吗？';
+  openConfirmDialog();
+}
+
+function openConfirmDialog() {
+  isDeleting = false;
   document.getElementById('confirmOverlay').classList.add('active');
+  var btn = document.getElementById('confirmDeleteBtn');
+  if (btn) btn.disabled = false;
+  requestAnimationFrame(function() {
+    var focusedBtn = document.getElementById('confirmDeleteBtn');
+    if (focusedBtn) focusedBtn.focus();
+  });
 }
 
 function closeConfirm() {
   document.getElementById('confirmOverlay').classList.remove('active');
+  var btn = document.getElementById('confirmDeleteBtn');
+  if (btn) btn.disabled = false;
+  isDeleting = false;
   deleteTarget = null;
 }
 
 async function doDelete() {
-  if (!deleteTarget) return;
+  if (!deleteTarget || isDeleting) return;
+  isDeleting = true;
+  var btn = document.getElementById('confirmDeleteBtn');
+  if (btn) btn.disabled = true;
   if (deleteTarget.type === 'quote') {
     await doDeleteQuote(deleteTarget.index);
     return;
   }
-  if (deleteTarget.type !== 'concept') return;
+  if (deleteTarget.type !== 'concept') {
+    isDeleting = false;
+    if (btn) btn.disabled = false;
+    return;
+  }
   try {
     var response = await fetch(API_BASE + '/api/concepts/' + encodeURIComponent(deleteTarget.id), { method: 'DELETE' });
     if (!response.ok) {
@@ -843,6 +861,8 @@ async function doDelete() {
     document.getElementById('editForm').style.display = 'none';
     loadConcepts();
   } catch (error) {
+    isDeleting = false;
+    if (btn) btn.disabled = false;
     showToast(error.message, 'error');
   }
 }
@@ -867,12 +887,27 @@ async function doDeleteQuote(idx) {
     closeConfirm();
     loadConcepts();
   } catch (error) {
+    isDeleting = false;
+    var btn = document.getElementById('confirmDeleteBtn');
+    if (btn) btn.disabled = false;
     showToast('摘录删除失败: ' + error.message, 'error');
   }
 }
 
 document.getElementById('confirmOverlay').addEventListener('click', function(e) {
   if (e.target === this) closeConfirm();
+});
+
+document.addEventListener('keydown', function(e) {
+  var overlay = document.getElementById('confirmOverlay');
+  if (!overlay || !overlay.classList.contains('active')) return;
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    doDelete();
+  } else if (e.key === 'Escape') {
+    e.preventDefault();
+    closeConfirm();
+  }
 });
 
 function showToast(message, type) {

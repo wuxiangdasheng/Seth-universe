@@ -1,6 +1,10 @@
 /* === 棱镜全局导航 — 节点式可折叠菜单 === */
 (function() {
-  const ACTIVE = document.documentElement.dataset.activeWorld || 'concept-world';
+  const ACTIVE = document.documentElement.getAttribute('data-activeWorld') ||
+    document.documentElement.getAttribute('data-activeworld') ||
+    document.documentElement.dataset.activeWorld ||
+    document.documentElement.dataset.activeworld ||
+    'concept-world';
   const KEY = 'seth_prism_nav';
 
   const worlds = [
@@ -9,24 +13,16 @@
       label: '书宇宙',
       labelEn: 'Book Universe',
       icon: 'book',
-      href: '#',
+      href: 'book.html',
       accent: '#d4af37',
-      subs: [
-        { label: '全部典籍', href: '#', desc: 'Seth系列完整书目' },
-        { label: '灵魂永生', href: '#', desc: 'Life Before Life' },
-        { label: '个人实相的本质', href: '#', desc: 'The Nature of Personal Reality' },
-        { label: '未知的实相·卷一', href: '#', desc: 'Unknown Reality, Vol.1' },
-        { label: '未知的实相·卷二', href: '#', desc: 'Unknown Reality, Vol.2' },
-        { label: '心灵的本质', href: '#', desc: 'The Nature of Mass Psy' },
-        { label: '神奇之道', href: '#', desc: 'The Magic Approach' }
-      ]
+      subs: []
     },
     {
       id: 'concept-world',
       label: '理宇宙',
       labelEn: 'Concept Universe',
       icon: 'concept',
-      href: '#',
+      href: 'index.html',
       accent: '#7a6ab0',
       subs: [
         { label: '核心概念', href: 'index.html', desc: 'core concepts', countKey: 'concepts' },
@@ -38,28 +34,25 @@
       ]
     },
     {
-      id: 'dream-world',
-      label: '梦宇宙',
-      labelEn: 'Dream Universe',
-      icon: 'dream',
-      href: 'dream.html',
-      accent: '#5a8ab0',
-      subs: [
-        { label: '梦境地图', href: 'dream.html', desc: 'Dream landscape' },
-        { label: '梦练习', href: '#', desc: 'Dream exercises' },
-        { label: '梦概念', href: '#', desc: 'Dream concepts' }
-      ]
-    },
-    {
       id: 'ai-world',
       label: 'AI赛斯',
       labelEn: 'AI Seth',
       icon: 'ai',
-      href: '#',
+      href: 'ai.html',
       accent: '#4a8fa1',
+      subs: []
+    },
+    {
+      id: 'system-world',
+      label: '系统',
+      labelEn: 'System',
+      icon: 'system',
+      href: 'system.html',
+      accent: '#6f7f8f',
       subs: [
-        { label: 'AI对话', href: '#', desc: 'Interactive dialogue' },
-        { label: '知识库', href: '#', desc: 'Knowledge base' }
+        { label: '系统介绍', href: 'system.html#intro', desc: 'About this wiki' },
+        { label: '联络', href: 'system.html#contact', desc: 'Contact' },
+        { label: '使用问答', href: 'system.html#faq', desc: 'FAQ' }
       ]
     }
   ];
@@ -76,6 +69,37 @@
   }
 
   const curWorld = worlds.find(w => w.id === ACTIVE) || worlds[1];
+
+  if (!document.getElementById('mobile-world-nav-style')) {
+    const style = document.createElement('style');
+    style.id = 'mobile-world-nav-style';
+    style.textContent = `
+      #mobile-world-nav{display:none}
+      @media(max-width:768px){
+        #mobile-world-nav{
+          position:fixed;top:var(--header-h);left:0;right:0;z-index:96;height:46px;
+          display:flex;align-items:center;gap:6px;padding:6px 10px;
+          overflow-x:auto;overflow-y:hidden;background:rgba(8,8,12,0.94);
+          border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(18px) saturate(1.1);
+          scrollbar-width:none;
+        }
+        #mobile-world-nav::-webkit-scrollbar{display:none}
+        .mwn-item{
+          flex:0 0 auto;min-width:72px;height:34px;display:inline-flex;align-items:center;justify-content:center;gap:6px;
+          padding:0 10px;color:var(--text-muted);text-decoration:none;border:1px solid transparent;border-radius:6px;
+          background:rgba(255,255,255,0.018);font-size:13px;white-space:nowrap;
+        }
+        .mwn-item.active{color:var(--text-primary);border-color:var(--mwn-accent);background:rgba(180,160,100,0.08)}
+        .mwn-icon{width:15px;height:15px;display:inline-flex;color:var(--mwn-accent)}
+        .mwn-icon svg{width:100%;height:100%}
+        body.has-mobile-world-nav .main,
+        body.has-mobile-world-nav .workspace{margin-top:calc(var(--header-h) + 46px)!important}
+        body.has-mobile-world-nav .sidebar,
+        body.has-mobile-world-nav .concept-rail{top:calc(var(--header-h) + 46px)!important}
+      }
+    `;
+    document.head.appendChild(style);
+  }
 
   /* SVG图标路径 */
   const icons = {
@@ -101,6 +125,10 @@
       <path d="M12 2v4"/>
       <path d="M8 4h8"/>
       <path d="M12 20v2"/>
+    </svg>`,
+    system: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.6 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.14.31.49.99 1.51 1H21a2 2 0 1 1 0 4h-.09c-1.02.01-1.37.69-1.51 1z"/>
     </svg>`
   };
 
@@ -153,6 +181,18 @@
 
   document.body.appendChild(nav);
 
+  const mobileNav = document.createElement('nav');
+  mobileNav.id = 'mobile-world-nav';
+  mobileNav.setAttribute('aria-label', '宇宙菜单');
+  mobileNav.innerHTML = worlds.map(w => `
+    <a class="mwn-item${w.id === ACTIVE ? ' active' : ''}" href="${w.href}" ${w.id === ACTIVE ? 'aria-current="page"' : ''} style="--mwn-accent:${w.accent}">
+      <span class="mwn-icon">${icons[w.icon]}</span>
+      <span class="mwn-label">${w.label}</span>
+    </a>
+  `).join('');
+  document.body.appendChild(mobileNav);
+  document.body.classList.add('has-mobile-world-nav');
+
   /* 绑定事件 */
   const toggle = nav.querySelector('.pn-toggle');
   toggle.addEventListener('click', function() {
@@ -168,16 +208,26 @@
   nav.querySelectorAll('.pn-node-trigger').forEach(trigger => {
     trigger.addEventListener('click', function(e) {
       e.preventDefault();
+      const node = this.closest('.pn-node');
+      const nodeId = node.dataset.node;
+      const world = worlds.find(w => w.id === nodeId);
+      if (world && (!world.subs || world.subs.length === 0) && world.href && world.href !== '#') {
+        window.location.href = world.href;
+        return;
+      }
       if (state.collapsed) {
         state.collapsed = false;
-        state.expandedNode = this.closest('.pn-node').dataset.node;
+        state.expandedNode = nodeId;
         nav.classList.add('pn-animating');
         save();
         updateView();
       } else {
-        const nodeId = this.closest('.pn-node').dataset.node;
         state.expandedNode = state.expandedNode === nodeId ? null : nodeId;
         save();
+        if (state.expandedNode === null && world && world.href && world.href !== '#') {
+          window.location.href = world.href;
+          return;
+        }
         updateView();
       }
     });

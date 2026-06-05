@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Clean existing quote libraries without calling external APIs."""
+"""Clean existing full quote libraries without calling external APIs."""
 
 import json
 import os
@@ -11,8 +11,6 @@ from pathlib import Path
 try:
     from batch_collect_quotes import (
         FULL_DIR,
-        SELECTED_DIR,
-        MAX_SELECTED,
         compile_rule,
         is_biographical_note,
         semantic_relevance_reason,
@@ -20,8 +18,6 @@ try:
 except ImportError:
     from scripts.batch_collect_quotes import (
         FULL_DIR,
-        SELECTED_DIR,
-        MAX_SELECTED,
         compile_rule,
         is_biographical_note,
         semantic_relevance_reason,
@@ -86,19 +82,6 @@ def clean_one(full_path):
     data['removed_semantic_irrelevant'] = removed_semantic
     with open(full_path, 'w', encoding='utf-8') as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-
-    selected_path = Path(SELECTED_DIR) / full_path.name
-    selected = sorted(kept, key=lambda ex: -float(ex.get('score', 0)))[:MAX_SELECTED]
-    selected_data = {
-        'concept_name_en': data.get('concept_name_en', ''),
-        'concept_name_zh': data.get('concept_name_zh', ''),
-        'source': f'从 {len(kept)} 条去噪摘录中精选 top {MAX_SELECTED}',
-        'cleaning_rule': data['cleaning_rule'],
-        'excerpts': selected,
-    }
-    auto_backup(selected_path)
-    with open(selected_path, 'w', encoding='utf-8') as f:
-        json.dump(selected_data, f, ensure_ascii=False, indent=2)
 
     return {
         'file': str(full_path),

@@ -2,15 +2,14 @@
 
 ## 项目概述
 
-从赛斯书（Seth Material）英文原文中提取哲学概念，经过匹配、去重、翻译、精选、AI 总结等流程，生成前端可展示的结构化数据。
+从赛斯书（Seth Material）英文原文中提取哲学概念，经过匹配、去重、翻译、机器分类、人工维护、AI 总结等流程，生成前端可展示的结构化数据。
 
 ## 目录结构
 
 ```
 千问-赛斯测试/
 ├── 02-processed/              # 原始处理数据（全书 JSON 段落，54278 段）
-├── concept-quotes-full/       # 完整摘录库（去重后全部翻译）
-├── concept-quotes/            # 精选摘录库（top 200）
+├── concept-quotes-full/       # 最终摘录库（去重、翻译、机器分类、人工维护后的精选数据）
 ├── wiki/
 │   ├── concepts.json          # 主数据文件（前端/后端共用）
 │   ├── concepts-lite.json     # 轻量列表（前端快速加载）
@@ -27,8 +26,8 @@
 ├── scripts/
 │   ├── add_concept.py                 # 一键概念录入总控脚本
 │   ├── concept_utils.py               # 概念表/ID/文件名共享工具
-│   ├── batch_collect_quotes.py        # 摘录匹配/去重/翻译/精选
-│   ├── clean_quote_libraries.py       # 清洗现有摘录库并重建精选库
+│   ├── batch_collect_quotes.py        # 摘录匹配/去重/翻译/质量报告
+│   ├── clean_quote_libraries.py       # 清洗现有最终摘录库
 │   ├── generate_concept_metadata.py   # AI 生成 explanation/definition
 │   ├── rebuild_concepts_from_quotes.py # 从摘录重建 concepts.json
 │   ├── rebuild_lite.py                # 生成 concepts-lite.json
@@ -72,7 +71,7 @@ python3 scripts/add_concept.py "概念英文名"
 ```
 
 总控脚本会按正确顺序执行：
-1. `batch_collect_quotes.py`：摘录匹配、去重、翻译、精选、质量报告
+1. `batch_collect_quotes.py`：摘录匹配、去重、翻译、质量报告
 2. `rebuild_concepts_from_quotes.py`：把摘录写入 `wiki/concepts.json`
 3. `generate_concept_metadata.py`：生成 `explanation` / `definition`
 4. `rebuild_lite.py`：重建 `wiki/concepts-lite.json`
@@ -129,8 +128,7 @@ python3 scripts/batch_collect_quotes.py "概念英文名"
 - 已翻译摘录会从旧 `concept-quotes-full/{概念}.json` 复用，避免重复翻译
 
 输出：
-- `concept-quotes-full/{概念}.json` — 完整库
-- `concept-quotes/{概念}.json` — 精选 top 200
+- `concept-quotes-full/{概念}.json` — 最终摘录库
 - `reports/{概念}.md` — 质量报告（匹配数、去重数、语义门槛排除数、翻译率、Session 覆盖、Top 样例、低分样例）
 
 摘录字段会包含 `related_concepts`：如果该段落同时命中核心概念表中的其他概念，会记录为：
@@ -156,7 +154,7 @@ python3 scripts/rebuild_concepts_from_quotes.py
 python3 scripts/rebuild_lite.py
 ```
 
-该脚本会从 `concept-quotes-full/` 删除 Jane/Rob 记录、break、出版说明等段落，并用清洗后的完整库重建 `concept-quotes/` 精选库。
+该脚本会直接清洗 `concept-quotes-full/`：删除 Jane/Rob 记录、break、出版说明等段落，并保留清洗后的完整库作为最终摘录数据。
 
 ### 4. 重建 concepts.json
 
@@ -224,7 +222,7 @@ cd wiki && python3 server.py
       "match_count": 3,
       "prefix_match": true,
       "semantic_reason": "concept_context",
-      "quote_role": "mechanism",
+  "quote_role": "mechanism",
       "semantic_score": 4,
       "reading_order": 30,
       "related_concepts": [{"id": "concept-004", "name_zh": "意识", "name_en": "Consciousness", "match_count": 2}]
@@ -266,8 +264,9 @@ cd wiki && python3 server.py
 - 摘录卡片悬停显示删除按钮
 - 三栏布局后台：左侧菜单、中间列表、右侧编辑面板
 - 后台概念编辑页采用即时保存：修改概念字段、定义、摘录翻译、英文原文、摘录元数据后自动写入后端；右上角不再使用“保存”按钮
-- 摘录元数据编辑项使用中文 UI：摘录角色、语义评分、阅读顺序
-- `quote_role` 可选值：未设置、定义、原则、机制、区别、方法、例子、提醒、背景
+- 摘录元数据编辑项使用中文 UI：分类、语义评分、分类顺序
+- `reading_order` 字段在 UI 中显示为“分类顺序”，用于控制分类的展示顺序，不改字段名
+- `quote_role` 可选值：未分类、定义、阐述/描述、机制、例子、实践/方法、警告/提醒
 - 删除摘录必须有居中的确认弹窗，避免误删
 
 ## 技术规范
@@ -292,15 +291,14 @@ cd wiki && python3 server.py
 
 ### 内容数据备份
 
-日常手动编辑概念、摘录、翻译、摘录角色、语义评分、阅读顺序后，优先使用后台 `admin-backup.html` 的备份功能。
+日常手动编辑概念、摘录、翻译、分类、语义评分、分类顺序后，优先使用后台 `admin-backup.html` 的备份功能。
 
 当前后台内容备份包为 `backup/seth-data.YYYYMMDD_HHMMSS.zip`，包含：
 - `manifest.json`
 - `wiki/concepts.json`
 - `concept-quotes-full/`
-- `concept-quotes/`
 
-恢复 zip 备份时，应同时恢复以上三部分，并在恢复后重新加载内存数据、重建 `wiki/concepts-lite.json`。旧版 `backup/concepts.*.json` 只代表主数据文件备份，可继续恢复，但不包含两个摘录目录。
+恢复 zip 备份时，应同时恢复以上内容，并在恢复后重新加载内存数据、重建 `wiki/concepts-lite.json`。旧版 `backup/concepts.*.json` 只代表主数据文件备份，可继续恢复，但不包含摘录目录。
 
 ### 网站代码版本
 
@@ -322,7 +320,6 @@ cd wiki && python3 server.py
 - `wiki/concepts.json`
 - `wiki/concepts-lite.json`
 - `concept-quotes-full/`
-- `concept-quotes/`
 - `02-processed/`
 - `reports/`
 - `backup/`
@@ -338,14 +335,14 @@ backup/site-code.YYYYMMDD_HHMMSS.zip
 ## 最近后台改造记录
 
 - `wiki/admin.html`：概念编辑页已改为即时保存；去掉右上角保存按钮；摘录翻译和英文原文平铺编辑；去掉中文翻译/英文原文标签、出处编辑、摘录展开收起、子概念及接口代码展示；摘录列表显示全部。
-- `wiki/admin.html`：每个摘录新增可编辑字段 `quote_role`、`semantic_score`、`reading_order`，UI 名称为摘录角色、语义评分、阅读顺序。
-- `wiki/admin.html`：摘录角色不是筛选器，而是写入后台数据的编辑项。
+- `wiki/admin.html`：每个摘录新增可编辑字段 `quote_role`、`semantic_score`、`reading_order`，UI 名称为分类、语义评分、分类顺序。
+- `wiki/admin.html`：分类不是筛选器，而是写入后台数据的编辑项。
 - `wiki/admin.html`：删除摘录恢复居中确认提示。
 - `wiki/server.py`：增加 `PATCH /api/concepts/{cid}/quotes/{qidx}/metadata`，用于即时保存摘录元数据。
 - `wiki/server.py`：`PUT /api/concepts/{id}` 用于保存整个概念，`_save_concepts()` 使用临时文件 + `os.replace` 原子写入。
-- `wiki/server.py`：删除摘录时会同步从 `concept-quotes-full/` 和 `concept-quotes/` 删除对应来源摘录。
+- `wiki/server.py`：删除摘录时会同步从 `concept-quotes-full/` 删除对应来源摘录。
 - `wiki/server.py`：后台手动备份已从单文件 `concepts.json` 升级为 `seth-data.*.zip` 内容数据包。
-- `wiki/admin-backup.html`：备份列表显示备份类型，“全量包”代表 zip 内容数据包，“主数据”代表旧版 `concepts.*.json`。
+- `wiki/admin-backup.html`：备份列表显示备份类型，“内容包”代表 zip 内容数据包，“主数据”代表旧版 `concepts.*.json`。
 - `wiki/index.html`：概念详情进入时重新拉取完整数据，减少后台更新后前台不刷新的问题。
 
 ## 常用命令

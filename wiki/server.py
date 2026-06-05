@@ -17,12 +17,10 @@ BOOKMARK_VERSION = 'bookmark-v6'
 BASE_DIR = os.path.dirname(DIR)
 QUOTE_SOURCE_DIRS = [
     os.path.join(BASE_DIR, 'concept-quotes-full'),
-    os.path.join(BASE_DIR, 'concept-quotes'),
 ]
 BACKUP_DIR = os.path.join(DIR, '..', 'backup')
 BACKUP_INCLUDE_DIRS = [
     ('concept-quotes-full', os.path.join(BASE_DIR, 'concept-quotes-full')),
-    ('concept-quotes', os.path.join(BASE_DIR, 'concept-quotes')),
 ]
 
 with open(DATA_FILE, 'r', encoding='utf-8') as f:

@@ -10,10 +10,7 @@ window.scrollTo(0, 0);
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>赛斯(Seth)宇宙</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-<noscript><link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=EB+Garamond:ital,wght@0,400;0,500;0,700;1,400;1,500&family=Noto+Serif+SC:wght@300;400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet"></noscript>
+<noscript></noscript>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{
@@ -38,10 +35,10 @@ window.scrollTo(0, 0);
   --accent-life:#6ba37a;
   --accent-warm:#a37a5a;
   --accent-rose:#a35a7a;
-  --font-serif:'EB Garamond',serif;
-  --font-display:'Instrument Serif','EB Garamond',serif;
-  --font-zh-title:'Noto Serif SC',serif;
-  --font-zh-body:'Noto Sans SC',sans-serif;
+  --font-serif:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-display:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-zh-title:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-zh-body:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --prism-expanded-w:260px;
   --prism-collapsed-w:56px;
   --sidebar-w:280px;
@@ -95,150 +92,6 @@ body::after{
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.12);border-radius:2px}
 ::-webkit-scrollbar-thumb:hover{background:rgba(180,160,100,0.25)}
-
-/* ===== HEADER ===== */
-.header{
-  position:fixed;top:0;left:0;right:0;height:var(--header-h);
-  background:rgba(5,5,8,0.85);
-  backdrop-filter:blur(20px) saturate(1.1);
-  border-bottom:1px solid var(--border-subtle);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 20px;z-index:100;
-}
-.header-logo{display:flex;align-items:center;gap:12px}
-.header-logo .logo-mark{
-  width:24px;height:24px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:20px;
-  color:var(--gold);font-style:italic;
-  opacity:0.8;
-}
-.header-logo span{
-  font-family:var(--font-zh-title);font-size:24px;font-weight:600;
-  letter-spacing:0.08em;color:var(--text-primary);
-}
-.header-tagline{
-  font-family:var(--font-serif);font-size:26px;
-  color:var(--text-muted);font-style:italic;
-  letter-spacing:0.08em;
-  display:none;
-}
-@media(min-width:900px){.header-tagline{display:block}}
-.header-actions{display:flex;align-items:center;gap:12px}
-.search-toggle{
-  background:none;border:1px solid var(--border-subtle);
-  color:var(--text-secondary);width:32px;height:32px;
-  border-radius:4px;cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  transition:all 0.2s;
-}
-.search-toggle:hover{border-color:var(--gold);color:var(--gold)}
-.search-shortcut{
-  font-family:var(--font-serif);font-size:14px;
-  color:var(--text-muted);padding:3px 8px;
-  border:1px solid var(--border-subtle);border-radius:3px;
-  display:none;letter-spacing:0.02em;
-}
-@media(min-width:900px){.search-shortcut{display:block}}
-.menu-toggle{
-  display:none;background:none;border:none;
-  color:var(--text-primary);cursor:pointer;padding:4px;
-}
-.menu-toggle svg{width:20px;height:20px}
-
-/* ===== PRISM NAV (global-menu.js) ===== */
-#prism-nav{
-  position:fixed;top:var(--header-h);left:0;bottom:0;
-  width:var(--prism-expanded-w);
-  background:var(--bg-surface);
-  border-right:1px solid var(--border-subtle);
-  z-index:55;
-  display:flex;flex-direction:column;
-  padding:0;
-  transition:width 0.28s cubic-bezier(0.22,1,0.36,1);
-  overflow:hidden;
-  will-change:width;
-  contain:layout paint style;
-}
-#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}
-.pn-inner{
-  flex:1;overflow:hidden;
-  display:flex;flex-direction:column;
-  padding:20px 0 0;
-}
-.pn-nodes{
-  display:flex;flex-direction:column;gap:4px;
-  padding:0 8px;flex:1;overflow-y:auto;overflow-x:hidden;
-}
-.pn-inner::-webkit-scrollbar{width:3px}
-.pn-inner::-webkit-scrollbar-thumb{background:rgba(180,160,100,0.15);border-radius:2px}
-.pn-node{border-radius:8px;overflow:hidden;transition:background 0.2s}
-.pn-node.pn-node-expanded{background:rgba(255,255,255,0.015)}
-.pn-node-trigger{
-  display:flex;align-items:center;gap:10px;padding:10px 8px;
-  text-decoration:none;color:var(--text-secondary);
-  transition:all 0.2s;position:relative;border-radius:8px;
-}
-.pn-node-trigger:hover{background:rgba(255,255,255,0.02);color:var(--text-primary)}
-.pn-node-icon{
-  width:18px;height:18px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  transition:transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
-}
-.pn-node-icon svg{width:100%;height:100%}
-.pn-node-trigger:hover .pn-node-icon{transform:scale(1.1)}
-.pn-node-label{
-  font-size:16px;font-weight:500;white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
-  transition:opacity 0.12s ease;
-}
-.pn-node-label-en{
-  font-family:var(--font-serif);font-size:14px;
-  color:var(--text-muted);white-space:nowrap;
-  overflow:hidden;text-overflow:ellipsis;
-  transition:opacity 0.12s ease;
-}
-.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{
-  opacity:0;pointer-events:none;
-}
-.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}
-.pn-node-glow{
-  position:absolute;left:0;top:10%;bottom:10%;width:2.5px;
-  background:linear-gradient(180deg,transparent,var(--gold),transparent);
-  border-radius:0 1.5px 1.5px 0;
-}
-.pn-collapsed .pn-node-glow{left:-1px}
-.pn-node-subs{
-  max-height:0;overflow:hidden;transition:max-height 0.35s cubic-bezier(0.4,0,0.2,1),opacity 0.2s;
-  opacity:0;padding:0 6px 0 34px;
-}
-.pn-animating .pn-node-subs{transition:none!important}
-.pn-node-expanded .pn-node-subs{max-height:600px;opacity:1;padding:2px 6px 8px 34px}
-.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}
-.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;transition:all 0.12s;border-radius:5px}
-.pn-sub:hover{background:rgba(255,255,255,0.02)}
-.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0;transition:all 0.15s}
-.pn-sub:hover .pn-sub-dot{background:var(--gold)}
-.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}
-.pn-sub-label{font-size:16px;color:var(--text-secondary);transition:color 0.12s}
-.pn-sub:hover .pn-sub-label{color:var(--text-primary)}
-.pn-sub-desc{font-family:var(--font-serif);font-size:14px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.pn-footer{
-  flex-shrink:0;padding:10px 8px 12px;
-  border-top:1px solid var(--border-subtle);
-  background:var(--bg-surface);
-}
-.pn-toggle{
-  width:100%;height:36px;background:var(--bg-elevated);
-  border:1px solid var(--border-subtle);border-radius:6px;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
-  color:var(--text-muted);font-size:13px;transition:background 0.18s,color 0.18s,border-color 0.18s;z-index:56;
-}
-.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}
-.pn-toggle-icon{font-size:16px;line-height:1;transition:transform 0.2s}
-.pn-toggle-text{white-space:nowrap;overflow:hidden;max-width:48px;opacity:1;transition:opacity 0.16s,max-width 0.2s}
-.pn-collapsed .pn-toggle{width:40px;margin:0 auto;gap:0}
-.pn-collapsed .pn-toggle-text{max-width:0;opacity:0}
 
 /* ===== SIDEBAR ===== */
 .sidebar{
@@ -786,25 +639,10 @@ body::after{
   position:relative;
 }
 .quote-card:hover{border-color:var(--border-active)}
-.quote-delete-btn{
-  position:absolute;top:10px;right:10px;
-  width:22px;height:22px;
-  background:none;border:none;
-  color:var(--text-muted);cursor:pointer;
-  border-radius:3px;
-  display:flex;align-items:center;justify-content:center;
-  opacity:0;transition:all 0.15s;
-}
-.quote-card:hover .quote-delete-btn{opacity:1}
-.quote-delete-btn:hover{
-  background:rgba(180,60,60,0.1);
-  color:#c46060;
-}
 .quote-card .quote-zh{
   font-size:18px;color:var(--text-primary);
   line-height:1.85;
   margin-bottom:10px;
-  padding-right:28px;
 }
 .quote-card .quote-meta-row{
   display:flex;align-items:center;justify-content:space-between;
@@ -941,28 +779,6 @@ body::after{
   opacity:0;
 }
 .bookmark-fab.active .bookmark-dot{opacity:1}
-.bookmark-status{
-  position:fixed;right:72px;bottom:76px;z-index:91;
-  min-width:96px;max-width:180px;
-  padding:6px 9px;border-radius:4px;
-  border:0.5px solid var(--border-subtle);
-  background:rgba(20,20,32,0.88);
-  color:var(--text-secondary);
-  font-size:11px;line-height:1.35;
-  backdrop-filter:blur(14px);
-  opacity:0.78;pointer-events:none;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-}
-.bookmark-status.active{
-  color:var(--gold);
-  border-color:var(--border-active);
-  opacity:1;
-}
-.bookmark-status .bookmark-version{
-  font-family:var(--font-serif);
-  color:var(--gold-dim);
-  margin-left:4px;
-}
 
 /* Related Tags */
 .related-tags{display:flex;flex-wrap:wrap;gap:6px}
@@ -1036,12 +852,10 @@ body::after{
   .concept-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
 }
 @media(max-width:768px){
-  #prism-nav{display:none}
   .sidebar{left:0;transform:translateX(-100%);width:260px;box-shadow:4px 0 24px rgba(0,0,0,0.5)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:40;display:none}
   .sidebar-overlay.active{display:block}
-  .menu-toggle{display:block}
   .main{margin-left:0;padding:24px 16px 60px;max-width:100vw}
   .hero h1{font-size:28px}
   .stats-bar{flex-wrap:wrap}
@@ -1053,7 +867,6 @@ body::after{
   .concept-header .def-row{padding:16px 18px}
   .back-to-top{right:16px;bottom:16px}
   .bookmark-fab{right:16px;bottom:68px}
-  .bookmark-status{right:64px;bottom:68px;max-width:132px}
 }
 @media(max-width:480px){
   .stat-num{font-size:20px}
@@ -1061,6 +874,7 @@ body::after{
   .concept-grid{grid-template-columns:1fr}
 }
 </style>
+<link rel="stylesheet" href="site-chrome.css">
 </head>
 <body>
 
@@ -1091,13 +905,12 @@ body::after{
     <path d="m5 12 7-7 7 7"/>
   </svg>
 </button>
-<button class="bookmark-fab" id="readingBookmark" onclick="jumpToBookmark()" aria-label="回到书签" title="正在记录书签">
+<button class="bookmark-fab" id="readingBookmark" onclick="toggleBookmarkMode()" aria-label="书签开关" title="开启书签记录">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
   </svg>
   <span class="bookmark-dot"></span>
 </button>
-<div class="bookmark-status" id="bookmarkStatus">书签 <span class="bookmark-version">v5</span></div>
 
 <div class="search-modal" id="searchModal" onclick="if(event.target===this)toggleSearch()">
   <div class="search-box">
@@ -1136,6 +949,7 @@ let restoreScrollAttempts = 0;
 let pendingScrollRestore = null;
 let activeBookmark = null;
 let bookmarkStore = { clientVersion: BOOKMARK_VERSION, lastView: { type: 'home' }, bookmarks: {} };
+let bookmarkEnabled = false;
 let suppressBookmarkSaveUntil = 0;
 let userScrolledSinceRender = false;
 
@@ -1234,10 +1048,12 @@ function readLocalBookmark() {
 function sanitizeBookmarkStore(data) {
   var store = {
     clientVersion: BOOKMARK_VERSION,
+    enabled: false,
     lastView: { type: 'home' },
     bookmarks: {}
   };
   if (!data || typeof data !== 'object') return store;
+  store.enabled = data.enabled === true;
 
   if (data.bookmarks && typeof data.bookmarks === 'object') {
     Object.keys(data.bookmarks).forEach(function(key) {
@@ -1265,7 +1081,9 @@ function getBookmarkForView(view) {
 function writeLocalBookmarkStore(store) {
   bookmarkStore = sanitizeBookmarkStore(store);
   const state = readReadingState();
+  bookmarkStore.enabled = bookmarkEnabled;
   state.bookmarkStore = bookmarkStore;
+  state.bookmarkEnabled = bookmarkEnabled;
   state.lastView = bookmarkStore.lastView || state.lastView || { type: 'home' };
   state.positions = state.positions || {};
   Object.keys(bookmarkStore.bookmarks).forEach(function(key) {
@@ -1325,6 +1143,17 @@ function scheduleBookmarkRemoteSave(store) {
   }, 700);
 }
 
+function writeBookmarkEnabled(enabled) {
+  bookmarkEnabled = !!enabled;
+  bookmarkStore.enabled = bookmarkEnabled;
+  const state = readReadingState();
+  state.bookmarkEnabled = bookmarkEnabled;
+  state.bookmarkStore = bookmarkStore;
+  writeReadingState(state);
+  updateBookmarkIndicator();
+  scheduleBookmarkRemoteSave(bookmarkStore);
+}
+
 function getCurrentViewLabel() {
   if (currentView.type === 'home') return '首页';
   var concept = currentView.id ? conceptMap[currentView.id] : null;
@@ -1366,15 +1195,18 @@ function buildCurrentBookmark() {
   };
 }
 
-function saveReadingPosition() {
-  if (isRestoringScroll || Date.now() < suppressBookmarkSaveUntil || !userScrolledSinceRender) return;
+function saveReadingPosition(force) {
+  if (!bookmarkEnabled) return;
+  if (isRestoringScroll || Date.now() < suppressBookmarkSaveUntil || (!force && !userScrolledSinceRender)) return;
   const state = readReadingState();
   const bookmark = buildCurrentBookmark();
   const key = getViewKey(bookmark.view);
   bookmarkStore.bookmarks[key] = bookmark;
   bookmarkStore.lastView = bookmark.view;
   bookmarkStore.clientVersion = BOOKMARK_VERSION;
+  bookmarkStore.enabled = bookmarkEnabled;
   state.lastView = currentView;
+  state.bookmarkEnabled = bookmarkEnabled;
   state.positions = state.positions || {};
   state.positions[key] = bookmark.y;
   state.bookmark = bookmark;
@@ -1387,6 +1219,7 @@ function saveReadingPosition() {
 
 function scheduleSaveReadingPosition() {
   updateBackToTopVisibility();
+  if (!bookmarkEnabled) return;
   clearTimeout(saveScrollTimer);
   saveScrollTimer = setTimeout(saveReadingPosition, 120);
 }
@@ -1472,7 +1305,7 @@ function positionAfterRender(options) {
   if (!(options && options.keepHiddenUntilRestore)) {
     setBookmarkRestoringVisibility(false);
   }
-  if (options && options.restore) {
+  if (bookmarkEnabled && options && options.restore) {
     restoreScrollForCurrentView(0, options.bookmark || null);
   } else {
     window.scrollTo(0, 0);
@@ -1493,8 +1326,10 @@ function setBookmarkRestoringVisibility(hidden) {
 
 function restoreLastView() {
   suppressBookmarkSaveUntil = Date.now() + 1500;
+  bookmarkEnabled = readReadingState().bookmarkEnabled === true;
   loadBookmark().then(function(store) {
     store = sanitizeBookmarkStore(store);
+    store.enabled = bookmarkEnabled;
     bookmarkStore = store;
     isRestoringScroll = false;
     showWelcome({ skipSave: true });
@@ -1512,26 +1347,43 @@ function updateBackToTopVisibility() {
 
 function updateBookmarkIndicator() {
   const btn = document.getElementById('readingBookmark');
-  const status = document.getElementById('bookmarkStatus');
   if (!btn) return;
   const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
-  btn.classList.toggle('active', !!bookmark);
-  if (status) status.classList.toggle('active', !!bookmark);
+  btn.classList.toggle('active', bookmarkEnabled);
+  btn.setAttribute('aria-pressed', bookmarkEnabled ? 'true' : 'false');
+  if (!bookmarkEnabled) {
+    btn.setAttribute('title', '开启书签记录');
+    return;
+  }
   if (!bookmark) {
-    btn.setAttribute('title', '正在记录书签 · ' + BOOKMARK_VERSION);
-    if (status) status.innerHTML = '书签 <span class="bookmark-version">' + BOOKMARK_VERSION.replace('bookmark-', '') + '</span>';
+    btn.setAttribute('title', '书签记录已开启 · 正在记录当前位置');
     return;
   }
   var label = bookmark.label || '当前位置';
   var y = Math.round(bookmark.y || 0);
-  btn.setAttribute('title', '书签：' + label + ' · 位置 ' + y + '。点击回到这里 · ' + BOOKMARK_VERSION);
-  if (status) status.innerHTML = label + ' · ' + y + ' <span class="bookmark-version">' + BOOKMARK_VERSION.replace('bookmark-', '') + '</span>';
+  btn.setAttribute('title', '书签记录已开启：' + label + ' · 位置 ' + y);
+}
+
+function toggleBookmarkMode() {
+  if (bookmarkEnabled) {
+    clearTimeout(saveScrollTimer);
+    clearTimeout(saveBookmarkTimer);
+    clearTimeout(restoreScrollTimer);
+    pendingScrollRestore = null;
+    isRestoringScroll = false;
+    setBookmarkRestoringVisibility(false);
+    writeBookmarkEnabled(false);
+    return;
+  }
+  writeBookmarkEnabled(true);
+  saveReadingPosition(true);
 }
 
 function jumpToBookmark() {
+  if (!bookmarkEnabled) return;
   const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
   if (!bookmark) {
-    saveReadingPosition();
+    saveReadingPosition(true);
     return;
   }
   activeBookmark = bookmark;
@@ -1787,13 +1639,12 @@ function focusGraphNode(nodeId) {
 
 const QUOTE_ROLE_LABELS = {
   definition: '定义',
-  principle: '原则',
+  description: '阐述/描述',
   mechanism: '机制',
-  distinction: '区别',
-  practice: '方法',
   example: '例子',
-  warning: '提醒',
-  background: '背景',
+  practice: '实践/方法',
+  warning: '警告/提醒',
+  uncategorized: '未分类',
   other: '其他'
 };
 
@@ -1822,7 +1673,7 @@ function filterQuotesByRole(conceptId, role) {
   var cached = quotesCache[conceptId] || [];
   var detail = conceptDetailCache[conceptId] || conceptMap[conceptId];
   if (!detail) return;
-  var filtered = role === 'all' ? cached : cached.filter(q => (q.quote_role || 'other') === role);
+  var filtered = role === 'all' ? cached : cached.filter(q => (q.quote_role || 'uncategorized') === role);
   var main = document.getElementById('main');
   var relatedTags = (detail.related_concepts || []).map(rid => {
     const rc = conceptMap[rid];
@@ -2058,7 +1909,7 @@ function showWelcome(options) {
   </div>`;
   renderConceptGraph();
   closeSidebarMobile();
-  if (options.restore) {
+  if (bookmarkEnabled && options.restore) {
     restoreScrollForCurrentView(0, options.bookmark || null);
   } else {
     window.scrollTo(0, 0);
@@ -2071,7 +1922,7 @@ function showConcept(id, parentId, options) {
   options = options || {};
   if (!options.skipSave) saveReadingPosition();
   currentView = { type: 'concept', id: id, parentId: parentId || '' };
-  if (!options.restore) {
+  if (bookmarkEnabled && !options.restore) {
     var viewBookmark = getBookmarkForView(currentView);
     if (viewBookmark) {
       options = Object.assign({}, options, { restore: true, bookmark: viewBookmark });
@@ -2160,7 +2011,7 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
   if (quotes.length > 0) {
     quotesHtml = sortQuotesForReading(quotes).map(function(q, qi) {
       var quoteId = String(q.id || '');
-      var role = q.quote_role || 'other';
+      var role = q.quote_role || 'uncategorized';
       var roleLabel = QUOTE_ROLE_LABELS[role] || role;
       var quoteRelatedTags = (q.related_concepts || []).map(function(rc) {
         if (!rc || !rc.id) return '';
@@ -2168,9 +2019,6 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
         return `<button class="quote-related-tag" onclick="event.stopPropagation();showConcept('${rc.id}')" title="${rc.name_en || ''}">${rc.name_zh || rc.name_en || ''}</button>`;
       }).filter(Boolean).join('');
       return '<div class="quote-card" data-quote-id="' + quoteId + '">' +
-        '<button class="quote-delete-btn" onclick="deleteQuote(\'' + c.id + '\',\'' + quoteId + '\')" title="删除此摘录及原数据">' +
-        '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"/></svg>' +
-        '</button>' +
         (q.translation ? '<div class="quote-zh">' + q.translation + '</div>' : '') +
         '<div class="quote-meta-row">' +
           '<div class="quote-source"><span class="quote-role-badge">' + roleLabel + '</span>— ' + q.source + '</div>' +
@@ -2196,10 +2044,10 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
 
   var roleCounts = {};
   (quotesCache[c.id] || quotes || []).forEach(function(q) {
-    var role = q.quote_role || 'other';
+    var role = q.quote_role || 'uncategorized';
     roleCounts[role] = (roleCounts[role] || 0) + 1;
   });
-  var roleOrder = ['all','definition','principle','mechanism','distinction','practice','example','warning','background','other'];
+  var roleOrder = ['all','definition','description','mechanism','example','practice','warning','uncategorized'];
   var filterHtml = '';
   if ((quotesCache[c.id] || quotes || []).length > 0) {
     filterHtml = '<div class="quote-filter-bar">' + roleOrder.map(function(role) {
@@ -2408,14 +2256,14 @@ function shareQuoteCard(button) {
   ctx.lineTo(width - padding, brandY + brandH / 2);
   ctx.stroke();
   ctx.fillStyle = '#d4c088';
-  ctx.font = '16px "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif';
+  ctx.font = '16px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(brandText, width / 2, brandY + brandH / 2 + 0.5);
   ctx.restore();
 
   ctx.fillStyle = '#e0dcd0';
-  ctx.font = '28px "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif';
+  ctx.font = '28px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   var y = padding + 86;
   y = drawWrappedText(ctx, data.zh, padding, y, maxTextWidth, 44);
 
@@ -2423,11 +2271,11 @@ function shareQuoteCard(button) {
   ctx.fillStyle = '#8a7a52';
   ctx.fillRect(padding, y, 1, Math.min(260, height - y - 120));
   ctx.fillStyle = '#a09880';
-  ctx.font = '20px "EB Garamond", serif';
+  ctx.font = '20px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   y = drawWrappedText(ctx, data.en, padding + 20, y + 4, maxTextWidth - 20, 32, 9);
 
   ctx.fillStyle = '#6f6754';
-  ctx.font = '15px serif';
+  ctx.font = '15px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   ctx.fillText(data.source ? '— ' + data.source : '— Seth Material', padding, Math.min(height - 66, y + 44));
 
   var link = document.createElement('a');
@@ -2442,35 +2290,6 @@ function toggleQuoteEnglish(button) {
   if (!card) return;
   var expanded = card.classList.toggle('quote-expanded');
   button.setAttribute('title', expanded ? '收起英文原文' : '展开英文原文');
-}
-
-function deleteQuote(conceptId, quoteId) {
-  if (!confirm('确定删除这条摘录及其对应原数据？')) return;
-  fetch('/api/concepts/' + conceptId + '/quotes/' + encodeURIComponent(quoteId), { method: 'DELETE' })
-    .then(r => r.json())
-    .then(data => {
-      if (data.ok) {
-        if (quotesCache[conceptId]) {
-          quotesCache[conceptId] = quotesCache[conceptId].filter(function(q) { return q.id !== quoteId; });
-        }
-        var c = conceptMap[conceptId];
-        if (c) c.quotes_count = data.remaining;
-        var card = document.querySelector('.quote-card[data-quote-id="' + CSS.escape(quoteId) + '"]');
-        if (card) {
-          card.style.transition = 'opacity 0.18s ease, transform 0.18s ease, margin 0.18s ease, padding 0.18s ease, border-width 0.18s ease';
-          card.style.opacity = '0';
-          card.style.transform = 'translateX(8px)';
-          setTimeout(function() { card.remove(); }, 180);
-        }
-        var label = document.getElementById('quoteCountLabel');
-        if (label) label.innerHTML = '<div class="dot" style="background:var(--accent-ethereal)"></div>原文摘录 · ' + data.remaining;
-      } else {
-        alert('删除失败：' + (data.error || '未知错误'));
-      }
-    })
-    .catch(function(e) {
-      alert('删除请求失败：' + e.message);
-    });
 }
 
 function toggleSearch() {
