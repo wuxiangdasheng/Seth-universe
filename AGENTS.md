@@ -332,6 +332,40 @@ backup/site-code.YYYYMMDD_HHMMSS.zip
 
 该 zip 只作为辅助备份；长期版本记录仍以 Git 为准。提交前应先查看 `git status --short`，不要回滚或覆盖用户已有改动。
 
+### 公共前台部署
+
+公共网络只部署静态前台，不部署后台管理、Python 服务器、备份、原始数据或本地编辑状态。部署目录固定为：
+
+```bash
+public-site/
+```
+
+生成命令：
+
+```bash
+python3 scripts/build_public_site.py
+```
+
+该脚本会从 `wiki/` 生成 Cloudflare Pages 可发布的静态目录：
+- `public-site/index.html` 等读者页面
+- `public-site/global-menu.js`
+- `public-site/site-chrome.css`
+- `public-site/data/concepts-lite.json`
+- `public-site/data/concept-graph.json`
+- `public-site/data/concepts/{concept-id}.json`
+
+公开版页面不得依赖 `/api/*`，概念详情应读取 `data/concepts/{id}.json`。书签/阅读进度只保存在访问者浏览器本地，不写入服务器。
+
+Cloudflare Pages 推荐配置：
+
+```text
+Framework preset: None
+Build command: python3 scripts/build_public_site.py
+Build output directory: public-site
+```
+
+更新内容后，先在本地后台备份内容数据，再重新运行 `build_public_site.py`，然后提交/推送 `public-site/` 或让 Cloudflare 在构建时生成它。
+
 ## 最近后台改造记录
 
 - `wiki/admin.html`：概念编辑页已改为即时保存；去掉右上角保存按钮；摘录翻译和英文原文平铺编辑；去掉中文翻译/英文原文标签、出处编辑、摘录展开收起、子概念及接口代码展示；摘录列表显示全部。
