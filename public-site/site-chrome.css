@@ -148,6 +148,13 @@
 }
 
 @media(max-width:768px){
+  html,body{
+    width:100%;
+    max-width:100%;
+    overflow-x:hidden;
+    overscroll-behavior-x:none;
+  }
+  body{touch-action:pan-y}
   #prism-nav{display:none}
   .menu-toggle{display:block}
   .header-tagline{display:none}
@@ -168,6 +175,7 @@
     border-bottom:1px solid var(--border-subtle);
     backdrop-filter:blur(18px) saturate(1.1);
     scrollbar-width:none;
+    touch-action:pan-x;
   }
   #mobile-world-nav::-webkit-scrollbar{display:none}
   .mwn-item{

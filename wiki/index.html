@@ -8,7 +8,7 @@ if ('scrollRestoration' in history) {
 }
 window.scrollTo(0, 0);
 </script>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>赛斯(Seth)宇宙</title>
 <noscript></noscript>
 <style>
@@ -45,13 +45,14 @@ window.scrollTo(0, 0);
   --header-h:52px;
 }
 
-html{scroll-behavior:auto;font-size:16px}
+html{scroll-behavior:auto;font-size:16px;width:100%;max-width:100%;overflow-x:hidden}
 body{
   background:var(--bg-deep);
   color:var(--text-primary);
   font-family:var(--font-zh-body);
   line-height:1.7;
   overflow-x:hidden;
+  width:100%;max-width:100%;
   min-height:100vh;
 }
 
@@ -830,8 +831,8 @@ body::after{
 .search-input-wrap{display:flex;align-items:center;gap:12px;padding:14px 16px;border-bottom:0.5px solid var(--border-subtle)}
 .search-input-wrap svg{width:16px;height:16px;color:var(--text-muted);flex-shrink:0}
 .search-input-wrap input{
-  flex:1;background:none;border:none;outline:none;
-  font-size:14px;color:var(--text-primary);font-family:var(--font-zh-body);
+  flex:1;min-width:0;background:none;border:none;outline:none;
+  font-size:16px;color:var(--text-primary);font-family:var(--font-zh-body);
 }
 .search-input-wrap input::placeholder{color:var(--text-muted)}
 .search-results{max-height:360px;overflow-y:auto;padding:4px}
@@ -852,11 +853,17 @@ body::after{
   .concept-grid{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
 }
 @media(max-width:768px){
+  html,body{width:100%;max-width:100%;overflow-x:hidden;overscroll-behavior-x:none}
+  body{touch-action:pan-y}
   .sidebar{left:0;transform:translateX(-100%);width:260px;box-shadow:4px 0 24px rgba(0,0,0,0.5)}
   .sidebar.open{transform:translateX(0)}
   .sidebar-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:40;display:none}
   .sidebar-overlay.active{display:block}
-  .main{margin-left:0;padding:24px 16px 60px;max-width:100vw}
+  .main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}
+  .search-modal{width:100vw;max-width:100vw;overflow:hidden;padding:calc(var(--header-h) + 62px) 12px 0}
+  .search-box{width:100%;max-width:calc(100vw - 24px)}
+  .search-input-wrap{padding:12px 14px}
+  .search-results{max-height:calc(100dvh - var(--header-h) - 132px)}
   .hero h1{font-size:28px}
   .stats-bar{flex-wrap:wrap}
   .stat-item{padding:16px 12px}
@@ -948,10 +955,11 @@ let restoreScrollTimer = null;
 let restoreScrollAttempts = 0;
 let pendingScrollRestore = null;
 let activeBookmark = null;
-let bookmarkStore = { clientVersion: BOOKMARK_VERSION, lastView: { type: 'home' }, bookmarks: {} };
-let bookmarkEnabled = false;
+let bookmarkStore = { clientVersion: BOOKMARK_VERSION, enabled: true, lastView: { type: 'home' }, bookmarks: {} };
+let bookmarkEnabled = true;
 let suppressBookmarkSaveUntil = 0;
 let userScrolledSinceRender = false;
+let searchLockY = 0;
 
 function init() {
   Promise.all([
@@ -1048,12 +1056,12 @@ function readLocalBookmark() {
 function sanitizeBookmarkStore(data) {
   var store = {
     clientVersion: BOOKMARK_VERSION,
-    enabled: false,
+    enabled: true,
     lastView: { type: 'home' },
     bookmarks: {}
   };
   if (!data || typeof data !== 'object') return store;
-  store.enabled = data.enabled === true;
+  store.enabled = data.enabled !== false;
 
   if (data.bookmarks && typeof data.bookmarks === 'object') {
     Object.keys(data.bookmarks).forEach(function(key) {
@@ -1326,7 +1334,8 @@ function setBookmarkRestoringVisibility(hidden) {
 
 function restoreLastView() {
   suppressBookmarkSaveUntil = Date.now() + 1500;
-  bookmarkEnabled = readReadingState().bookmarkEnabled === true;
+  var localState = readReadingState();
+  bookmarkEnabled = localState.bookmarkEnabled !== false;
   loadBookmark().then(function(store) {
     store = sanitizeBookmarkStore(store);
     store.enabled = bookmarkEnabled;
@@ -2296,8 +2305,20 @@ function toggleSearch() {
   const modal = document.getElementById('searchModal');
   modal.classList.toggle('active');
   if (modal.classList.contains('active')) {
+    searchLockY = window.scrollY || document.documentElement.scrollTop || 0;
+    document.body.style.position = 'fixed';
+    document.body.style.top = '-' + searchLockY + 'px';
+    document.body.style.left = '0';
+    document.body.style.right = '0';
+    document.body.style.width = '100%';
     setTimeout(() => document.getElementById('searchInput').focus(), 100);
   } else {
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.left = '';
+    document.body.style.right = '';
+    document.body.style.width = '';
+    window.scrollTo(0, searchLockY || 0);
     document.getElementById('searchInput').value = '';
     document.getElementById('searchResults').innerHTML = '';
   }
