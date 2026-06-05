@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="system-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用问答管理 - 赛斯宇宙</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--bg-input:#09090f;--border-subtle:rgba(255,255,255,.055);--border-active:rgba(180,160,100,.34);--border-strong:rgba(180,160,100,.16);--gold:#b4a064;--gold-bright:#d4c088;--gold-dim:#8a7a52;--gold-glow:rgba(180,160,100,.08);--text-primary:#e0dcd0;--text-secondary:#a09880;--text-muted:#5d5645;--accent-red:#c96262;--accent-green:#6fa56f;--font-serif:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-display:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh-title:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh-body:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--prism-w:var(--prism-expanded-w);--header-h:56px}
+html{font-size:15px;scroll-behavior:smooth}body{min-height:100vh;background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh-body);line-height:1.7;overflow-x:hidden}body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.62;background-image:radial-gradient(1px 1px at 10% 20%,rgba(200,190,160,.42),transparent),radial-gradient(1px 1px at 25% 45%,rgba(200,190,160,.3),transparent),radial-gradient(1.2px 1.2px at 40% 15%,rgba(220,210,180,.5),transparent),radial-gradient(1px 1px at 55% 70%,rgba(200,190,160,.28),transparent),radial-gradient(1px 1px at 70% 30%,rgba(200,190,160,.38),transparent)}button,input,textarea{font:inherit}button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible{outline:1px solid var(--gold);outline-offset:2px}::-webkit-scrollbar{width:5px;height:5px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:rgba(180,160,100,.14);border-radius:3px}
+#prism-nav{position:fixed;top:var(--header-h);left:0;bottom:0;width:var(--prism-expanded-w);background:var(--bg-surface);border-right:1px solid var(--border-subtle);z-index:55;display:flex;flex-direction:column;transition:width .28s cubic-bezier(.22,1,.36,1);overflow:visible}#prism-nav.pn-collapsed{width:var(--prism-collapsed-w)}.pn-inner{flex:1;overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;padding:20px 0 12px}.pn-nodes{display:flex;flex-direction:column;gap:4px;padding:0 8px;flex:1}.pn-node{border-radius:8px;overflow:hidden}.pn-node.pn-node-expanded{background:rgba(255,255,255,.015)}.pn-node-trigger{display:flex;align-items:center;gap:10px;padding:10px 8px;text-decoration:none;color:var(--text-secondary);transition:all .2s;position:relative;border-radius:8px}.pn-node-trigger:hover{background:rgba(255,255,255,.02);color:var(--text-primary)}.pn-node-icon{width:18px;height:18px;flex-shrink:0;display:flex}.pn-node-icon svg{width:100%;height:100%}.pn-node-label{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pn-node-label-en{font-family:var(--font-serif);font-size:13px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pn-collapsed .pn-node-label,.pn-collapsed .pn-node-label-en{opacity:0;pointer-events:none;position:absolute;width:1px;height:1px;overflow:hidden}.pn-node-active>.pn-node-trigger{color:var(--text-primary);font-weight:600}.pn-node-glow{position:absolute;left:0;top:10%;bottom:10%;width:2.5px;background:linear-gradient(180deg,transparent,var(--gold),transparent);border-radius:0 2px 2px 0}.pn-node-subs{max-height:0;overflow:hidden;opacity:0;padding:0 6px 0 34px;transition:max-height .34s cubic-bezier(.4,0,.2,1),opacity .2s}.pn-node-expanded .pn-node-subs{max-height:620px;opacity:1;padding:2px 6px 8px 34px}.pn-collapsed .pn-node-subs{max-height:0!important;opacity:0!important;padding:0!important}.pn-sub{display:flex;align-items:flex-start;gap:6px;padding:5px 3px;text-decoration:none;border-radius:5px}.pn-sub:hover{background:rgba(255,255,255,.02)}.pn-sub-dot{width:3.5px;height:3.5px;border-radius:50%;background:var(--text-muted);margin-top:5.5px;flex-shrink:0}.pn-sub:hover .pn-sub-dot{background:var(--gold)}.pn-sub-text{display:flex;flex-direction:column;gap:1px;min-width:0;flex:1}.pn-sub-label{font-size:15px;color:var(--text-secondary)}.pn-sub:hover .pn-sub-label{color:var(--text-primary)}.pn-sub-desc{font-family:var(--font-serif);font-size:13px;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.pn-toggle{position:absolute;top:50%;right:-11px;transform:translateY(-50%);width:22px;height:48px;background:var(--bg-elevated);border:1px solid var(--border-subtle);border-radius:0 6px 6px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-muted);font-size:14px;z-index:56}.pn-toggle:hover{background:var(--bg-card-hover);color:var(--gold);border-color:var(--border-active)}.pn-toggle-text{display:none}
+.header{position:fixed;top:0;left:var(--prism-w);right:0;height:var(--header-h);z-index:100;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:0 24px;background:rgba(5,5,8,.86);backdrop-filter:blur(20px) saturate(1.1);border-bottom:1px solid var(--border-subtle);transition:left .28s cubic-bezier(.22,1,.36,1)}.brand{display:flex;align-items:center;gap:12px;min-width:0}.logo-mark{width:26px;height:26px;display:grid;place-items:center;color:var(--gold);font-family:var(--font-display);font-size:21px;font-style:italic}.brand a{font-family:var(--font-zh-title);font-size:16px;font-weight:600;letter-spacing:.08em;color:var(--text-primary);text-decoration:none;white-space:nowrap}.admin-flag{padding:3px 8px;border:1px solid var(--border-strong);background:var(--gold-glow);color:var(--gold);border-radius:3px;font-family:var(--font-serif);font-size:11px;letter-spacing:.12em;text-transform:uppercase}.header-title{min-width:0;flex:1;color:var(--text-muted);font-family:var(--font-serif);font-size:15px;font-style:italic;letter-spacing:.08em}
+.workspace{position:relative;z-index:1;margin-left:var(--prism-w);padding-top:var(--header-h);min-height:100vh;transition:margin-left .28s cubic-bezier(.22,1,.36,1)}.main{max-width:1160px;margin:0 auto;padding:34px clamp(22px,4vw,54px) 90px}.page-header{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;margin-bottom:22px}.page-header h1{font-family:var(--font-zh-title);font-size:30px;font-weight:500;color:var(--text-primary);margin-bottom:4px}.page-header p{color:var(--text-muted);font-size:14px}.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--border-subtle);border-radius:6px;background:var(--bg-elevated);color:var(--text-secondary);padding:8px 13px;font-size:13px;cursor:pointer;text-decoration:none}.btn:hover{background:var(--bg-card-hover);color:var(--text-primary);border-color:var(--border-active)}.btn.primary{background:var(--gold);border-color:var(--gold);color:var(--bg-deep);font-weight:700}.btn.danger{border-color:rgba(201,98,98,.25);background:rgba(201,98,98,.12);color:#e28a8a}.editor-grid{display:grid;grid-template-columns:330px minmax(0,1fr);gap:18px;align-items:start}.faq-list{min-height:560px;border:1px solid var(--border-subtle);border-radius:8px;background:rgba(16,16,24,.62);overflow:hidden}.list-head{display:flex;align-items:center;justify-content:space-between;padding:14px 15px;border-bottom:1px solid var(--border-subtle);color:var(--text-muted);font-family:var(--font-serif);font-size:13px}.faq-row{width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center;border:0;border-bottom:1px solid rgba(255,255,255,.035);background:transparent;color:inherit;text-align:left;padding:12px 15px;cursor:pointer}.faq-row:hover{background:rgba(255,255,255,.02)}.faq-row.active{background:linear-gradient(90deg,var(--gold-glow),transparent);border-left:2px solid var(--gold);padding-left:13px}.faq-row-title{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text-primary);font-weight:600}.faq-row-meta{color:var(--text-muted);font-family:var(--font-serif);font-size:12px}.panel{border:1px solid var(--border-subtle);border-radius:8px;background:rgba(16,16,24,.68);padding:20px}.panel-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:18px}.panel-title h2{font-family:var(--font-zh-title);font-size:20px;font-weight:500}.form-group{margin-bottom:16px}.form-label{display:block;margin-bottom:7px;color:var(--text-secondary);font-family:var(--font-serif);font-size:12px;letter-spacing:.1em;text-transform:uppercase}.form-input,.form-textarea{width:100%;border:1px solid var(--border-subtle);background:var(--bg-input);border-radius:7px;color:var(--text-primary);padding:11px 12px;outline:0}.form-input:focus,.form-textarea:focus{border-color:var(--border-active);background:#0d0d14}.form-textarea{min-height:330px;resize:vertical;line-height:1.78;white-space:pre-wrap}.status{min-height:22px;color:var(--text-muted);font-size:13px}.status.saved{color:var(--accent-green)}.status.error{color:var(--accent-red)}.empty{padding:38px 18px;text-align:center;color:var(--text-muted)}@media(max-width:900px){.workspace{margin-left:0}.header{left:0}.editor-grid{grid-template-columns:1fr}.main{padding:28px 18px 80px}}
+</style>
+</head>
+<body>
+<header class="header">
+  <div class="brand"><div class="logo-mark">✦</div><a href="index.html">赛斯宇宙</a><span class="admin-flag">管理后台</span></div>
+  <div class="header-title">System FAQ Management</div>
+</header>
+<div class="workspace">
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <h1>使用问答管理</h1>
+        <p>编辑前台 system.html#faq 展示的问答标题与详情，详情支持换行。</p>
+      </div>
+      <button id="addBtn" class="btn primary" type="button">新增问答</button>
+    </div>
+    <div class="editor-grid">
+      <aside class="faq-list">
+        <div class="list-head"><span>问答列表</span><span id="countText">0 条</span></div>
+        <div id="faqRows" class="empty">正在加载...</div>
+      </aside>
+      <section class="panel">
+        <div class="panel-title">
+          <h2>编辑内容</h2>
+          <button id="deleteBtn" class="btn danger" type="button">删除当前问答</button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="titleInput">标题</label>
+          <input id="titleInput" class="form-input" type="text" autocomplete="off">
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="detailInput">详情</label>
+          <textarea id="detailInput" class="form-textarea"></textarea>
+        </div>
+        <button id="saveBtn" class="btn primary" type="button">保存</button>
+        <div id="status" class="status"></div>
+      </section>
+    </div>
+  </main>
+</div>
+<script src="admin-menu.js"></script>
+<script>
+(function(){
+  const rowsEl = document.getElementById('faqRows');
+  const countText = document.getElementById('countText');
+  const titleInput = document.getElementById('titleInput');
+  const detailInput = document.getElementById('detailInput');
+  const saveBtn = document.getElementById('saveBtn');
+  const addBtn = document.getElementById('addBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
+  const statusEl = document.getElementById('status');
+  let faqs = [];
+  let activeId = '';
+
+  function esc(value){
+    return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+
+  function current(){
+    return faqs.find(item => item.id === activeId) || faqs[0] || null;
+  }
+
+  function setStatus(text, type){
+    statusEl.textContent = text || '';
+    statusEl.className = 'status' + (type ? ' ' + type : '');
+  }
+
+  function renderRows(){
+    countText.textContent = faqs.length + ' 条';
+    if (!faqs.length) {
+      rowsEl.className = 'empty';
+      rowsEl.innerHTML = '暂无问答，请点击右上角新增。';
+      return;
+    }
+    rowsEl.className = '';
+    rowsEl.innerHTML = faqs.map((item, index) => `
+      <button class="faq-row${item.id === activeId ? ' active' : ''}" type="button" data-id="${esc(item.id)}">
+        <span class="faq-row-title">${esc(item.title || '未命名问答')}</span>
+        <span class="faq-row-meta">#${index + 1}</span>
+      </button>
+    `).join('');
+  }
+
+  function syncForm(){
+    const item = current();
+    if (!item) {
+      titleInput.value = '';
+      detailInput.value = '';
+      titleInput.disabled = true;
+      detailInput.disabled = true;
+      saveBtn.disabled = true;
+      deleteBtn.disabled = true;
+      return;
+    }
+    activeId = item.id;
+    titleInput.disabled = false;
+    detailInput.disabled = false;
+    saveBtn.disabled = false;
+    deleteBtn.disabled = false;
+    titleInput.value = item.title || '';
+    detailInput.value = item.detail || '';
+  }
+
+  async function loadFaqs(){
+    try {
+      const res = await fetch('/api/system-faq?t=' + Date.now());
+      if (!res.ok) throw new Error('load failed');
+      const data = await res.json();
+      faqs = Array.isArray(data.faqs) ? data.faqs : [];
+      activeId = faqs[0] ? faqs[0].id : '';
+      renderRows();
+      syncForm();
+      setStatus('');
+    } catch(e) {
+      rowsEl.className = 'empty';
+      rowsEl.innerHTML = '加载失败，请确认本地服务器已启动。';
+      setStatus('加载失败', 'error');
+    }
+  }
+
+  async function saveFaqs(){
+    const item = current();
+    if (item) {
+      item.title = titleInput.value.trim();
+      item.detail = detailInput.value;
+    }
+    setStatus('保存中...');
+    try {
+      const res = await fetch('/api/system-faq', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({faqs})
+      });
+      if (!res.ok) throw new Error('save failed');
+      const data = await res.json();
+      faqs = data.data && Array.isArray(data.data.faqs) ? data.data.faqs : faqs;
+      renderRows();
+      syncForm();
+      setStatus('已保存', 'saved');
+    } catch(e) {
+      setStatus('保存失败，请确认本地服务器已启动', 'error');
+    }
+  }
+
+  rowsEl.addEventListener('click', e => {
+    const row = e.target.closest('.faq-row');
+    if (!row) return;
+    activeId = row.dataset.id;
+    renderRows();
+    syncForm();
+    setStatus('');
+  });
+
+  titleInput.addEventListener('input', () => {
+    const item = current();
+    if (!item) return;
+    item.title = titleInput.value;
+    renderRows();
+  });
+
+  detailInput.addEventListener('input', () => {
+    const item = current();
+    if (!item) return;
+    item.detail = detailInput.value;
+  });
+
+  addBtn.addEventListener('click', () => {
+    const id = 'faq-' + Date.now();
+    faqs.push({id, title:'新的问答', detail:''});
+    activeId = id;
+    renderRows();
+    syncForm();
+    setStatus('新增后请保存');
+    titleInput.focus();
+    titleInput.select();
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    const item = current();
+    if (!item || !confirm('确认删除这条问答吗？')) return;
+    faqs = faqs.filter(x => x.id !== item.id);
+    activeId = faqs[0] ? faqs[0].id : '';
+    renderRows();
+    syncForm();
+    setStatus('删除中...');
+    saveFaqs();
+  });
+
+  saveBtn.addEventListener('click', saveFaqs);
+  loadFaqs();
+})();
+</script>
+</body>
+</html>

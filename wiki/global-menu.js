@@ -50,9 +50,8 @@
       href: 'system.html',
       accent: '#6f7f8f',
       subs: [
-        { label: '系统介绍', href: 'system.html#intro', desc: 'About this wiki' },
-        { label: '联络', href: 'system.html#contact', desc: 'Contact' },
-        { label: '使用问答', href: 'system.html#faq', desc: 'FAQ' }
+        { label: '使用问答', href: 'system.html#faq', desc: 'FAQ' },
+        { label: '系统介绍', href: 'system.html#intro', desc: 'About this wiki' }
       ]
     }
   ];

@@ -94,6 +94,7 @@ def write_public_data():
     concepts_lite = json.loads(read_text(WIKI / 'concepts-lite.json'))
     concepts_full = json.loads(read_text(WIKI / 'concepts.json'))
     concept_graph_path = WIKI / 'concept-graph.json'
+    system_faq_path = WIKI / 'system-faq.json'
 
     write_text(DATA / 'concepts-lite.json', json.dumps(concepts_lite, ensure_ascii=False, separators=(',', ':')))
 
@@ -102,6 +103,12 @@ def write_public_data():
     else:
         concept_graph = {'nodes': [], 'edges': [], 'metadata': {}}
     write_text(DATA / 'concept-graph.json', json.dumps(concept_graph, ensure_ascii=False, separators=(',', ':')))
+
+    if system_faq_path.exists():
+        system_faq = json.loads(read_text(system_faq_path))
+    else:
+        system_faq = {'faqs': []}
+    write_text(DATA / 'system-faq.json', json.dumps(system_faq, ensure_ascii=False, separators=(',', ':')))
 
     concepts = concepts_full.get('concepts', [])
     CONCEPT_DATA.mkdir(parents=True, exist_ok=True)
@@ -120,6 +127,7 @@ def write_public_data():
             'reader-facing HTML/CSS/JS',
             'data/concepts-lite.json',
             'data/concept-graph.json',
+            'data/system-faq.json',
             'data/concepts/{concept-id}.json',
         ],
         'excludes': [

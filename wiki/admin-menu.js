@@ -66,10 +66,11 @@
       label: '系统管理',
       labelEn: 'System',
       icon: 'system',
-      href: '#',
+      href: 'admin-backup.html',
       accent: '#888',
       subs: [
-        { label: '内容备份管理', href: 'admin-backup.html', desc: 'Backup management' }
+        { label: '内容备份管理', href: 'admin-backup.html', desc: 'Backup management' },
+        { label: '使用问答管理', href: 'admin-system-faq.html', desc: 'FAQ management' }
       ]
     }
   ];

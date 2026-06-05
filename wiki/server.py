@@ -13,6 +13,7 @@ QUOTES_FILE = os.path.join(DIR, 'quotes.json')
 TOPICS_FILE = os.path.join(DIR, 'topics.json')
 RELATIONS_FILE = os.path.join(DIR, 'relations.json')
 BOOKMARK_FILE = os.path.join(DIR, 'bookmark.json')
+SYSTEM_FAQ_FILE = os.path.join(DIR, 'system-faq.json')
 BOOKMARK_VERSION = 'bookmark-v6'
 BASE_DIR = os.path.dirname(DIR)
 QUOTE_SOURCE_DIRS = [
@@ -60,6 +61,34 @@ def _load_bookmark():
 def _save_bookmark(data):
     with open(BOOKMARK_FILE, 'w', encoding='utf-8') as f:
         json.dump(data or {}, f, ensure_ascii=False, indent=2)
+
+def _load_system_faq():
+    if not os.path.exists(SYSTEM_FAQ_FILE):
+        return {'faqs': []}
+    with open(SYSTEM_FAQ_FILE, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    if not isinstance(data, dict):
+        return {'faqs': []}
+    faqs = data.get('faqs', [])
+    if not isinstance(faqs, list):
+        faqs = []
+    return {'faqs': faqs}
+
+def _save_system_faq(data):
+    faqs = data.get('faqs', []) if isinstance(data, dict) else []
+    clean = []
+    for i, item in enumerate(faqs):
+        if not isinstance(item, dict):
+            continue
+        clean.append({
+            'id': item.get('id') or f'faq-{i + 1:03d}',
+            'title': item.get('title', ''),
+            'detail': item.get('detail', ''),
+        })
+    tmp = SYSTEM_FAQ_FILE + '.tmp'
+    with open(tmp, 'w', encoding='utf-8') as f:
+        json.dump({'faqs': clean}, f, ensure_ascii=False, indent=2)
+    os.replace(tmp, SYSTEM_FAQ_FILE)
 
 def _save_concepts():
     tmp = DATA_FILE + '.tmp'
@@ -110,6 +139,8 @@ def _create_backup_package(dst):
     with zipfile.ZipFile(dst, 'w', compression=zipfile.ZIP_DEFLATED) as zf:
         zf.writestr('manifest.json', json.dumps(_backup_package_manifest(), ensure_ascii=False, indent=2))
         zf.write(DATA_FILE, 'wiki/concepts.json')
+        if os.path.exists(SYSTEM_FAQ_FILE):
+            zf.write(SYSTEM_FAQ_FILE, 'wiki/system-faq.json')
         for arc_dir, source_dir in BACKUP_INCLUDE_DIRS:
             if not os.path.isdir(source_dir):
                 continue
@@ -133,6 +164,8 @@ def _restore_backup_package(src):
         if 'wiki/concepts.json' not in names:
             raise ValueError('backup package missing wiki/concepts.json')
         zf.extract('wiki/concepts.json', BASE_DIR)
+        if 'wiki/system-faq.json' in names:
+            zf.extract('wiki/system-faq.json', BASE_DIR)
         for arc_dir, target_dir in BACKUP_INCLUDE_DIRS:
             prefix = arc_dir + '/'
             members = [name for name in names if name.startswith(prefix) and not name.endswith('/')]
@@ -273,6 +306,11 @@ class H(BaseHTTPRequestHandler):
                 return
             if path == '/api/bookmark':
                 self._json(200, _load_bookmark())
+                return
+            if path == '/api/system-faq':
+                data = _load_system_faq()
+                data['editable'] = True
+                self._json(200, data)
                 return
             if path.startswith('/api/concepts/'):
                 cid = path.split('/')[-1]
@@ -726,6 +764,10 @@ class H(BaseHTTPRequestHandler):
         try:
             length = int(self.headers.get('Content-Length', 0))
             body = json.loads(self.rfile.read(length).decode('utf-8')) if length else {}
+            if path == '/api/system-faq':
+                _save_system_faq(body)
+                self._json(200, {'ok': True, 'data': _load_system_faq()})
+                return
             if path.startswith('/api/concepts/'):
                 cid = path.split('/')[-1]
                 idx, c = _find_concept_by_id(cid)
