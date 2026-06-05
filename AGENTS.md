@@ -346,13 +346,14 @@ public-site/
 python3 scripts/build_public_site.py
 ```
 
-该脚本会从 `wiki/` 生成 Cloudflare Pages 可发布的静态目录：
+该脚本会从 `wiki/` 生成 Cloudflare Pages / EdgeOne Pages 可发布的静态目录：
 - `public-site/index.html` 等读者页面
 - `public-site/global-menu.js`
 - `public-site/site-chrome.css`
 - `public-site/data/concepts-lite.json`
 - `public-site/data/concept-graph.json`
 - `public-site/data/concepts/{concept-id}.json`
+- `public-site/edgeone.json`（EdgeOne Pages 配置）
 
 公开版页面不得依赖 `/api/*`，概念详情应读取 `data/concepts/{id}.json`。书签/阅读进度只保存在访问者浏览器本地，不写入服务器。
 
@@ -365,6 +366,8 @@ Build output directory: public-site
 ```
 
 注意：`wiki/concepts.json`、`wiki/concepts-lite.json` 等源内容数据不进 Git，所以 Cloudflare 线上构建环境拿不到这些源数据。更新内容后，先在本地后台备份内容数据，再在本地运行 `python3 scripts/build_public_site.py`，然后提交/推送重新生成的 `public-site/`。Cloudflare Pages 只负责发布已提交的 `public-site/` 目录。
+
+EdgeOne Pages 同样发布 `public-site/`，构建命令也留空。腾讯云迁移文档要求从 Cloudflare Pages 迁移时把 `_headers` 转成 `edgeone.json`，构建脚本会自动生成该文件。
 
 ## 最近后台改造记录
 

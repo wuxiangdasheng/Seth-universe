@@ -2,6 +2,26 @@
 
 本项目公开部署只发布 `public-site/`，不发布后台和源数据。
 
+## EdgeOne Pages 配置
+
+在 EdgeOne Pages 新建项目并连接 GitHub 仓库后，使用：
+
+```text
+Repository: wuxiangdasheng/Seth-universe
+Production branch: main
+Framework preset: None / 静态站点
+Build command: 留空
+Build output directory: public-site
+Root directory: 留空
+```
+
+腾讯云迁移文档要求把 Cloudflare Pages 的 `_headers` 配置迁移为 EdgeOne Pages 的 `edgeone.json`。构建脚本会同时生成：
+
+- `public-site/_headers`
+- `public-site/edgeone.json`
+
+所以这个公开目录可以同时适配 Cloudflare Pages 和 EdgeOne Pages。
+
 ## Cloudflare Pages 配置
 
 在 Cloudflare Pages 新建项目并连接 GitHub 仓库后，使用：
@@ -47,7 +67,7 @@ git commit -m "Update public site data"
 git push
 ```
 
-推送后 Cloudflare Pages 会自动发布 `public-site/`。
+推送后 Pages 平台会自动发布 `public-site/`。
 
 ## 公开目录不得包含
 
@@ -60,4 +80,3 @@ git push
 - `concept-quotes/`
 - `scripts/`
 - 本地书签和后台编辑状态
-
