@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-activeWorld="book-world">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>书籍详情 - 赛斯宇宙</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--border-subtle:rgba(255,255,255,.055);--border-active:rgba(212,175,55,.34);--gold:#d4af37;--gold-bright:#ecd178;--text-primary:#e8e1cf;--text-secondary:#a99f85;--text-muted:#5e5748;--font-serif:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-display:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh-title:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px}
+html{font-size:16px;scroll-behavior:auto}body{min-height:100vh;background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh);line-height:1.7;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 52% 0%,rgba(212,175,55,.08),transparent 34%),radial-gradient(1px 1px at 12% 22%,rgba(230,210,150,.5),transparent),radial-gradient(1px 1px at 82% 48%,rgba(230,210,150,.35),transparent);opacity:.9}
+.main{position:relative;z-index:1;margin-left:var(--prism-w);margin-top:var(--header-h);min-height:calc(100vh - var(--header-h));padding:40px 40px 100px;transition:margin-left .28s}.shell{max-width:1120px;margin:0 auto}.back-link{display:inline-flex;margin-bottom:24px;color:var(--text-muted);text-decoration:none;font-size:14px}.back-link:hover{color:var(--gold)}
+.book-head{border:1px solid var(--border-subtle);border-radius:8px;background:linear-gradient(180deg,rgba(16,16,24,.78),rgba(8,8,12,.9));padding:26px;margin-bottom:18px}.book-code{font-family:var(--font-serif);font-size:13px;color:var(--gold);margin-bottom:12px}.book-head h1{font-family:var(--font-zh-title);font-size:clamp(34px,5vw,54px);font-weight:500;line-height:1.12;margin-bottom:8px}.book-head .en{font-family:var(--font-serif);font-size:18px;color:var(--text-muted);font-style:italic}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.stat{border:1px solid var(--border-subtle);background:rgba(255,255,255,.025);border-radius:7px;padding:12px 14px}.stat strong{display:block;color:var(--gold);font-family:var(--font-display);font-size:24px;line-height:1.1}.stat span{display:block;color:var(--text-muted);font-size:12px;margin-top:5px}
+.modules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.module{border:1px solid var(--border-subtle);background:rgba(16,16,24,.66);border-radius:8px;padding:22px}.module.wide{grid-column:1/-1}.module h2{font-family:var(--font-zh-title);font-size:20px;font-weight:500;margin-bottom:12px}.module p,.module li{color:var(--text-secondary);font-size:15px}.module ol,.module ul{padding-left:20px}.module li+li{margin-top:8px}.concept-tags{display:flex;gap:8px;flex-wrap:wrap}.concept-tag{border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.055);color:var(--text-secondary);border-radius:999px;padding:6px 10px;font-size:13px}.quote-list{display:grid;gap:12px}.quote-item{border-left:1px solid var(--gold);padding-left:12px;color:var(--text-secondary);font-size:15px}.quote-item .src{display:block;margin-top:5px;color:var(--text-muted);font-family:var(--font-serif);font-size:12px}.empty{border:1px dashed var(--border-subtle);border-radius:8px;padding:28px;color:var(--text-muted);text-align:center}
+@media(max-width:900px){.modules{grid-template-columns:1fr}.module.wide{grid-column:auto}}
+@media(max-width:768px){.main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}.book-head{padding:20px}.module{padding:18px}}
+</style>
+<link rel="stylesheet" href="site-chrome.css">
+</head>
+<body>
+<header class="header"><div class="header-logo"><div class="logo-mark">S</div><span>赛斯宇宙</span></div><div class="header-tagline">You Create Your Own Reality</div><div class="header-actions"></div></header>
+<main class="main">
+  <section class="shell" id="bookRoot"></section>
+</main>
+<script src="book-data.js"></script>
+<script src="global-menu.js"></script>
+<script>
+(function(){
+  const root = document.getElementById('bookRoot');
+  const books = (window.SETH_BOOKS_DATA && window.SETH_BOOKS_DATA.books) || [];
+  const params = new URLSearchParams(location.search);
+  const id = params.get('id') || (books[0] && books[0].id);
+  const book = books.find(item => item.id === id) || books[0];
+  function esc(value){
+    return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function fmt(n){return Number(n || 0).toLocaleString('zh-CN')}
+  if (!book) {
+    root.innerHTML = '<div class="empty">暂无书籍数据。</div>';
+    return;
+  }
+  document.title = book.name_zh + ' - 书宇宙';
+  root.innerHTML = `
+    <a class="back-link" href="book.html">← 返回全部赛斯书</a>
+    <header class="book-head">
+      <div class="book-code">${esc(book.id)}</div>
+      <h1>${esc(book.name_zh)}</h1>
+      <div class="en">${esc(book.name_en)}</div>
+      <div class="stats">
+        <div class="stat"><strong>${fmt(book.word_count)}</strong><span>原书字数</span></div>
+        <div class="stat"><strong>${book.sessions_count || 0}</strong><span>Sessions</span></div>
+        <div class="stat"><strong>${book.sections_count || 0}</strong><span>章节/段落组</span></div>
+        <div class="stat"><strong>${fmt(book.total_paragraphs)}</strong><span>原始段落</span></div>
+      </div>
+    </header>
+    <div class="modules">
+      <section class="module wide"><h2>本书简介</h2><p>${esc(book.intro || '')}</p></section>
+      <section class="module"><h2>目录</h2><ol>${(book.toc || []).map(item => `<li>${esc(item)}</li>`).join('')}</ol></section>
+      <section class="module"><h2>核心概念</h2><div class="concept-tags">${(book.core_concepts || []).map(item => `<span class="concept-tag">${esc(item)}</span>`).join('')}</div></section>
+      <section class="module wide"><h2>核心金句</h2><div class="quote-list">${(book.core_quotes || []).map((item, idx) => `<div class="quote-item">${esc(item)}<span class="src">${esc(book.id)} · quote ${idx + 1}</span></div>`).join('')}</div></section>
+      <section class="module"><h2>阅读提示</h2><ul>${(book.reading_notes || []).map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>
+      <section class="module"><h2>后续可补充</h2><p>逐章摘要、原文定位、相关概念页跳转、书内摘录筛选、版本说明与阅读进度。</p></section>
+    </div>
+  `;
+})();
+</script>
+</body>
+</html>

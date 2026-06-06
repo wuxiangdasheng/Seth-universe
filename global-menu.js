@@ -15,7 +15,28 @@
       icon: 'book',
       href: 'book.html',
       accent: '#d4af37',
-      subs: []
+      subs: [
+        { label: '全部赛斯书', href: 'book.html', desc: 'Complete library' },
+        { label: '赛斯说', href: 'book-detail.html?id=10-01', desc: 'Seth Speaks' },
+        { label: '个人实相', href: 'book-detail.html?id=10-02', desc: 'Personal Reality' },
+        { label: '未知的实相 卷一', href: 'book-detail.html?id=10-03', desc: 'Unknown Reality I' },
+        { label: '未知的实相 卷二', href: 'book-detail.html?id=10-04', desc: 'Unknown Reality II' },
+        { label: '心灵的本质', href: 'book-detail.html?id=10-05', desc: 'Nature of the Psyche' },
+        { label: '个人与事件', href: 'book-detail.html?id=10-06', desc: 'Nature of Events' },
+        { label: '梦与价值 卷一', href: 'book-detail.html?id=10-07', desc: 'Dreams & Value I' },
+        { label: '梦与价值 卷二', href: 'book-detail.html?id=10-08', desc: 'Dreams & Value II' },
+        { label: '神奇之道', href: 'book-detail.html?id=10-09', desc: 'Magical Approach' },
+        { label: '健康之道', href: 'book-detail.html?id=10-10', desc: 'Way Toward Health' },
+        { label: '早期课 第一册', href: 'book-detail.html?id=ES-1', desc: 'Early Sessions 1' },
+        { label: '早期课 第二册', href: 'book-detail.html?id=ES-2', desc: 'Early Sessions 2' },
+        { label: '早期课 第三册', href: 'book-detail.html?id=ES-3', desc: 'Early Sessions 3' },
+        { label: '早期课 第四册', href: 'book-detail.html?id=ES-4', desc: 'Early Sessions 4' },
+        { label: '早期课 第五册', href: 'book-detail.html?id=ES-5', desc: 'Early Sessions 5' },
+        { label: '早期课 第六册', href: 'book-detail.html?id=ES-6', desc: 'Early Sessions 6' },
+        { label: '早期课 第七册', href: 'book-detail.html?id=ES-7', desc: 'Early Sessions 7' },
+        { label: '早期课 第八册', href: 'book-detail.html?id=ES-8', desc: 'Early Sessions 8' },
+        { label: '早期课 第九册', href: 'book-detail.html?id=ES-9', desc: 'Early Sessions 9' }
+      ]
     },
     {
       id: 'concept-world',
@@ -74,6 +95,7 @@
     style.id = 'mobile-world-nav-style';
     style.textContent = `
       #mobile-world-nav{display:none}
+      #mobile-sub-nav{display:none}
       @media(max-width:768px){
         #mobile-world-nav{
           position:fixed;top:var(--header-h);left:0;right:0;z-index:96;height:46px;
@@ -91,10 +113,28 @@
         .mwn-item.active{color:var(--text-primary);border-color:var(--mwn-accent);background:rgba(180,160,100,0.08)}
         .mwn-icon{width:15px;height:15px;display:inline-flex;color:var(--mwn-accent)}
         .mwn-icon svg{width:100%;height:100%}
+        #mobile-sub-nav{
+          position:fixed;top:calc(var(--header-h) + 46px);left:0;right:0;z-index:95;height:42px;
+          display:flex;align-items:center;gap:6px;padding:5px 10px;
+          overflow-x:auto;overflow-y:hidden;background:rgba(10,10,15,0.92);
+          border-bottom:1px solid var(--border-subtle);backdrop-filter:blur(16px) saturate(1.08);
+          scrollbar-width:none;touch-action:pan-x;
+        }
+        #mobile-sub-nav::-webkit-scrollbar{display:none}
+        .msn-item{
+          flex:0 0 auto;height:31px;display:inline-flex;align-items:center;justify-content:center;
+          padding:0 10px;color:var(--text-muted);text-decoration:none;border:1px solid transparent;border-radius:6px;
+          background:rgba(255,255,255,0.018);font-size:13px;white-space:nowrap;
+        }
+        .msn-item.active{color:var(--text-primary);border-color:var(--mwn-accent);background:rgba(180,160,100,0.08)}
         body.has-mobile-world-nav .main,
         body.has-mobile-world-nav .workspace{margin-top:calc(var(--header-h) + 46px)!important}
+        body.has-mobile-world-nav.has-mobile-sub-nav .main,
+        body.has-mobile-world-nav.has-mobile-sub-nav .workspace{margin-top:calc(var(--header-h) + 88px)!important}
         body.has-mobile-world-nav .sidebar,
         body.has-mobile-world-nav .concept-rail{top:calc(var(--header-h) + 46px)!important}
+        body.has-mobile-world-nav.has-mobile-sub-nav .sidebar,
+        body.has-mobile-world-nav.has-mobile-sub-nav .concept-rail{top:calc(var(--header-h) + 88px)!important}
       }
     `;
     document.head.appendChild(style);
@@ -191,6 +231,25 @@
   `).join('');
   document.body.appendChild(mobileNav);
   document.body.classList.add('has-mobile-world-nav');
+
+  if (curWorld.subs && curWorld.subs.length) {
+    const currentPath = (location.pathname.split('/').pop() || 'index.html') + location.search + location.hash;
+    const mobileSubNav = document.createElement('nav');
+    mobileSubNav.id = 'mobile-sub-nav';
+    mobileSubNav.setAttribute('aria-label', curWorld.label + '子菜单');
+    mobileSubNav.innerHTML = curWorld.subs.map(s => {
+      const href = s.href || '#';
+      const hrefPage = href.split('#')[0];
+      const isActive = href !== '#' && (
+        currentPath === href ||
+        location.href.endsWith(href) ||
+        (hrefPage && location.pathname.endsWith('/' + hrefPage) && (!href.includes('?') || currentPath.startsWith(href)))
+      );
+      return `<a class="msn-item${isActive ? ' active' : ''}" href="${href}" style="--mwn-accent:${curWorld.accent}">${s.label}</a>`;
+    }).join('');
+    document.body.appendChild(mobileSubNav);
+    document.body.classList.add('has-mobile-sub-nav');
+  }
 
   /* 绑定事件 */
   const toggle = nav.querySelector('.pn-toggle');
