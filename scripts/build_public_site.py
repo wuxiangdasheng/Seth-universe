@@ -21,6 +21,7 @@ CONCEPT_DATA = DATA / 'concepts'
 PUBLIC_PAGES = [
     'index.html',
     'book.html',
+    'book-detail.html',
     'dream.html',
     'ai.html',
     'system.html',
@@ -30,6 +31,7 @@ PUBLIC_PAGES = [
 PUBLIC_ASSETS = [
     'global-menu.js',
     'site-chrome.css',
+    'book-data.js',
 ]
 
 

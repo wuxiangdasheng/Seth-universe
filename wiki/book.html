@@ -6,13 +6,13 @@
 <title>书宇宙 - 赛斯宇宙</title>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--border-subtle:rgba(255,255,255,.055);--border-active:rgba(212,175,55,.34);--gold:#d4af37;--gold-bright:#ecd178;--text-primary:#e8e1cf;--text-secondary:#a99f85;--text-muted:#5e5748;--font-serif:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-display:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--font-zh-title:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px}
+:root{--bg-deep:#050508;--bg-surface:#0c0c12;--bg-elevated:#141420;--bg-card:#101018;--bg-card-hover:#181824;--border-subtle:rgba(255,255,255,.055);--border-active:rgba(212,175,55,.34);--gold:#d4af37;--gold-bright:#ecd178;--text-primary:#e8e1cf;--text-secondary:#a99f85;--text-muted:#5e5748;--font-serif:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-display:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--font-zh-title:"PingFang SC","Microsoft YaHei",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;--prism-expanded-w:260px;--prism-collapsed-w:56px;--header-h:52px}
 html{font-size:16px;scroll-behavior:auto}body{min-height:100vh;background:var(--bg-deep);color:var(--text-primary);font-family:var(--font-zh);line-height:1.7;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 52% 0%,rgba(212,175,55,.08),transparent 34%),radial-gradient(1px 1px at 12% 22%,rgba(230,210,150,.5),transparent),radial-gradient(1px 1px at 82% 48%,rgba(230,210,150,.35),transparent);opacity:.9}
-.main{position:relative;z-index:1;margin-left:var(--prism-w);margin-top:var(--header-h);min-height:calc(100vh - var(--header-h));padding:40px 40px 100px;transition:margin-left .28s}
-.shell{max-width:1120px;margin:0 auto}.shelf-title{font-family:var(--font-zh-title);font-size:20px;font-weight:500;color:var(--text-primary);margin:0 0 14px}
-.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px}.book-card{min-height:150px;border:1px solid var(--border-subtle);background:linear-gradient(180deg,rgba(20,20,32,.74),rgba(12,12,18,.9));padding:20px;border-radius:8px}.book-card h2{font-family:"PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;font-size:19px;margin-bottom:4px}.book-card .en{font-family:var(--font-serif);color:var(--gold);font-size:15px;margin-bottom:18px}.book-card p{color:var(--text-muted);font-size:14px}
-@media(max-width:768px){.main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}}
+.main{position:relative;z-index:1;margin-left:var(--prism-w);margin-top:var(--header-h);min-height:calc(100vh - var(--header-h));padding:40px 40px 100px;transition:margin-left .28s}.shell{max-width:1120px;margin:0 auto}
+.section-title{font-family:var(--font-zh-title);font-size:20px;font-weight:500;color:var(--text-primary);margin:0 0 14px}.section-sub{color:var(--text-muted);font-size:14px;margin:-8px 0 18px}
+.book-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.book-card{display:flex;flex-direction:column;min-height:210px;text-decoration:none;color:inherit;border:1px solid var(--border-subtle);background:linear-gradient(180deg,rgba(20,20,32,.74),rgba(12,12,18,.9));border-radius:8px;padding:18px;transition:transform .16s,border-color .16s,background .16s}.book-card:hover{transform:translateY(-2px);border-color:var(--border-active);background:linear-gradient(180deg,rgba(24,24,34,.82),rgba(12,12,18,.94))}.book-card .code{font-family:var(--font-serif);font-size:12px;color:var(--gold);margin-bottom:10px}.book-card h2{font-family:var(--font-zh-title);font-size:20px;line-height:1.25;margin-bottom:5px}.book-card .en{font-family:var(--font-serif);color:var(--text-muted);font-size:13px;font-style:italic;line-height:1.35;margin-bottom:14px}.book-card p{color:var(--text-secondary);font-size:14px;line-height:1.72;flex:1}.book-card .meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.meta-chip{border:1px solid var(--border-subtle);background:rgba(255,255,255,.025);border-radius:999px;padding:3px 8px;color:var(--text-muted);font-size:12px}
+@media(max-width:768px){.main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}.book-grid{grid-template-columns:1fr}}
 </style>
 <link rel="stylesheet" href="site-chrome.css">
 </head>
@@ -25,16 +25,37 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <div class="universe-hero-eyebrow">Book Universe</div>
       <h1>书宇宙</h1>
       <div class="subtitle-en">Seth Books, Reading Paths and Editions</div>
-      <p class="universe-hero-desc">赛斯书的阅读、索引与版本空间。这里将作为赛斯书系的独立入口，后续可承载书目、章节索引、阅读路线、版本说明、逐书摘录与原文定位。</p>
+      <p class="universe-hero-desc">赛斯书的阅读、索引与版本空间。这里作为赛斯书系的汇总入口，点击任一本书进入详情页，查看书名、原书字数、目录、核心概念和核心金句。</p>
     </div>
-    <h2 class="shelf-title">书系入口</h2>
-    <div class="shelf">
-      <article class="book-card"><h2>全部典籍</h2><div class="en">Complete Library</div><p>预留书目总览与阅读顺序。</p></article>
-      <article class="book-card"><h2>章节索引</h2><div class="en">Chapter Index</div><p>预留按书、章节、session 的检索入口。</p></article>
-      <article class="book-card"><h2>阅读路线</h2><div class="en">Reading Paths</div><p>预留新读者、主题读者与研究型读者路线。</p></article>
-    </div>
+    <h2 class="section-title">全部赛斯书</h2>
+    <p class="section-sub">当前先建立完整书目和详情页框架，内容后续可以继续补充真实目录、逐章摘要和原文定位。</p>
+    <div class="book-grid" id="bookGrid"></div>
   </section>
 </main>
+<script src="book-data.js"></script>
 <script src="global-menu.js"></script>
+<script>
+(function(){
+  const books = (window.SETH_BOOKS_DATA && window.SETH_BOOKS_DATA.books) || [];
+  const grid = document.getElementById('bookGrid');
+  function esc(value){
+    return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+  }
+  function fmt(n){return Number(n || 0).toLocaleString('zh-CN')}
+  grid.innerHTML = books.map(book => `
+    <a class="book-card" href="book-detail.html?id=${encodeURIComponent(book.id)}">
+      <span class="code">${esc(book.id)}</span>
+      <h2>${esc(book.name_zh)}</h2>
+      <div class="en">${esc(book.name_en)}</div>
+      <p>${esc(book.intro_short || book.intro || '')}</p>
+      <div class="meta">
+        <span class="meta-chip">${fmt(book.word_count)} words</span>
+        <span class="meta-chip">${book.sessions_count || 0} sessions</span>
+        <span class="meta-chip">${book.sections_count || 0} sections</span>
+      </div>
+    </a>
+  `).join('');
+})();
+</script>
 </body>
 </html>
