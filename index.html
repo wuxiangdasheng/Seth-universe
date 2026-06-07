@@ -932,6 +932,8 @@ let bookmarkEnabled = true;
 let suppressBookmarkSaveUntil = 0;
 let userScrolledSinceRender = false;
 let searchLockY = 0;
+let quoteSearchIndex = [];
+let quoteSearchIndexPromise = null;
 
 function init() {
   Promise.all([
@@ -1292,7 +1294,7 @@ function positionAfterRender(options) {
 }
 
 function shouldDeferQuoteBookmarkRestore(options) {
-  return !!(options && options.restore && options.bookmark && options.bookmark.quoteId && currentView.type === 'concept');
+  return !!(options && (options.restore || options.forceQuoteRestore) && options.bookmark && options.bookmark.quoteId && currentView.type === 'concept');
 }
 
 function setBookmarkRestoringVisibility(hidden) {
@@ -1525,6 +1527,100 @@ function definitionToText(definition) {
     return [definition.zh, definition.en, definition.source].filter(Boolean).join(' ');
   }
   return String(definition);
+}
+
+function stripHtml(value) {
+  var div = document.createElement('div');
+  div.innerHTML = String(value || '');
+  return div.textContent || div.innerText || '';
+}
+
+function ensureQuoteSearchIndex() {
+  if (quoteSearchIndex.length) return Promise.resolve(quoteSearchIndex);
+  if (quoteSearchIndexPromise) return quoteSearchIndexPromise;
+  quoteSearchIndexPromise = Promise.all(flatConcepts.map(function(c) {
+    if (quotesCache[c.id] && quotesCache[c.id].length) {
+      return { concept: c, quotes: quotesCache[c.id] };
+    }
+    return fetchConceptDetail(c.id)
+      .then(function(fullData) {
+        quotesCache[c.id] = fullData.quotes || [];
+        return { concept: c, quotes: quotesCache[c.id] };
+      })
+      .catch(function() { return { concept: c, quotes: [] }; });
+  })).then(function(items) {
+    var index = [];
+    items.forEach(function(item) {
+      var concept = item.concept;
+      (item.quotes || []).forEach(function(q, quoteIndex) {
+        var text = [
+          q.translation || '',
+          q.text || '',
+          q.source || '',
+          q.book || ''
+        ].join(' ');
+        index.push({
+          conceptId: concept.id,
+          parentId: concept.parentId || '',
+          conceptName: concept.name_zh,
+          conceptNameEn: concept.name_en,
+          quoteId: String(q.id || ''),
+          quoteIndex: quoteIndex,
+          translation: q.translation || '',
+          source: q.source || '',
+          searchText: text.toLowerCase()
+        });
+      });
+    });
+    quoteSearchIndex = index;
+    return quoteSearchIndex;
+  });
+  return quoteSearchIndexPromise;
+}
+
+function fetchConceptDetail(id) {
+  return fetch('data/concepts/' + encodeURIComponent(id) + '.json')
+    .then(function(r) { return r.ok ? r.json() : { quotes: [] }; });
+}
+
+function escapeHtml(value) {
+  return String(value || '').replace(/[&<>"']/g, function(ch) {
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch];
+  });
+}
+
+function escapeJsString(value) {
+  return String(value || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'").replace(/\n/g, '\\n').replace(/\r/g, '');
+}
+
+function makeSearchSnippet(text, query) {
+  var clean = stripHtml(text).replace(/\s+/g, ' ').trim();
+  if (!clean) return '';
+  var lower = clean.toLowerCase();
+  var q = String(query || '').toLowerCase();
+  var index = q ? lower.indexOf(q) : -1;
+  var start = index > 24 ? index - 24 : 0;
+  return (start > 0 ? '…' : '') + clean.slice(start, start + 96) + (clean.length > start + 96 ? '…' : '');
+}
+
+function jumpToQuoteSearchResult(conceptId, parentId, quoteId) {
+  var view = { type: 'concept', id: conceptId, parentId: parentId || '' };
+  var bookmark = {
+    view: view,
+    y: 0,
+    quoteId: quoteId || '',
+    quoteOffset: -72,
+    label: (conceptMap[conceptId] && conceptMap[conceptId].name_zh) || '搜索结果',
+    updatedAt: new Date().toISOString(),
+    clientVersion: BOOKMARK_VERSION
+  };
+  showConcept(conceptId, parentId || undefined, {
+    restore: true,
+    skipSave: true,
+    bookmark: bookmark,
+    forceQuoteRestore: true
+  });
+  toggleSearch();
 }
 
 function filterSidebar(query) {
@@ -1923,7 +2019,7 @@ function showConcept(id, parentId, options) {
   options = options || {};
   if (!options.skipSave) saveReadingPosition();
   currentView = { type: 'concept', id: id, parentId: parentId || '' };
-  if (bookmarkEnabled && !options.restore) {
+  if (bookmarkEnabled && !options.restore && !options.forceQuoteRestore) {
     var viewBookmark = getBookmarkForView(currentView);
     if (viewBookmark) {
       options = Object.assign({}, options, { restore: true, bookmark: viewBookmark });
@@ -1973,13 +2069,15 @@ function showConcept(id, parentId, options) {
   if (shouldDeferQuoteBookmarkRestore(options)) {
     setBookmarkRestoringVisibility(true);
     positionAfterRender(Object.assign({}, options, { restore: false, keepHiddenUntilRestore: true }));
+  } else if (options.forceQuoteRestore) {
+    setBookmarkRestoringVisibility(true);
+    positionAfterRender(Object.assign({}, options, { restore: false, keepHiddenUntilRestore: true }));
   } else {
     positionAfterRender(options);
   }
 
   // Load quotes via API
-  fetch('data/concepts/' + encodeURIComponent(id) + '.json')
-    .then(r => r.json())
+  fetchConceptDetail(id)
     .then(fullData => {
       quotesCache[id] = fullData.quotes || [];
       // Merge full data (explanation, definition, etc.) into lite object
@@ -1992,7 +2090,7 @@ function showConcept(id, parentId, options) {
       });
       conceptDetailCache[id] = merged;
       renderConceptDetail(main, merged, fullData.quotes || [], parent, backBtn, relatedTags, subs, quoteCount, subCount, relatedCount);
-      positionAfterRender(options);
+      positionAfterRender(options.forceQuoteRestore ? Object.assign({}, options, { restore: true }) : options);
     })
     .catch(function() {
       setBookmarkRestoringVisibility(false);
@@ -2279,11 +2377,67 @@ function shareQuoteCard(button) {
   ctx.font = '15px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
   ctx.fillText(data.source ? '— ' + data.source : '— Seth Material', padding, Math.min(height - 66, y + 44));
 
+  canvas.toBlob(function(blob) {
+    if (!blob) {
+      try {
+        var fallbackUrl = canvas.toDataURL('image/png');
+        var fallbackWindow = window.open('', '_blank');
+        if (fallbackWindow) {
+          fallbackWindow.document.write('<title>seth-quote-card.png</title><img alt="seth quote card" style="max-width:100%;height:auto;background:#050508" src="' + fallbackUrl + '">');
+          fallbackWindow.document.close();
+          setActionFeedback(button, '图片已打开');
+          return;
+        }
+      } catch(e) {}
+      setActionFeedback(button, '生成失败');
+      return;
+    }
+
+    var file = new File([blob], 'seth-quote-card.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] }) && navigator.share) {
+      navigator.share({
+        files: [file],
+        title: '赛斯宇宙摘录',
+        text: data.zh.slice(0, 80)
+      }).then(function() {
+        setActionFeedback(button, '已分享');
+      }).catch(function() {
+        downloadQuoteImage(blob, button);
+      });
+      return;
+    }
+
+    downloadQuoteImage(blob, button);
+  }, 'image/png');
+}
+
+function downloadQuoteImage(blob, button) {
+  var url = URL.createObjectURL(blob);
   var link = document.createElement('a');
   link.download = 'seth-quote-card.png';
-  link.href = canvas.toDataURL('image/png');
-  link.click();
-  setActionFeedback(button, '图片已生成');
+  link.href = url;
+  link.rel = 'noopener';
+  document.body.appendChild(link);
+
+  if ('download' in link) {
+    link.click();
+    setActionFeedback(button, '图片已生成');
+    setTimeout(function() {
+      URL.revokeObjectURL(url);
+      link.remove();
+    }, 1500);
+    return;
+  }
+
+  link.remove();
+  var preview = window.open(url, '_blank', 'noopener');
+  if (preview) {
+    setActionFeedback(button, '图片已打开');
+    setTimeout(function() { URL.revokeObjectURL(url); }, 10000);
+  } else {
+    setActionFeedback(button, '请允许弹窗');
+    URL.revokeObjectURL(url);
+  }
 }
 
 function toggleQuoteEnglish(button) {
@@ -2320,22 +2474,58 @@ function handleSearch(query) {
   const results = document.getElementById('searchResults');
   if (!query.trim()) { results.innerHTML = ''; return; }
   const q = query.toLowerCase();
-  const matches = flatConcepts.filter(c =>
+  const conceptMatches = flatConcepts.filter(c =>
     c.name_zh.toLowerCase().includes(q) ||
     c.name_en.toLowerCase().includes(q) ||
     definitionToText(c.definition).toLowerCase().includes(q) ||
     (c.explanation && c.explanation.toLowerCase().includes(q))
-  ).slice(0, 20);
+  ).slice(0, 8);
 
-  results.innerHTML = matches.length ? matches.map(c => {
-    const parent = c.parentId ? conceptMap[c.parentId] : null;
-    const breadcrumb = parent ? `<span style="color:var(--text-muted);font-size:10px">${parent.name_zh} / </span>` : '';
-    return `<div class="search-result-item" onclick="showConcept('${c.id}',${parent ? `'${c.parentId}'` : 'undefined'});toggleSearch()">
-      <h4>${breadcrumb}${c.name_zh}</h4>
-      <div class="sr-en">${c.name_en}</div>
-      <p>${c.definition}</p>
-    </div>`;
-  }).join('') : '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:11.5px">没有找到匹配的概念</div>';
+  function renderConceptResults(matches) {
+    return matches.map(c => {
+      const parent = c.parentId ? conceptMap[c.parentId] : null;
+      const breadcrumb = parent ? `<span style="color:var(--text-muted);font-size:10px">${escapeHtml(parent.name_zh)} / </span>` : '';
+      return `<div class="search-result-item" onclick="showConcept('${c.id}',${parent ? `'${c.parentId}'` : 'undefined'});toggleSearch()">
+        <h4>${breadcrumb}${escapeHtml(c.name_zh)}</h4>
+        <div class="sr-en">${escapeHtml(c.name_en)}</div>
+        <p>${escapeHtml(definitionToText(c.definition) || c.explanation || '')}</p>
+      </div>`;
+    }).join('');
+  }
+
+  function renderQuoteResults(matches) {
+    return matches.map(function(item) {
+      var parentArg = item.parentId ? "'" + escapeJsString(item.parentId) + "'" : "''";
+      return `<div class="search-result-item" onclick="jumpToQuoteSearchResult('${escapeJsString(item.conceptId)}',${parentArg},'${escapeJsString(item.quoteId)}')">
+        <h4><span style="color:var(--gold)">引文</span> · ${escapeHtml(item.conceptName)}</h4>
+        <div class="sr-en">${escapeHtml(item.source || item.conceptNameEn || '')}</div>
+        <p>${escapeHtml(makeSearchSnippet(item.translation, query))}</p>
+      </div>`;
+    }).join('');
+  }
+
+  var initialHtml = renderConceptResults(conceptMatches);
+  if (!quoteSearchIndex.length) {
+    results.innerHTML = initialHtml + '<div style="padding:10px 14px;color:var(--text-muted);font-size:11.5px">正在搜索引文...</div>';
+  }
+
+  ensureQuoteSearchIndex().then(function(index) {
+    var currentQuery = document.getElementById('searchInput').value || '';
+    if (currentQuery !== query) return;
+    var quoteMatches = index.filter(function(item) {
+      return item.searchText.indexOf(q) !== -1;
+    }).slice(0, 14);
+    var html = renderQuoteResults(quoteMatches) + renderConceptResults(conceptMatches);
+    results.innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:11.5px">没有找到匹配的概念或引文</div>';
+  });
+
+  if (quoteSearchIndex.length) {
+    var quoteMatches = quoteSearchIndex.filter(function(item) {
+      return item.searchText.indexOf(q) !== -1;
+    }).slice(0, 14);
+    var html = renderQuoteResults(quoteMatches) + renderConceptResults(conceptMatches);
+    results.innerHTML = html || '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:11.5px">没有找到匹配的概念或引文</div>';
+  }
 }
 
 function toggleSidebar() {
