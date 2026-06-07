@@ -2,6 +2,7 @@
 <html lang="zh-CN" data-activeWorld="concept-world">
 <head>
 <meta charset="UTF-8">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
 <script>
 if ('scrollRestoration' in history) {
   history.scrollRestoration = 'manual';
@@ -656,6 +657,10 @@ body::after{
   color:var(--gold);background:var(--gold-glow);
   border-color:var(--border-active);
 }
+.quote-action-btn.active{
+  color:var(--gold-bright);background:var(--gold-glow);
+  border-color:var(--border-active);
+}
 .quote-action-btn svg{width:14px;height:14px;stroke-width:1.8}
 .quote-card .quote-en{
   font-family:var(--font-serif);
@@ -884,7 +889,7 @@ body::after{
     <path d="m5 12 7-7 7 7"/>
   </svg>
 </button>
-<button class="bookmark-fab" id="readingBookmark" onclick="toggleBookmarkMode()" aria-label="书签开关" title="开启书签记录">
+<button class="bookmark-fab" id="readingBookmark" onclick="jumpToBookmark()" aria-label="跳转到书签" title="跳转到本概念书签">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
     <path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
   </svg>
@@ -957,6 +962,7 @@ function init() {
         });
       });
       renderSidebar();
+      if (openInitialQuoteTarget()) return;
       restoreLastView();
     })
     .catch(err => {
@@ -966,6 +972,30 @@ function init() {
       }
       console.error(err);
     });
+}
+
+function openInitialQuoteTarget() {
+  var params = new URLSearchParams(window.location.search || '');
+  var conceptId = params.get('concept') || params.get('c') || '';
+  var quoteId = params.get('quote') || params.get('q') || '';
+  if (!conceptId || !quoteId || !conceptMap[conceptId]) return false;
+  var concept = conceptMap[conceptId];
+  var bookmark = {
+    view: { type: 'concept', id: conceptId, parentId: concept.parentId || '' },
+    y: 0,
+    quoteId: quoteId,
+    quoteOffset: -72,
+    label: concept.name_zh || '摘录',
+    updatedAt: new Date().toISOString(),
+    clientVersion: BOOKMARK_VERSION
+  };
+  showConcept(conceptId, concept.parentId || undefined, {
+    restore: true,
+    skipSave: true,
+    bookmark: bookmark,
+    forceQuoteRestore: true
+  });
+  return true;
 }
 
 function getViewKey(view) {
@@ -1126,14 +1156,9 @@ function scheduleBookmarkRemoteSave(store) {
 }
 
 function writeBookmarkEnabled(enabled) {
-  bookmarkEnabled = !!enabled;
-  bookmarkStore.enabled = bookmarkEnabled;
-  const state = readReadingState();
-  state.bookmarkEnabled = bookmarkEnabled;
-  state.bookmarkStore = bookmarkStore;
-  writeReadingState(state);
+  bookmarkEnabled = true;
+  bookmarkStore.enabled = true;
   updateBookmarkIndicator();
-  scheduleBookmarkRemoteSave(bookmarkStore);
 }
 
 function getCurrentViewLabel() {
@@ -1159,6 +1184,51 @@ function getVisibleQuoteBookmark() {
   return best || { id: '', offset: 0 };
 }
 
+function buildQuoteBookmark(card) {
+  var concept = currentView.id ? conceptMap[currentView.id] : null;
+  return {
+    view: {
+      type: currentView.type,
+      id: currentView.id || '',
+      parentId: currentView.parentId || ''
+    },
+    y: 0,
+    quoteId: card.dataset.quoteId || '',
+    quoteOffset: -72,
+    label: concept ? concept.name_zh : '概念书签',
+    updatedAt: new Date().toISOString(),
+    clientVersion: BOOKMARK_VERSION
+  };
+}
+
+function setQuoteBookmark(button) {
+  var card = button.closest('.quote-card');
+  if (!card || currentView.type !== 'concept' || !card.dataset.quoteId) return;
+  var bookmark = buildQuoteBookmark(card);
+  var key = getViewKey(bookmark.view);
+  bookmarkStore.bookmarks[key] = bookmark;
+  bookmarkStore.lastView = bookmark.view;
+  bookmarkStore.clientVersion = BOOKMARK_VERSION;
+  bookmarkStore.enabled = true;
+  activeBookmark = bookmark;
+  writeLocalBookmarkStore(bookmarkStore);
+  scheduleBookmarkRemoteSave(bookmarkStore);
+  markQuoteBookmarkButtons();
+  setActionFeedback(button, '已设为书签');
+}
+
+function markQuoteBookmarkButtons() {
+  var bookmark = getBookmarkForView(currentView);
+  document.querySelectorAll('.quote-bookmark-btn').forEach(function(btn) {
+    var card = btn.closest('.quote-card');
+    var active = !!(bookmark && card && card.dataset.quoteId === bookmark.quoteId);
+    btn.classList.toggle('active', active);
+    btn.setAttribute('title', active ? '当前书签' : '设为本概念书签');
+    btn.setAttribute('aria-pressed', active ? 'true' : 'false');
+  });
+  updateBookmarkIndicator();
+}
+
 function buildCurrentBookmark() {
   var y = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
   var visibleQuote = getVisibleQuoteBookmark();
@@ -1178,32 +1248,11 @@ function buildCurrentBookmark() {
 }
 
 function saveReadingPosition(force) {
-  if (!bookmarkEnabled) return;
-  if (isRestoringScroll || Date.now() < suppressBookmarkSaveUntil || (!force && !userScrolledSinceRender)) return;
-  const state = readReadingState();
-  const bookmark = buildCurrentBookmark();
-  const key = getViewKey(bookmark.view);
-  bookmarkStore.bookmarks[key] = bookmark;
-  bookmarkStore.lastView = bookmark.view;
-  bookmarkStore.clientVersion = BOOKMARK_VERSION;
-  bookmarkStore.enabled = bookmarkEnabled;
-  state.lastView = currentView;
-  state.bookmarkEnabled = bookmarkEnabled;
-  state.positions = state.positions || {};
-  state.positions[key] = bookmark.y;
-  state.bookmark = bookmark;
-  state.bookmarkStore = bookmarkStore;
-  activeBookmark = bookmark;
-  writeReadingState(state);
   updateBookmarkIndicator();
-  scheduleBookmarkRemoteSave(bookmarkStore);
 }
 
 function scheduleSaveReadingPosition() {
   updateBackToTopVisibility();
-  if (!bookmarkEnabled) return;
-  clearTimeout(saveScrollTimer);
-  saveScrollTimer = setTimeout(saveReadingPosition, 120);
 }
 
 function restoreScrollForCurrentView(defaultY, bookmark) {
@@ -1287,7 +1336,7 @@ function positionAfterRender(options) {
   if (!(options && options.keepHiddenUntilRestore)) {
     setBookmarkRestoringVisibility(false);
   }
-  if (bookmarkEnabled && options && options.restore) {
+  if (options && options.restore) {
     restoreScrollForCurrentView(0, options.bookmark || null);
   } else {
     window.scrollTo(0, 0);
@@ -1307,12 +1356,9 @@ function setBookmarkRestoringVisibility(hidden) {
 }
 
 function restoreLastView() {
-  suppressBookmarkSaveUntil = Date.now() + 1500;
-  var localState = readReadingState();
-  bookmarkEnabled = localState.bookmarkEnabled !== false;
   loadBookmark().then(function(store) {
     store = sanitizeBookmarkStore(store);
-    store.enabled = bookmarkEnabled;
+    store.enabled = true;
     bookmarkStore = store;
     isRestoringScroll = false;
     showWelcome({ skipSave: true });
@@ -1331,44 +1377,24 @@ function updateBackToTopVisibility() {
 function updateBookmarkIndicator() {
   const btn = document.getElementById('readingBookmark');
   if (!btn) return;
-  const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
-  btn.classList.toggle('active', bookmarkEnabled);
-  btn.setAttribute('aria-pressed', bookmarkEnabled ? 'true' : 'false');
-  if (!bookmarkEnabled) {
-    btn.setAttribute('title', '开启书签记录');
-    return;
-  }
+  const bookmark = getBookmarkForView(currentView);
+  btn.classList.toggle('active', !!bookmark);
+  btn.setAttribute('aria-pressed', bookmark ? 'true' : 'false');
   if (!bookmark) {
-    btn.setAttribute('title', '书签记录已开启 · 正在记录当前位置');
+    btn.setAttribute('title', currentView.type === 'concept' ? '本概念暂无书签' : '当前页面暂无书签');
     return;
   }
   var label = bookmark.label || '当前位置';
-  var y = Math.round(bookmark.y || 0);
-  btn.setAttribute('title', '书签记录已开启：' + label + ' · 位置 ' + y);
+  btn.setAttribute('title', '跳转到书签：' + label);
 }
 
 function toggleBookmarkMode() {
-  if (bookmarkEnabled) {
-    clearTimeout(saveScrollTimer);
-    clearTimeout(saveBookmarkTimer);
-    clearTimeout(restoreScrollTimer);
-    pendingScrollRestore = null;
-    isRestoringScroll = false;
-    setBookmarkRestoringVisibility(false);
-    writeBookmarkEnabled(false);
-    return;
-  }
-  writeBookmarkEnabled(true);
-  saveReadingPosition(true);
+  jumpToBookmark();
 }
 
 function jumpToBookmark() {
-  if (!bookmarkEnabled) return;
-  const bookmark = getBookmarkForView(currentView) || readLocalBookmark();
-  if (!bookmark) {
-    saveReadingPosition(true);
-    return;
-  }
+  const bookmark = getBookmarkForView(currentView);
+  if (!bookmark) return;
   activeBookmark = bookmark;
   if (bookmark.view.type === 'concept' && conceptMap[bookmark.view.id]) {
     if (currentView.type === 'concept' && currentView.id === bookmark.view.id && (currentView.parentId || '') === (bookmark.view.parentId || '')) {
@@ -2010,25 +2036,18 @@ function showWelcome(options) {
   </div>`;
   renderConceptGraph();
   closeSidebarMobile();
-  if (bookmarkEnabled && options.restore) {
+  if (options.restore) {
     restoreScrollForCurrentView(0, options.bookmark || null);
   } else {
     window.scrollTo(0, 0);
     updateBackToTopVisibility();
-    saveReadingPosition();
   }
 }
 
 function showConcept(id, parentId, options) {
   options = options || {};
-  if (!options.skipSave) saveReadingPosition();
   currentView = { type: 'concept', id: id, parentId: parentId || '' };
-  if (bookmarkEnabled && !options.restore && !options.forceQuoteRestore) {
-    var viewBookmark = getBookmarkForView(currentView);
-    if (viewBookmark) {
-      options = Object.assign({}, options, { restore: true, bookmark: viewBookmark });
-    }
-  }
+  updateBookmarkIndicator();
   const c = conceptMap[id];
   if (!c) return;
   setActiveSidebar(id);
@@ -2126,6 +2145,9 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
         '<div class="quote-meta-row">' +
           '<div class="quote-source"><span class="quote-role-badge">' + roleLabel + '</span>— ' + q.source + '</div>' +
           '<div class="quote-actions">' +
+            '<button class="quote-action-btn quote-bookmark-btn" onclick="setQuoteBookmark(this)" title="设为本概念书签" aria-pressed="false">' +
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21l-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>' +
+            '</button>' +
             '<button class="quote-action-btn" onclick="copyQuoteCard(this)" title="复制摘录">' +
               '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>' +
             '</button>' +
@@ -2191,6 +2213,7 @@ function renderConceptDetail(main, c, quotes, parent, backBtn, relatedTags, subs
     subsHtml +
     '</div>';
   closeSidebarMobile();
+  markQuoteBookmarkButtons();
 }
 
 function buildDefinitionHtml(definitions) {
@@ -2221,6 +2244,8 @@ function getQuoteCardData(button) {
   if (!card) return null;
   return {
     card: card,
+    quoteId: card.dataset.quoteId || '',
+    conceptId: currentView.id || '',
     zh: (card.querySelector('.quote-zh') || {}).textContent || '',
     en: (card.querySelector('.quote-en') || {}).textContent || '',
     source: ((card.querySelector('.quote-source') || {}).textContent || '').replace(/^—\s*/, '')
@@ -2299,7 +2324,46 @@ function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines) {
   return y + lines.length * lineHeight;
 }
 
-function shareQuoteCard(button) {
+function getQuoteShareUrl(data) {
+  var url = new URL(window.location.href);
+  url.hash = '';
+  url.search = '';
+  url.searchParams.set('concept', data.conceptId || currentView.id || '');
+  url.searchParams.set('quote', data.quoteId || '');
+  return url.toString();
+}
+
+function drawShareQr(ctx, text, x, y, size) {
+  if (!window.QRCode || !window.QRCode.toCanvas || !text) return Promise.resolve(false);
+  var qrCanvas = document.createElement('canvas');
+  return new Promise(function(resolve) {
+    window.QRCode.toCanvas(qrCanvas, text, {
+      errorCorrectionLevel: 'M',
+      margin: 1,
+      width: size,
+      color: { dark: '#101018', light: '#f4efe2' }
+    }, function(err) {
+      if (err) {
+        resolve(false);
+        return;
+      }
+      ctx.save();
+      ctx.fillStyle = 'rgba(244,239,226,0.96)';
+      ctx.fillRect(x - 10, y - 10, size + 20, size + 34);
+      ctx.strokeStyle = 'rgba(180,160,100,0.42)';
+      ctx.strokeRect(x - 10.5, y - 10.5, size + 21, size + 35);
+      ctx.drawImage(qrCanvas, x, y, size, size);
+      ctx.fillStyle = '#6f6754';
+      ctx.font = '12px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('扫码阅读', x + size / 2, y + size + 19);
+      ctx.restore();
+      resolve(true);
+    });
+  });
+}
+
+async function shareQuoteCard(button) {
   var data = getQuoteCardData(button);
   if (!data) return;
 
@@ -2314,7 +2378,8 @@ function shareQuoteCard(button) {
   zhLines = wrapCanvasText(measure, data.zh, maxTextWidth);
   measure.font = '20px serif';
   enLines = wrapCanvasText(measure, data.en, maxTextWidth);
-  var height = Math.min(1200, Math.max(560, padding * 2 + zhLines.length * 44 + Math.min(enLines.length, 9) * 32 + 150));
+  var qrSize = 112;
+  var height = Math.min(1280, Math.max(660, padding * 2 + zhLines.length * 44 + Math.min(enLines.length, 9) * 32 + 230));
 
   canvas.width = width * scale;
   canvas.height = height * scale;
@@ -2379,7 +2444,10 @@ function shareQuoteCard(button) {
 
   ctx.fillStyle = '#6f6754';
   ctx.font = '15px "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
-  ctx.fillText(data.source ? '— ' + data.source : '— Seth Material', padding, Math.min(height - 66, y + 44));
+  ctx.fillText(data.source ? '— ' + data.source : '— Seth Material', padding, Math.min(height - 92, y + 44));
+
+  var shareUrl = getQuoteShareUrl(data);
+  await drawShareQr(ctx, shareUrl, width - padding - qrSize, height - padding - qrSize - 22, qrSize);
 
   canvas.toBlob(function(blob) {
     if (!blob) {
