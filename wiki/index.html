@@ -465,19 +465,19 @@ body::after{
   margin-top:28px;
   border:0.5px solid var(--border-subtle);
   background:rgba(20,20,32,0.5);
-  min-height:560px;
+  min-height:720px;
   display:grid;
-  grid-template-columns:minmax(0,1fr) 260px;
+  grid-template-columns:minmax(0,1fr) 280px;
   position:relative;
   overflow:hidden;
 }
 .graph-canvas-wrap{
   position:relative;
-  min-height:560px;
+  min-height:720px;
 }
 .graph-canvas{
   width:100%;
-  height:560px;
+  height:720px;
   display:block;
 }
 .graph-edge{
@@ -510,6 +510,11 @@ body::after{
   font-family:var(--font-serif);
   font-size:10px;
   font-style:italic;
+  opacity:0;
+}
+.graph-node:hover .graph-node-en,
+.graph-node.graph-active .graph-node-en{
+  opacity:1;
 }
 .graph-node.graph-muted{opacity:0.28}
 .graph-edge.graph-muted{opacity:0.12}
@@ -583,7 +588,10 @@ body::after{
 @media(max-width:900px){
   .graph-stage{grid-template-columns:1fr}
   .graph-panel{border-left:none;border-top:0.5px solid var(--border-subtle)}
-  .graph-canvas,.graph-canvas-wrap{height:460px;min-height:460px}
+  .graph-canvas,.graph-canvas-wrap{height:640px;min-height:640px}
+}
+@media(max-width:600px){
+  .graph-canvas,.graph-canvas-wrap{height:560px;min-height:560px}
 }
 
 /* Explanation */
@@ -1710,7 +1718,20 @@ function renderConceptGraph() {
   const svg = document.getElementById('conceptGraphSvg');
   if (!svg) return;
   const nodes = (conceptGraph.nodes || []).filter(n => conceptMap[n.id]).map(n => Object.assign({}, n));
-  const edges = (conceptGraph.edges || []).filter(e => conceptMap[e.source] && conceptMap[e.target]).map(e => Object.assign({}, e));
+  const rawEdges = (conceptGraph.edges || []).filter(e => conceptMap[e.source] && conceptMap[e.target]).map(e => Object.assign({}, e));
+  const edgeQuota = {};
+  const edges = rawEdges
+    .slice()
+    .sort((a, b) => (b.weight || 0) - (a.weight || 0))
+    .filter(e => {
+      const sourceCount = edgeQuota[e.source] || 0;
+      const targetCount = edgeQuota[e.target] || 0;
+      if (sourceCount >= 5 && targetCount >= 5) return false;
+      edgeQuota[e.source] = sourceCount + 1;
+      edgeQuota[e.target] = targetCount + 1;
+      return true;
+    })
+    .slice(0, 180);
   const width = svg.clientWidth || 800;
   const height = svg.clientHeight || 560;
   svg.setAttribute('viewBox', '0 0 ' + width + ' ' + height);
@@ -1720,18 +1741,23 @@ function renderConceptGraph() {
   const maxQuotes = Math.max.apply(null, nodes.map(n => n.quotes_count || 1));
   const maxWeight = Math.max.apply(null, edges.map(e => e.weight || 1).concat([1]));
   const byId = {};
+  const padding = Math.max(56, Math.min(width, height) * 0.08);
+  const layoutWidth = Math.max(1, width - padding * 2);
+  const layoutHeight = Math.max(1, height - padding * 2);
+  const layoutRadius = Math.max(80, Math.min(layoutWidth, layoutHeight) * 0.46);
+  const goldenAngle = Math.PI * (3 - Math.sqrt(5));
   nodes.forEach((n, i) => {
-    const angle = (Math.PI * 2 * i) / nodes.length - Math.PI / 2;
-    const radius = Math.min(width, height) * (0.24 + ((i % 3) * 0.045));
-    n.x = width / 2 + Math.cos(angle) * radius;
-    n.y = height / 2 + Math.sin(angle) * radius;
+    const angle = i * goldenAngle - Math.PI / 2;
+    const radius = layoutRadius * Math.sqrt((i + 0.5) / nodes.length);
+    n.x = width / 2 + Math.cos(angle) * radius * (layoutWidth / Math.max(layoutWidth, layoutHeight));
+    n.y = height / 2 + Math.sin(angle) * radius * (layoutHeight / Math.max(layoutWidth, layoutHeight));
     n.vx = 0;
     n.vy = 0;
-    n.r = 20 + Math.sqrt((n.quotes_count || 1) / maxQuotes) * 18;
+    n.r = 15 + Math.sqrt((n.quotes_count || 1) / maxQuotes) * 11;
     byId[n.id] = n;
   });
 
-  for (let tick = 0; tick < 180; tick++) {
+  for (let tick = 0; tick < 460; tick++) {
     edges.forEach(e => {
       const a = byId[e.source];
       const b = byId[e.target];
@@ -1739,8 +1765,8 @@ function renderConceptGraph() {
       const dx = b.x - a.x;
       const dy = b.y - a.y;
       const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
-      const target = 170 - Math.min(70, (e.weight / maxWeight) * 70);
-      const force = (dist - target) * 0.0025;
+      const target = 250 - Math.min(82, (e.weight / maxWeight) * 82);
+      const force = (dist - target) * 0.00095;
       const fx = dx / dist * force;
       const fy = dy / dist * force;
       a.vx += fx; a.vy += fy;
@@ -1752,9 +1778,9 @@ function renderConceptGraph() {
         const dx = b.x - a.x;
         const dy = b.y - a.y;
         const dist = Math.max(1, Math.sqrt(dx * dx + dy * dy));
-        const minDist = a.r + b.r + 28;
+        const minDist = a.r + b.r + 64;
         if (dist < minDist) {
-          const force = (minDist - dist) * 0.004;
+          const force = (minDist - dist) * 0.014;
           const fx = dx / dist * force;
           const fy = dy / dist * force;
           a.vx -= fx; a.vy -= fy;
@@ -1763,12 +1789,19 @@ function renderConceptGraph() {
       }
     }
     nodes.forEach(n => {
-      n.vx += (width / 2 - n.x) * 0.0008;
-      n.vy += (height / 2 - n.y) * 0.0008;
-      n.vx *= 0.82;
-      n.vy *= 0.82;
-      n.x = Math.max(n.r + 20, Math.min(width - n.r - 20, n.x + n.vx));
-      n.y = Math.max(n.r + 20, Math.min(height - n.r - 20, n.y + n.vy));
+      const dx = n.x - width / 2;
+      const dy = n.y - height / 2;
+      const ellipseDist = Math.sqrt((dx * dx) / (layoutWidth * layoutWidth) + (dy * dy) / (layoutHeight * layoutHeight));
+      n.vx += (width / 2 - n.x) * 0.00012;
+      n.vy += (height / 2 - n.y) * 0.00012;
+      if (ellipseDist > 0.43) {
+        n.vx += (width / 2 - n.x) * 0.0009 * ellipseDist;
+        n.vy += (height / 2 - n.y) * 0.0009 * ellipseDist;
+      }
+      n.vx *= 0.76;
+      n.vy *= 0.76;
+      n.x = Math.max(n.r + padding * 0.45, Math.min(width - n.r - padding * 0.45, n.x + n.vx));
+      n.y = Math.max(n.r + padding * 0.45, Math.min(height - n.r - padding * 0.45, n.y + n.vy));
     });
   }
 
@@ -1859,7 +1892,6 @@ function showWelcome(options) {
     <div class="hero-ornament"><div class="line"></div><div class="center-mark"></div><div class="line"></div></div>
     <div class="hero-eyebrow">The Seth Universe</div>
     <h1>赛斯宇宙</h1>
-    <div class="subtitle-en">You Create Your Own Reality</div>
     <p class="hero-desc">赛斯书是指人类有史以来最全面系统、连贯严密和具体实用的哲学和信仰体系。它具有英语哲学界的正统性、规范性，也不乏宗教的震撼与感召，对占据至尊地位的学术界、思想界极具说服力的；对那些偏好理性、逻辑，而对那些超越感官的信仰领域心存疑虑的人来说这是极其难得的入道法门。它现在为世界各地百万人竞相阅读。其手稿作为唯一的形而上学著作被存放在耶鲁大学，据耶鲁大学称那是人们最常参观的地方。
   
   </br>赛斯是个曾经在地球上投生过许多次，而今已不再贯注于物质形态存在的能量人格本质；赛斯书则是赛斯借女作家简·罗布兹之口口授下来的关于我们人类物质形态存在的本质、结构和发展以及宇宙演化根本规律的一系列书籍。。</p>

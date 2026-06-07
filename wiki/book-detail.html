@@ -11,9 +11,9 @@ html{font-size:16px;scroll-behavior:auto}body{min-height:100vh;background:var(--
 body::before{content:'';position:fixed;inset:0;pointer-events:none;background:radial-gradient(circle at 52% 0%,rgba(212,175,55,.08),transparent 34%),radial-gradient(1px 1px at 12% 22%,rgba(230,210,150,.5),transparent),radial-gradient(1px 1px at 82% 48%,rgba(230,210,150,.35),transparent);opacity:.9}
 .main{position:relative;z-index:1;margin-left:var(--prism-w);margin-top:var(--header-h);min-height:calc(100vh - var(--header-h));padding:40px 40px 100px;transition:margin-left .28s}.shell{max-width:1120px;margin:0 auto}.back-link{display:inline-flex;margin-bottom:24px;color:var(--text-muted);text-decoration:none;font-size:14px}.back-link:hover{color:var(--gold)}
 .book-head{border:1px solid var(--border-subtle);border-radius:8px;background:linear-gradient(180deg,rgba(16,16,24,.78),rgba(8,8,12,.9));padding:26px;margin-bottom:18px}.book-code{font-family:var(--font-serif);font-size:13px;color:var(--gold);margin-bottom:12px}.book-head h1{font-family:var(--font-zh-title);font-size:clamp(34px,5vw,54px);font-weight:500;line-height:1.12;margin-bottom:8px}.book-head .en{font-family:var(--font-serif);font-size:18px;color:var(--text-muted);font-style:italic}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin:18px 0}.stat{border:1px solid var(--border-subtle);background:rgba(255,255,255,.025);border-radius:7px;padding:12px 14px}.stat strong{display:block;color:var(--gold);font-family:var(--font-display);font-size:24px;line-height:1.1}.stat span{display:block;color:var(--text-muted);font-size:12px;margin-top:5px}
-.modules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.module{border:1px solid var(--border-subtle);background:rgba(16,16,24,.66);border-radius:8px;padding:22px}.module.wide{grid-column:1/-1}.module h2{font-family:var(--font-zh-title);font-size:20px;font-weight:500;margin-bottom:12px}.module p,.module li{color:var(--text-secondary);font-size:15px}.module ol,.module ul{padding-left:20px}.module li+li{margin-top:8px}.concept-tags{display:flex;gap:8px;flex-wrap:wrap}.concept-tag{border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.055);color:var(--text-secondary);border-radius:999px;padding:6px 10px;font-size:13px}.quote-list{display:grid;gap:12px}.quote-item{border-left:1px solid var(--gold);padding-left:12px;color:var(--text-secondary);font-size:15px}.quote-item .src{display:block;margin-top:5px;color:var(--text-muted);font-family:var(--font-serif);font-size:12px}.empty{border:1px dashed var(--border-subtle);border-radius:8px;padding:28px;color:var(--text-muted);text-align:center}
+.modules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.module{border:1px solid var(--border-subtle);background:rgba(16,16,24,.66);border-radius:8px;padding:22px}.module.wide{grid-column:1/-1}.module-head{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px}.module h2{font-family:var(--font-zh-title);font-size:20px;font-weight:500}.module>h2{margin-bottom:12px}.module p{color:var(--text-secondary);font-size:15px}.intro-text{display:grid;gap:12px}.module-kicker{color:var(--text-muted);font-family:var(--font-serif);font-size:12px;white-space:nowrap}.toc-module{padding-bottom:18px}.toc-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:8px 14px;list-style:none;padding:0}.toc-list.compact{grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:6px 12px}.toc-item{display:grid;grid-template-columns:auto minmax(0,1fr);gap:8px;align-items:start;min-width:0;border-top:1px solid rgba(255,255,255,.045);padding-top:8px;color:var(--text-secondary);font-size:14px;line-height:1.55}.toc-key{color:var(--gold);font-family:var(--font-serif);font-size:12px;line-height:1.7;white-space:nowrap}.toc-title{min-width:0;overflow-wrap:anywhere}.toc-item.is-plain{grid-template-columns:1fr}.toc-item.is-plain .toc-title{color:var(--gold);font-family:var(--font-zh-title);font-size:14px}.concept-tags{display:flex;gap:8px;flex-wrap:wrap}.concept-tag{border:1px solid rgba(212,175,55,.22);background:rgba(212,175,55,.055);color:var(--text-secondary);border-radius:999px;padding:6px 10px;font-size:13px}.quote-list{display:grid;gap:12px}.quote-item{border-left:1px solid var(--gold);padding-left:12px;color:var(--text-secondary);font-size:15px}.quote-item.is-hidden{display:none}.read-more-btn{margin-top:14px;border:1px solid rgba(212,175,55,.24);background:rgba(212,175,55,.07);color:var(--gold-bright);border-radius:999px;padding:7px 14px;font-family:var(--font-zh);font-size:13px;cursor:pointer}.read-more-btn:hover{border-color:rgba(212,175,55,.44);background:rgba(212,175,55,.12)}.empty{border:1px dashed var(--border-subtle);border-radius:8px;padding:28px;color:var(--text-muted);text-align:center}
 @media(max-width:900px){.modules{grid-template-columns:1fr}.module.wide{grid-column:auto}}
-@media(max-width:768px){.main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}.book-head{padding:20px}.module{padding:18px}}
+@media(max-width:768px){.main{margin-left:0;padding:24px 16px 60px;max-width:100vw;overflow-x:hidden}.book-head{padding:20px}.module{padding:18px}.module-head{align-items:flex-start;flex-direction:column;gap:2px}.toc-list,.toc-list.compact{grid-template-columns:1fr}.toc-item{font-size:13px;line-height:1.55}}
 </style>
 <link rel="stylesheet" href="site-chrome.css">
 </head>
@@ -25,9 +25,17 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
 <script src="book-data.js"></script>
 <script src="global-menu.js"></script>
 <script>
-(function(){
+(async function(){
   const root = document.getElementById('bookRoot');
-  const books = (window.SETH_BOOKS_DATA && window.SETH_BOOKS_DATA.books) || [];
+  async function loadBooks(){
+    try {
+      const res = await fetch('book-data.json?t=' + Date.now());
+      if (res.ok) return res.json();
+    } catch(e) {}
+    return window.SETH_BOOKS_DATA || {books: []};
+  }
+  const data = await loadBooks();
+  const books = data.books || [];
   const params = new URLSearchParams(location.search);
   const id = params.get('id') || (books[0] && books[0].id);
   const book = books.find(item => item.id === id) || books[0];
@@ -35,6 +43,35 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
     return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
   function fmt(n){return Number(n || 0).toLocaleString('zh-CN')}
+  function renderIntro(text){
+    const paragraphs = String(text || '').split(/\n+/).map(item => item.trim()).filter(Boolean);
+    if (!paragraphs.length) return '<p>暂无简介。</p>';
+    return `<div class="intro-text">${paragraphs.map(item => `<p>${esc(item)}</p>`).join('')}</div>`;
+  }
+  function renderToc(items){
+    const toc = items || [];
+    if (!toc.length) return '<div class="empty">暂无目录。</div>';
+    const compact = toc.length > 24 ? ' compact' : '';
+    return `<ul class="toc-list${compact}">${toc.map(item => {
+      const text = String(item || '');
+      const match = text.match(/^([^：:]{1,24})[：:]\s*(.*)$/) ||
+        text.match(/^(Session\s+\d+|第[一二三四五六七八九十]+章|第\d+节|第[一二三四五六七八九十]+部)\s+(.+)$/);
+      if (!match) return `<li class="toc-item is-plain"><span class="toc-title">${esc(text)}</span></li>`;
+      return `<li class="toc-item"><span class="toc-key">${esc(match[1])}</span><span class="toc-title">${esc(match[2])}</span></li>`;
+    }).join('')}</ul>`;
+  }
+  function renderQuotes(items){
+    const quotes = (items || []).slice(0, 20);
+    if (!quotes.length) return '<div class="empty">暂无核心金句。</div>';
+    const visibleCount = 6;
+    const list = quotes.map((item, idx) => `
+      <div class="quote-item${idx >= visibleCount ? ' is-hidden' : ''}" data-extra-quote="${idx >= visibleCount ? '1' : '0'}">
+        ${esc(item)}
+      </div>
+    `).join('');
+    const button = quotes.length > visibleCount ? '<button class="read-more-btn" type="button" id="quoteMoreBtn">阅读更多</button>' : '';
+    return `<div class="quote-list" id="quoteList">${list}</div>${button}`;
+  }
   if (!book) {
     root.innerHTML = '<div class="empty">暂无书籍数据。</div>';
     return;
@@ -48,20 +85,23 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <div class="en">${esc(book.name_en)}</div>
       <div class="stats">
         <div class="stat"><strong>${fmt(book.word_count)}</strong><span>原书字数</span></div>
-        <div class="stat"><strong>${book.sessions_count || 0}</strong><span>Sessions</span></div>
-        <div class="stat"><strong>${book.sections_count || 0}</strong><span>章节/段落组</span></div>
-        <div class="stat"><strong>${fmt(book.total_paragraphs)}</strong><span>原始段落</span></div>
+        <div class="stat"><strong>${book.sessions_count || 0}</strong><span>章节数</span></div>
       </div>
     </header>
     <div class="modules">
-      <section class="module wide"><h2>本书简介</h2><p>${esc(book.intro || '')}</p></section>
-      <section class="module"><h2>目录</h2><ol>${(book.toc || []).map(item => `<li>${esc(item)}</li>`).join('')}</ol></section>
+      <section class="module wide"><h2>讲了什么</h2>${renderIntro(book.intro)}</section>
+      <section class="module wide toc-module"><div class="module-head"><h2>目录</h2><span class="module-kicker">${(book.toc || []).length} 条</span></div>${renderToc(book.toc)}</section>
       <section class="module"><h2>核心概念</h2><div class="concept-tags">${(book.core_concepts || []).map(item => `<span class="concept-tag">${esc(item)}</span>`).join('')}</div></section>
-      <section class="module wide"><h2>核心金句</h2><div class="quote-list">${(book.core_quotes || []).map((item, idx) => `<div class="quote-item">${esc(item)}<span class="src">${esc(book.id)} · quote ${idx + 1}</span></div>`).join('')}</div></section>
-      <section class="module"><h2>阅读提示</h2><ul>${(book.reading_notes || []).map(item => `<li>${esc(item)}</li>`).join('')}</ul></section>
-      <section class="module"><h2>后续可补充</h2><p>逐章摘要、原文定位、相关概念页跳转、书内摘录筛选、版本说明与阅读进度。</p></section>
+      <section class="module wide"><h2>核心金句</h2>${renderQuotes(book.core_quotes)}</section>
     </div>
   `;
+  const quoteMoreBtn = document.getElementById('quoteMoreBtn');
+  if (quoteMoreBtn) {
+    quoteMoreBtn.addEventListener('click', () => {
+      document.querySelectorAll('[data-extra-quote="1"]').forEach(item => item.classList.remove('is-hidden'));
+      quoteMoreBtn.remove();
+    });
+  }
 })();
 </script>
 </body>

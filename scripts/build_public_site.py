@@ -31,6 +31,7 @@ PUBLIC_PAGES = [
 PUBLIC_ASSETS = [
     'global-menu.js',
     'site-chrome.css',
+    'book-data.json',
     'book-data.js',
 ]
 

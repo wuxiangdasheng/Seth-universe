@@ -24,34 +24,43 @@ body::before{content:'';position:fixed;inset:0;pointer-events:none;background:ra
       <div class="universe-hero-ornament"><div class="line"></div><div class="center-mark"></div><div class="line"></div></div>
       <div class="universe-hero-eyebrow">Book Universe</div>
       <h1>书宇宙</h1>
-      <div class="subtitle-en">Seth Books, Reading Paths and Editions</div>
-      <p class="universe-hero-desc">赛斯书的阅读、索引与版本空间。这里作为赛斯书系的汇总入口，点击任一本书进入详情页，查看书名、原书字数、目录、核心概念和核心金句。</p>
+      <p class="universe-hero-desc">每一本都不想让你错过</p>
     </div>
-    <h2 class="section-title">全部赛斯书</h2>
-    <p class="section-sub">当前先建立完整书目和详情页框架，内容后续可以继续补充真实目录、逐章摘要和原文定位。</p>
+ 
     <div class="book-grid" id="bookGrid"></div>
   </section>
 </main>
 <script src="book-data.js"></script>
 <script src="global-menu.js"></script>
 <script>
-(function(){
-  const books = (window.SETH_BOOKS_DATA && window.SETH_BOOKS_DATA.books) || [];
+(async function(){
+  async function loadBooks(){
+    try {
+      const res = await fetch('book-data.json?t=' + Date.now());
+      if (res.ok) return res.json();
+    } catch(e) {}
+    return window.SETH_BOOKS_DATA || {books: []};
+  }
+  const data = await loadBooks();
+  const books = data.books || [];
   const grid = document.getElementById('bookGrid');
   function esc(value){
     return String(value || '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
   }
   function fmt(n){return Number(n || 0).toLocaleString('zh-CN')}
+  function excerpt(value){
+    const text = String(value || '').replace(/\s+/g, ' ').trim();
+    return text.length > 118 ? text.slice(0, 118) + '…' : text;
+  }
   grid.innerHTML = books.map(book => `
     <a class="book-card" href="book-detail.html?id=${encodeURIComponent(book.id)}">
       <span class="code">${esc(book.id)}</span>
       <h2>${esc(book.name_zh)}</h2>
       <div class="en">${esc(book.name_en)}</div>
-      <p>${esc(book.intro_short || book.intro || '')}</p>
+      <p>${esc(excerpt(book.intro))}</p>
       <div class="meta">
         <span class="meta-chip">${fmt(book.word_count)} words</span>
-        <span class="meta-chip">${book.sessions_count || 0} sessions</span>
-        <span class="meta-chip">${book.sections_count || 0} sections</span>
+        <span class="meta-chip">${book.sessions_count || 0} chapters</span>
       </div>
     </a>
   `).join('');
