@@ -1,4 +1,4 @@
-window.SETH_BOOKS_DATA = {
+{
   "books": [
     {
       "id": "10-01",
@@ -1368,4 +1368,4 @@ window.SETH_BOOKS_DATA = {
       ]
     }
   ]
-};
+}
