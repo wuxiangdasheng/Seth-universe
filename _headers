@@ -1,5 +1,0 @@
-/*
-  Cache-Control: public, max-age=300
-
-/data/*
-  Cache-Control: public, max-age=300
