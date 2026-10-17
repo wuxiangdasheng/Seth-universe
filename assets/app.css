@@ -183,7 +183,6 @@ main { flex: 1; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   flex: none;
 }
 .icon-btn:active { transform: scale(0.9); }
-.icon-btn.on { color: var(--accent); border-color: var(--accent); background: var(--accent-soft); }
 .icon-btn svg { width: 17px; height: 17px; }
 
 .font-btn { font-family: var(--serif); font-size: 0.85rem; font-weight: 700; width: auto; padding: 0 10px; }
@@ -462,7 +461,7 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
   color: var(--ink-2);
   font-style: italic;
 }
-/* 出处行常驻显示（收起态也能看到来源）；英文仍默认收起，轻触或双语模式才显示 */
+/* 出处行常驻显示（收起态也能看到来源）；英文仍默认收起，轻触才显示 */
 .q-foot {
   display: flex;
   margin-top: 8px;
@@ -473,7 +472,6 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
   color: var(--ink-3);
 }
 .q.open .q-en { display: block; }
-body.bilingual .q .q-en { display: block; }
 
 .q-src { color: var(--ink-2); font-weight: 600; }
 /* 出处行右侧动作组：复制 + 分享，margin-left:auto 贴右，wrap 时两个按钮不拆散 */

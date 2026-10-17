@@ -64,7 +64,7 @@
   }
   /* footPre：插在出处行里、分享按钮前方的额外按钮 HTML（概念卡片的复制按钮用） */
   function quoteHTML(p, conceptId, conceptName, footPre) {
-    var open = document.body.classList.contains("bilingual") ? " open" : "";
+    var open = "";
     var tag = p.tag ? '<span class="q-tag">' + esc(p.tag) + "</span>" : "";
     var oe = p.only_en ? '<span class="q-oe" title="仅英文检索命中">◆</span>' : "";
     var src = p.source
@@ -755,8 +755,7 @@
         dc.textContent = c.name_zh + " →";
         dc.href = "entry.html?id=" + c.id + "#" + p.id;
       }
-      /* 日签卡片默认展开英文（全站唯一）；其余卡片仍默认收起，轻触才展开。
-         双语模式下全站展开是另一套开关（body.bilingual），与这里不冲突 */
+      /* 日签卡片默认展开英文（全站唯一）；其余卡片仍默认收起，轻触才展开 */
       var q = box.querySelector(".q");
       if (q) q.classList.add("open");
     }, function () { box.innerHTML = "<p>载入失败，请重试。</p>"; });

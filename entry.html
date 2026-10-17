@@ -20,7 +20,6 @@
       <span class="brand-mark" id="barTitle" style="font-size:1rem;opacity:0;transition:opacity .3s">词条</span>
     </div>
     <button class="icon-btn font-btn" id="fontBtn" aria-label="调节字号">字</button>
-    <button class="icon-btn" id="langBtn" aria-label="双语切换">EN</button>
     <button class="icon-btn" id="themeBtn" aria-label="切换深浅色"></button>
   </header>
 
@@ -71,15 +70,6 @@
   /* 返回 */
   $("#backBtn").addEventListener("click", function () {
     if (history.length > 1) history.back(); else location.href = "index.html";
-  });
-
-  /* 双语模式 */
-  var bi = false;
-  $("#langBtn").addEventListener("click", function () {
-    bi = !bi;
-    document.body.classList.toggle("bilingual", bi);
-    this.classList.toggle("on", bi);
-    this.textContent = bi ? "中" : "EN";
   });
 
   /* 进度条 / 顶栏 / 回到顶部 */
