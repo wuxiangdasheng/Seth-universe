@@ -254,7 +254,6 @@
      定义在本层（openShare 与分享面板 IIFE 共用）：面板 IIFE 在内层，拿不到这里的声明 */
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
-  function setShareHint(t) { var h = $("#shareHint"); if (h) h.textContent = t; }
   /* dataURL → Blob：同步转换，保住 navigator.share 要求的用户手势上下文 */
   function dataURLtoBlob(dataURL) {
     var parts = dataURL.split(",");
@@ -263,9 +262,6 @@
     var n = bstr.length, u8 = new Uint8Array(n);
     while (n--) u8[n] = bstr.charCodeAt(n);
     return new Blob([u8], { type: mime ? mime[1] : "image/jpeg" });
-  }
-  function shareHintReset() {
-    setShareHint(isIOS ? "点「保存图片」从系统面板存储，或长按图片保存" : "长按图片或点「保存图片」保存");
   }
   function saveShareImg() {
     var img = $("#sharePreview");
@@ -283,13 +279,7 @@
         if (!navigator.canShare({ files: [file] })) file = null;
       } catch (e) { file = null; }
       if (file) {
-        navigator.share({ files: [file], title: "赛斯日签" }).then(function () {
-          setShareHint("已保存 ✓");
-          setTimeout(shareHintReset, 2000);
-        }, function (e) {
-          setShareHint(e && e.name === "AbortError" ? "已取消，也可长按图片保存" : "保存失败，可长按图片存储到相册");
-          setTimeout(shareHintReset, 2000);
-        });
+        navigator.share({ files: [file], title: "赛斯日签" });
         return;
       }
     }
@@ -297,8 +287,6 @@
     a.download = "seth-daily-" + Date.now() + ".jpg";
     a.href = src;
     document.body.appendChild(a); a.click(); a.remove();
-    setShareHint(isIOS ? "当前环境请长按图片存储到相册" : "已保存 ✓");
-    setTimeout(shareHintReset, 2000);
   }
 
   function buildShareCard(p, concept) {
@@ -475,13 +463,12 @@
     });
   }
   function openShare(conceptId, pickId) {
-    var mask = $("#shareMask"), sheet = $("#shareSheet"), hint = $("#shareHint"), img = $("#sharePreview");
+    var mask = $("#shareMask"), sheet = $("#shareSheet"), img = $("#sharePreview");
     if (!mask || !sheet || !window.WIKI_INDEX) return;
     var concept = null;
     window.WIKI_INDEX.concepts.forEach(function (c) { if (c.id === conceptId) concept = c; });
     if (!concept) return;
     mask.classList.add("show"); sheet.classList.add("show");
-    hint.textContent = "正在生成…";
     img.removeAttribute("src");
     var p = null;
     loadEntry(conceptId).then(function (e) {
@@ -499,9 +486,8 @@
       return buildShareCard(p, concept);
     }).then(function (url) {
       img.src = url;
-      shareHintReset();
     }).catch(function (err) {
-      hint.textContent = "生成失败：" + ((err && err.message) || err);
+      console.error("分享卡片生成失败", err);
     });
   }
   /* 分享按钮在 .q-foot 里，点了要打开预览而不是收起卡片 */
@@ -519,7 +505,7 @@
         '<div class="share-mask" id="shareMask"></div>' +
         '<div class="share-sheet" id="shareSheet">' +
         '  <div class="share-head">' +
-        '    <div class="share-title">分享卡片</div>' +
+        '    <div class="share-title">长按图片保存</div>' +
         '    <button class="icon-btn" id="shareClose" aria-label="关闭">' +
         '      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>' +
         '    </button>' +
@@ -528,7 +514,6 @@
         '  <div class="share-actions">' +
         '    <button class="btn btn-primary" id="shareSave">保存图片</button>' +
         '  </div>' +
-        '  <p class="share-hint" id="shareHint">正在生成…</p>' +
         '</div>';
       while (d.firstChild) document.body.appendChild(d.firstChild);
     }

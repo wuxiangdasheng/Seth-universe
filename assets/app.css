@@ -923,7 +923,7 @@ body.bilingual .q .q-en { display: block; }
 }
 .share-sheet.show { opacity: 1; pointer-events: auto; }
 .share-head { width: min(100%, 420px); display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
-.share-title { font-family: var(--serif); font-size: 1.02rem; font-weight: 700; flex: 1; color: var(--ink); }
+.share-title { font-family: var(--serif); font-size: 0.8rem; font-weight: 700; flex: 1; color: var(--ink-3); }
 .share-head .icon-btn { background: var(--card); }
 /* 卡片高度不固定后：预览图宽度撑满舞台（= 屏幕宽，最大 420px），长卡在舞台内纵向滚动，
    保存按钮与提示固定在底部不被顶出；圆角改到 img 上（舞台要留滚动条空间）。
@@ -938,11 +938,6 @@ body.bilingual .q .q-en { display: block; }
 .share-stage img { display: block; width: 100%; height: auto; border-radius: 18px; }
 .share-actions { width: min(100%, 420px); margin-top: 14px; display: flex; gap: 10px; }
 .share-actions .btn { flex: 1; }
-.share-hint {
-  width: min(100%, 420px);
-  margin-top: 8px; text-align: center;
-  font-size: 0.72rem; color: var(--ink-3); min-height: 1.2em;
-}
 
 /* ---------- 骨架屏 ---------- */
 .skel {
