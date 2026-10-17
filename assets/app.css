@@ -703,17 +703,22 @@ body.bilingual .q .q-en { display: block; }
 .tl-intro { font-size: 0.76rem; color: var(--ink-3); margin: 8px 0 14px; line-height: 1.8; }
 
 /* 日签 */
-/* 出处行：刷新按钮在左端（与卡片左对齐），词条链接在右端 */
-.daily-src {
-  margin-top: 10px;
-  font-size: 0.78rem;
+/* intro 行右端的所属概念链接：与「你创造你的实相」同行，右缘与卡片右对齐。
+   仅作用域日签视图——.tl-intro 是全站共用类，其余视图（时间线/书目/词条）不能变 flex */
+#view-daily .tl-intro {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   justify-content: space-between;
+  gap: 12px;
 }
-.daily-src a { color: var(--accent); text-decoration: none; }
-.daily-actions { margin: 16px 0 8px; display: flex; }
-.daily-actions .btn { flex: 1; }
+#view-daily .tl-intro a {
+  color: var(--accent);
+  text-decoration: none;
+  font-size: 0.78rem;
+  white-space: nowrap;
+  flex: none;
+}
+#view-daily .tl-intro a:empty { display: none; }
 
 /* ---------- AI 赛斯：公告文章页 ----------
    不套卡片（用户要求「只是文章」）：内容直接排在本节内，与全站其他视图同一平面。

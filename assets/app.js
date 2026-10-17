@@ -745,8 +745,10 @@
      全量约 62 MB，进一次日签要下完整个库。分布上段数多的概念更容易被抽到，
      但换一张就能重来，这个偏差不值得为它付全量加载的代价。 */
   function renderDaily() {
-    var box = $("#dailyCard");
+    var box = $("#dailyCard"), dc = $("#dailyConcept");
     if (!box) return;
+    /* 概念链接在标题行（intro 行右端，与卡片右对齐）：重渲染先清空隐藏 */
+    if (dc) { dc.textContent = ""; dc.removeAttribute("href"); }
     box.innerHTML = '<div class="q" style="border-bottom-color:var(--line-2)">' +
       '<div class="skel skel-line" style="width:72%"></div>' +
       '<div class="skel skel-line"></div>' +
@@ -762,10 +764,12 @@
       });
       if (!all.length) return renderDaily();
       var p = all[Math.floor(Math.random() * all.length)];
-      /* 出处行只剩右端词条链接（刷新按钮已移到 section-head 标题后方，静态存在、一次性绑定） */
-      box.innerHTML = quoteHTML(p, c.id, c.name_zh) +
-        '<div class="daily-src">' +
-        '<a href="entry.html?id=' + c.id + '#' + esc(p.id) + '">' + esc(c.name_zh) + " →</a></div>";
+      /* 所属概念链接：textContent 赋值（免转义），挂在 intro 行右端 */
+      box.innerHTML = quoteHTML(p, c.id, c.name_zh);
+      if (dc) {
+        dc.textContent = c.name_zh + " →";
+        dc.href = "entry.html?id=" + c.id + "#" + p.id;
+      }
       /* 日签卡片默认展开英文（全站唯一）；其余卡片仍默认收起，轻触才展开。
          双语模式下全站展开是另一套开关（body.bilingual），与这里不冲突 */
       var q = box.querySelector(".q");
@@ -812,7 +816,7 @@
   document.querySelectorAll("[data-goto]").forEach(function (btn) {
     btn.addEventListener("click", function () { switchView(btn.getAttribute("data-goto"), null); });
   });
-  /* #dailyShuffle 是 renderDaily 动态生成的（在 daily-src 行里），绑定在 renderDaily 内 */
+
   function renderTimelineBars() {
     document.querySelectorAll("#timeline .bar").forEach(function (b) {
       b.style.width = b.getAttribute("data-w") + "%";
