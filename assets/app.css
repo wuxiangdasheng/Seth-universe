@@ -920,17 +920,16 @@ body.bilingual .q .q-en { display: block; }
 .share-head { width: min(100%, 420px); display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
 .share-title { font-family: var(--serif); font-size: 1.02rem; font-weight: 700; flex: 1; color: var(--ink); }
 .share-head .icon-btn { background: var(--card); }
+/* 卡片高度不固定后：预览图宽度撑满舞台（= 屏幕宽，最大 420px），长卡在舞台内纵向滚动，
+   保存按钮与提示固定在底部不被顶出；圆角改到 img 上（舞台要留滚动条空间） */
 .share-stage {
   width: min(100%, 420px);
-  border-radius: 18px; overflow: hidden;
+  flex: 1; min-height: 180px;
+  overflow-y: auto; -webkit-overflow-scrolling: touch;
   background: var(--card-2);
   box-shadow: var(--shadow-lg);
-  display: flex; align-items: center; justify-content: center;
-  min-height: 180px;
 }
-/* 卡片高度不固定后：预览图同时受宽/视口剩余高度约束，长卡也能在面板里完整看到，
-   保存按钮不会被顶出屏幕；vh/dvh 双写，dvh 支持处优先（移动端地址栏收缩时更稳） */
-.share-stage img { display: block; max-width: 100%; max-height: calc(100vh - 240px); max-height: calc(100dvh - 240px); }
+.share-stage img { display: block; width: 100%; height: auto; border-radius: 18px; }
 .share-actions { width: min(100%, 420px); margin-top: 14px; display: flex; gap: 10px; }
 .share-actions .btn { flex: 1; }
 .share-hint {

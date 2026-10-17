@@ -249,6 +249,25 @@
     8: [450, 300]   /* 观音坐像：受光头冠左缘（冠顶点 528,296） */
   };
   var SUBJECT_TX = 80, SUBJECT_TY = 96;  /* 主体锚点在卡片上的目标位置：左上区 */
+  /* iOS（含 iPad 桌面模式）：不拦原生长按——系统「存储图像」对 dataURL 图片可靠，
+     且 a.download 在 iOS Safari 不可用；其余平台走自定义长按 + a.download。
+     定义在本层（openShare 与分享面板 IIFE 共用）：面板 IIFE 在内层，拿不到这里的声明 */
+  var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  function setShareHint(t) { var h = $("#shareHint"); if (h) h.textContent = t; }
+  function saveShareImg() {
+    var img = $("#sharePreview");
+    if (!img || !img.getAttribute("src")) return;
+    var a = document.createElement("a");
+    a.download = "seth-daily-" + Date.now() + ".jpg";
+    a.href = img.getAttribute("src");
+    document.body.appendChild(a); a.click(); a.remove();
+    setShareHint("已保存 ✓");
+    setTimeout(function () {
+      setShareHint(isIOS ? "长按图片存储到相册，或点下方按钮保存" : "长按图片或点「保存图片」保存");
+    }, 2000);
+  }
+
   function buildShareCard(p, concept) {
     /* 画布宽固定 1080，高度不固定：顶区（背景留白 292，标题与日期已按要求去掉）与底区
        （站点名+标语+二维码，152）定高，面板贴顶区下方（py=440，即日期原位置下方 +100px），
@@ -418,7 +437,8 @@
       var url = shareEntryUrl(concept.id, p.id);
       drawQR(ctx, url, W - 176, H - 168, 150);
 
-      return cv.toDataURL("image/png");
+      /* jpg：背景满铺无透明区域，jpeg 质量 0.92 体积比 png 小一个量级 */
+      return cv.toDataURL("image/jpeg", 0.92);
     });
   }
   function openShare(conceptId, pickId) {
@@ -446,7 +466,7 @@
       return buildShareCard(p, concept);
     }).then(function (url) {
       img.src = url;
-      hint.textContent = "点「保存图片」存到本机";
+      setShareHint(isIOS ? "长按图片存储到相册，或点下方按钮保存" : "长按图片或点「保存图片」保存");
     }).catch(function (err) {
       hint.textContent = "生成失败：" + ((err && err.message) || err);
     });
@@ -484,14 +504,20 @@
     function close() { mask.classList.remove("show"); sheet.classList.remove("show"); }
     mask.addEventListener("click", close);
     if (btn) btn.addEventListener("click", close);
-    $("#shareSave").addEventListener("click", function () {
-      var img = $("#sharePreview");
-      if (!img.getAttribute("src")) return;
-      var a = document.createElement("a");
-      a.download = "seth-daily-" + Date.now() + ".png";
-      a.href = img.getAttribute("src");
-      document.body.appendChild(a); a.click(); a.remove();
-    });
+    $("#shareSave").addEventListener("click", saveShareImg);
+
+    /* 长按图片保存（非 iOS）：拦截原生菜单，500ms 触发保存 */
+    var lpImg = $("#sharePreview"), lpTimer = null;
+    if (lpImg && !isIOS) {
+      lpImg.addEventListener("contextmenu", function (e) { e.preventDefault(); });
+      lpImg.addEventListener("touchstart", function () {
+        if (lpTimer) clearTimeout(lpTimer);
+        lpTimer = setTimeout(function () { lpTimer = null; saveShareImg(); }, 500);
+      }, { passive: true });
+      ["touchend", "touchmove", "touchcancel"].forEach(function (ev) {
+        lpImg.addEventListener(ev, function () { if (lpTimer) { clearTimeout(lpTimer); lpTimer = null; } }, { passive: true });
+      });
+    }
   })();
 
   /* ============================================================
