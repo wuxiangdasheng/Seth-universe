@@ -762,13 +762,10 @@
       });
       if (!all.length) return renderDaily();
       var p = all[Math.floor(Math.random() * all.length)];
-      /* 出处行：刷新按钮在左端（与卡片左对齐），词条链接在右端；按钮随本行动态生成，绑定在此 */
+      /* 出处行只剩右端词条链接（刷新按钮已移到 section-head 标题后方，静态存在、一次性绑定） */
       box.innerHTML = quoteHTML(p, c.id, c.name_zh) +
         '<div class="daily-src">' +
-        '<button class="icon-btn daily-refresh" id="dailyShuffle" aria-label="换一张" title="换一张">' + ICON.refresh + '</button>' +
         '<a href="entry.html?id=' + c.id + '#' + esc(p.id) + '">' + esc(c.name_zh) + " →</a></div>";
-      var btn = box.querySelector("#dailyShuffle");
-      if (btn) btn.addEventListener("click", renderDaily);
       /* 日签卡片默认展开英文（全站唯一）；其余卡片仍默认收起，轻触才展开。
          双语模式下全站展开是另一套开关（body.bilingual），与这里不冲突 */
       var q = box.querySelector(".q");
@@ -777,9 +774,17 @@
   }
   (function () {
     var el = $("#dailyDate");
-    if (!el) return;
-    var d = new Date();
-    el.textContent = d.getFullYear() + " 年 " + (d.getMonth() + 1) + " 月 " + d.getDate() + " 日";
+    if (el) {
+      var d = new Date();
+      el.textContent = d.getFullYear() + " 年 " + (d.getMonth() + 1) + " 月 " + d.getDate() + " 日";
+    }
+    /* 刷新按钮在标题行（index.html 静态 markup）：补图标 + 一次性绑定。
+       在 renderDaily 之外，重渲染卡片不会动它 */
+    var db = $("#dailyShuffle");
+    if (db) {
+      db.innerHTML = ICON.refresh;
+      db.addEventListener("click", renderDaily);
+    }
   })();
 
 

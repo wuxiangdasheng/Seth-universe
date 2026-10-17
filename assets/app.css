@@ -566,7 +566,7 @@ body.bilingual .q .q-en { display: block; }
   letter-spacing: 0.03em;
 }
 .section-head .count { margin-left: auto; font-size: 0.68rem; color: var(--ink-3); }
-/* 日签出处行左端的刷新按钮：无底色无边框的小图标（与右侧文字链接风格统一） */
+/* 日签刷新按钮：现位于 section-head「随手签」标题后方。无底色无边框的小图标，与标题行风格统一 */
 .daily-refresh {
   border: none;
   background: none;
