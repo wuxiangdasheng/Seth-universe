@@ -255,17 +255,50 @@
   var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   function setShareHint(t) { var h = $("#shareHint"); if (h) h.textContent = t; }
+  /* dataURL → Blob：同步转换，保住 navigator.share 要求的用户手势上下文 */
+  function dataURLtoBlob(dataURL) {
+    var parts = dataURL.split(",");
+    var mime = /:(.*?);/.exec(parts[0]);
+    var bstr = atob(parts[1]);
+    var n = bstr.length, u8 = new Uint8Array(n);
+    while (n--) u8[n] = bstr.charCodeAt(n);
+    return new Blob([u8], { type: mime ? mime[1] : "image/jpeg" });
+  }
+  function shareHintReset() {
+    setShareHint(isIOS ? "点「保存图片」从系统面板存储，或长按图片保存" : "长按图片或点「保存图片」保存");
+  }
   function saveShareImg() {
     var img = $("#sharePreview");
     if (!img || !img.getAttribute("src")) return;
+    var src = img.getAttribute("src");
+    /* iOS Safari 不支持 a.download（点了只会把图片“打开”）：dataURL 转 File 走
+       navigator.share 呼出系统分享面板，在面板里选「存储图像 / 存储到文件」即入相册。
+       仅 iOS 走此路；Android / 桌面 a.download 直接落盘更省事。
+       ⚠️ navigator.share 要求安全上下文（https）：本地 http 调试（如局域网 IP）下
+       不可用，会自动退回 a.download——那种环境下只能长按图片存储 */
+    if (isIOS && navigator.canShare) {
+      var file = null;
+      try {
+        file = new File([dataURLtoBlob(src)], "seth-daily-" + Date.now() + ".jpg", { type: "image/jpeg" });
+        if (!navigator.canShare({ files: [file] })) file = null;
+      } catch (e) { file = null; }
+      if (file) {
+        navigator.share({ files: [file], title: "赛斯日签" }).then(function () {
+          setShareHint("已保存 ✓");
+          setTimeout(shareHintReset, 2000);
+        }, function (e) {
+          setShareHint(e && e.name === "AbortError" ? "已取消，也可长按图片保存" : "保存失败，可长按图片存储到相册");
+          setTimeout(shareHintReset, 2000);
+        });
+        return;
+      }
+    }
     var a = document.createElement("a");
     a.download = "seth-daily-" + Date.now() + ".jpg";
-    a.href = img.getAttribute("src");
+    a.href = src;
     document.body.appendChild(a); a.click(); a.remove();
-    setShareHint("已保存 ✓");
-    setTimeout(function () {
-      setShareHint(isIOS ? "长按图片存储到相册，或点下方按钮保存" : "长按图片或点「保存图片」保存");
-    }, 2000);
+    setShareHint(isIOS ? "当前环境请长按图片存储到相册" : "已保存 ✓");
+    setTimeout(shareHintReset, 2000);
   }
 
   function buildShareCard(p, concept) {
@@ -466,7 +499,7 @@
       return buildShareCard(p, concept);
     }).then(function (url) {
       img.src = url;
-      setShareHint(isIOS ? "长按图片存储到相册，或点下方按钮保存" : "长按图片或点「保存图片」保存");
+      shareHintReset();
     }).catch(function (err) {
       hint.textContent = "生成失败：" + ((err && err.message) || err);
     });
