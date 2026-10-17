@@ -329,7 +329,9 @@ main { flex: 1; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   /* 壳宽 520，桌面居中时按钮贴壳右缘；手机视口 <520 时壳占满全宽，
      公式会算出负值把按钮推出屏幕 —— 用 max() 钳到至少距右缘 16px（实测窄屏推到右缘外 49px、半截裁掉） */
   right: max(16px, calc(50% - var(--shell-w) / 2 + 16px));
-  bottom: calc(96px + env(safe-area-inset-bottom));
+  /* 贴底栏上方：底栏实测高 63px（不含安全区），留 8px 间隙 → 71px。
+     原来 96px 悬在底栏上方约 33px，显得偏上 */
+  bottom: calc(71px + env(safe-area-inset-bottom));
   z-index: 45;
   width: 40px; height: 40px;
   border-radius: 50%;
