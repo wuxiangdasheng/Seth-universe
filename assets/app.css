@@ -921,10 +921,12 @@ body.bilingual .q .q-en { display: block; }
 .share-title { font-family: var(--serif); font-size: 1.02rem; font-weight: 700; flex: 1; color: var(--ink); }
 .share-head .icon-btn { background: var(--card); }
 /* 卡片高度不固定后：预览图宽度撑满舞台（= 屏幕宽，最大 420px），长卡在舞台内纵向滚动，
-   保存按钮与提示固定在底部不被顶出；圆角改到 img 上（舞台要留滚动条空间） */
+   保存按钮与提示固定在底部不被顶出；圆角改到 img 上（舞台要留滚动条空间）。
+   舞台不撑高（flex:0 1 auto）：卡片多高舞台多高，图片下方直接接按钮，不留空白带；
+   空间不足时允许收缩 + 内部滚动（长卡场景） */
 .share-stage {
   width: min(100%, 420px);
-  flex: 1; min-height: 180px;
+  flex: 0 1 auto; min-height: 180px;
   overflow-y: auto; -webkit-overflow-scrolling: touch;
   box-shadow: var(--shadow-lg);
 }
