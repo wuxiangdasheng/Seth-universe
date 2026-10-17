@@ -363,7 +363,7 @@ main { flex: 1; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
       <span class="hero-kicker">赛斯Seth宇宙 · AI 赛斯</span>
     </div>
     <button class="icon-btn font-btn" id="fontBtn" aria-label="调节字号">字</button>
-    <button class="icon-btn" id="themeBtn" aria-label="切换深浅色"></button>
+    <button class="icon-btn" id="themeBtn" aria-label="切换主题"></button>
   </header>
 
   <main>
@@ -458,25 +458,50 @@ main { flex: 1; padding-bottom: calc(84px + env(safe-area-inset-bottom)); }
   var LS = { theme: "seth.theme", fs: "seth.fs" };
   var ICON_SUN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8m10.4 10.4 1.8 1.8m0-14-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>';
   var ICON_MOON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>';
+  /* 跟随系统：右半圆填充 + 整圆描边（一半固定一半跟随） */
+  var ICON_AUTO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>';
 
-  /* 主题 */
-  function getTheme() {
-    return localStorage.getItem(LS.theme) ||
-      (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  /* 主题（三态：亮 / 暗 / 跟随系统）——与 app.js 同构，存的是模式不是生效颜色 */
+  function systemDark() {
+    return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
   }
-  function applyTheme(t) {
+  function themeMode() {
+    var v = null;
+    try { v = localStorage.getItem(LS.theme); } catch (e) {}
+    return (v === "light" || v === "dark") ? v : "auto";
+  }
+  function themeEffective(mode) {
+    return mode === "auto" ? (systemDark() ? "dark" : "light") : mode;
+  }
+  function applyTheme() {
+    var mode = themeMode();
+    var t = themeEffective(mode);
     document.documentElement.dataset.theme = t;
     var mt = document.querySelector('meta[name="theme-color"]');
     if (mt) mt.setAttribute("content", t === "dark" ? "#14121c" : "#f7f3ea");
     var b = $("#themeBtn");
-    if (b) b.innerHTML = t === "dark" ? ICON_SUN : ICON_MOON;
+    if (b) {
+      b.innerHTML = mode === "dark" ? ICON_SUN : (mode === "light" ? ICON_MOON : ICON_AUTO);
+      b.title = mode === "dark" ? "深色 · 点按切换到浅色"
+        : (mode === "light" ? "浅色 · 点按切换到深色" : "跟随系统 · 点按切换到浅色");
+    }
   }
-  applyTheme(getTheme());
+  applyTheme();
+  /* 系统深浅色变化时，仅「跟随系统」模式下实时跟随 */
+  (function () {
+    if (!window.matchMedia) return;
+    var mq = matchMedia("(prefers-color-scheme: dark)");
+    var onChange = function () { if (themeMode() === "auto") applyTheme(); };
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  })();
   var tb = $("#themeBtn");
   if (tb) tb.addEventListener("click", function () {
-    var next = getTheme() === "dark" ? "light" : "dark";
-    applyTheme(next);
-    localStorage.setItem(LS.theme, next);
+    /* 三态循环：亮 → 暗 → 跟随系统 → 亮 …（先存后渲染，避免图标滞后一拍） */
+    var order = ["light", "dark", "auto"];
+    var next = order[(order.indexOf(themeMode()) + 1) % order.length];
+    try { localStorage.setItem(LS.theme, next); } catch (e) {}
+    applyTheme();
   });
 
   /* 字号 */

@@ -18,22 +18,47 @@
     star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9Z"/></svg>',
     sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8m10.4 10.4 1.8 1.8m0-14-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>',
     moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>',
-    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v5h-5"/></svg>'
+    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v5h-5"/></svg>',
+    /* 跟随系统：右半圆填充 + 整圆描边（一半固定一半跟随） */
+    auto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>'
   };
 
-  /* ---------- 主题 / 字号 ---------- */
-  function getTheme() {
-    return localStorage.getItem(LS.theme) ||
-      (window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+  /* ---------- 主题（三态：亮 / 暗 / 跟随系统） ---------- */
+  function systemDark() {
+    return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
   }
-  function applyTheme(t) {
+  /* 存的是「模式」不是「生效颜色」：light / dark / auto（auto = 跟随系统实时切换）。
+     旧数据只可能是 light/dark（那时尚无 auto），直接沿用；异常/无记录一律 auto */
+  function themeMode() {
+    var v = null;
+    try { v = localStorage.getItem(LS.theme); } catch (e) {}
+    return (v === "light" || v === "dark") ? v : "auto";
+  }
+  function themeEffective(mode) {
+    return mode === "auto" ? (systemDark() ? "dark" : "light") : mode;
+  }
+  function applyTheme() {
+    var mode = themeMode();
+    var t = themeEffective(mode);
     document.documentElement.dataset.theme = t;
     var mt = document.querySelector('meta[name="theme-color"]');
     if (mt) mt.setAttribute("content", t === "dark" ? "#14121c" : "#f7f3ea");
     var b = $("#themeBtn");
-    if (b) b.innerHTML = t === "dark" ? ICON.sun : ICON.moon;
+    if (b) {
+      b.innerHTML = mode === "dark" ? ICON.sun : (mode === "light" ? ICON.moon : ICON.auto);
+      b.title = mode === "dark" ? "深色 · 点按切换到浅色"
+        : (mode === "light" ? "浅色 · 点按切换到深色" : "跟随系统 · 点按切换到浅色");
+    }
   }
-  applyTheme(getTheme());
+  applyTheme();
+  /* 系统深浅色变化时，仅「跟随系统」模式下实时跟随 */
+  (function () {
+    if (!window.matchMedia) return;
+    var mq = matchMedia("(prefers-color-scheme: dark)");
+    var onChange = function () { if (themeMode() === "auto") applyTheme(); };
+    if (mq.addEventListener) mq.addEventListener("change", onChange);
+    else if (mq.addListener) mq.addListener(onChange);
+  })();
 
   var FS_STEPS = [0.92, 1, 1.09];
   var fsIdx = parseInt(localStorage.getItem(LS.fs) || "1", 10);
@@ -111,8 +136,11 @@
   function bindCommon() {
     var tb = $("#themeBtn");
     if (tb) tb.addEventListener("click", function () {
-      applyTheme(getTheme() === "dark" ? "light" : "dark");
-      localStorage.setItem(LS.theme, getTheme());
+      /* 三态循环：亮 → 暗 → 跟随系统 → 亮 …；auto 态下系统变化由上面的监听实时处理 */
+      var order = ["light", "dark", "auto"];
+      var next = order[(order.indexOf(themeMode()) + 1) % order.length];
+      try { localStorage.setItem(LS.theme, next); } catch (e) {}
+      applyTheme();
     });
     var fb = $("#fontBtn");
     if (fb) fb.addEventListener("click", function () {
