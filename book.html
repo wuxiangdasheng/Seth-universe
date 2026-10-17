@@ -14,6 +14,9 @@
     <button class="icon-btn" id="backBtn" aria-label="返回">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>
     </button>
+    <button class="icon-btn" id="homeBtn" aria-label="回到日签首页">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/></svg>
+    </button>
     <div class="brand">
       <span class="brand-mark" id="barTitle" style="font-size:1.02rem">书目</span>
       <span class="brand-sub" id="barSub">赛斯书</span>
@@ -51,6 +54,8 @@
   $("#backBtn").addEventListener("click", function () {
     if (history.length > 1) history.back(); else location.href = "index.html";
   });
+  /* 回首页：index.html 无 hash 时默认落在日签视图 */
+  $("#homeBtn").addEventListener("click", function () { location.href = "index.html"; });
 
   /* 顶栏滚动态（与 entry.html 一致） */
   window.addEventListener("scroll", function () {
