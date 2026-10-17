@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>书目 · 赛斯宇宙</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%239c6f2e' d='m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9Z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<div class="shell">
+  <header class="appbar" id="appbar">
+    <button class="icon-btn" id="backBtn" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>
+    </button>
+    <div class="brand">
+      <span class="brand-mark" id="barTitle" style="font-size:1.02rem">书目</span>
+      <span class="brand-sub" id="barSub">赛斯书</span>
+    </div>
+    <button class="icon-btn font-btn" id="fontBtn" aria-label="调节字号">字</button>
+    <button class="icon-btn" id="themeBtn" aria-label="切换深浅色"></button>
+  </header>
+
+  <main>
+    <div id="skeleton" style="padding:24px 20px">
+      <div class="skel skel-line" style="width:55%;height:26px"></div>
+      <div class="skel skel-line" style="width:35%"></div>
+      <div class="skel skel-line" style="height:70px;margin-top:18px"></div>
+      <div class="skel skel-line"></div>
+      <div class="skel skel-line" style="width:88%"></div>
+    </div>
+    <div id="content" style="display:none"></div>
+  </main>
+
+  <button class="totop no-tabbar" id="totop" aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 14.5 12 8l6.5 6.5"/></svg>
+  </button>
+</div>
+
+<script src="data/index.js"></script>
+<script src="data/books.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = Wiki.$;
+  var name = new URLSearchParams(location.search).get("name") || "";
+  Wiki.bindCommon();
+  Wiki.bindTotop();
+  $("#backBtn").addEventListener("click", function () {
+    if (history.length > 1) history.back(); else location.href = "index.html";
+  });
+
+  /* 顶栏滚动态（与 entry.html 一致） */
+  window.addEventListener("scroll", function () {
+    $("#appbar").classList.toggle("scrolled", window.scrollY > 8);
+  }, { passive: true });
+
+  var book = null;
+  (window.WIKI_BOOKS.books || []).forEach(function (b) { if (b.name === name) book = b; });
+
+  if (!book) {
+    $("#skeleton").style.display = "none";
+    $("#content").style.display = "";
+    $("#content").innerHTML = '<div class="empty" style="padding-top:80px"><p><b>找不到这本书</b></p>' +
+      '<a class="btn btn-ghost" style="flex:none;margin-top:16px;display:inline-flex;text-decoration:none" href="index.html">回到档案</a></div>';
+    return;
+  }
+  document.title = book.name + " · 赛斯宇宙";
+  $("#barTitle").textContent = book.name;
+  $("#barSub").textContent = book.concepts.length + " 个概念被引用";
+
+  /* 头部 */
+  $("#content").innerHTML =
+    '<div class="entry-hero">' +
+    '<div class="kicker">书目</div>' +
+    "<h1>" + Wiki.esc(book.name) + "</h1>" +
+    '<div class="entry-chips">' +
+    '<span class="chip"><b>' + book.total + "</b> 段原文被引</span>" +
+    '<span class="chip"><b>' + book.concepts.length + "</b> 个概念</span>" +
+    "</div>" +
+    '<p class="tl-intro" style="margin-top:14px">以下段落来自语料库中《' + Wiki.esc(book.name) +
+    "》被各个词条引用的原文，按概念归组。轻触引文看中英对照。</p>" +
+    "</div>";
+
+  /* 逐个词条按需取段，过滤出本书的引文 */
+  var concepts = book.concepts;
+  var done = 0;
+  var out = $("#content");
+  var progress = document.createElement("div");
+  progress.className = "section";
+  progress.innerHTML = '<p class="tl-intro" id="loadTip">正在载入词条 0/' + concepts.length + " …</p>";
+  out.appendChild(progress);
+
+  concepts.forEach(function (bc) {
+    Wiki.loadEntry(bc.id).then(function (e) {
+      var picks = [];
+      e.blocks.forEach(function (b) {
+        (b.groups || []).forEach(function (g) {
+          (g.picks || []).forEach(function (p) {
+            if (p.short === name || (p.source || "").indexOf(name) === 0) picks.push(p);
+          });
+        });
+      });
+      if (picks.length) {
+        var sec = document.createElement("div");
+        sec.className = "section";
+        sec.innerHTML =
+          '<div class="section-head"><span class="tick"></span><h2>' + Wiki.esc(bc.name_zh) + "</h2>" +
+          '<span class="count">' + picks.length + " 段</span></div>" +
+          '<div class="q-wrap">' + picks.map(function (p) {
+            return '<div class="q-wrap">' + Wiki.quoteHTML(p, bc.id) +
+              '<button class="q-copy" title="复制">复制</button></div>';
+          }).join("") + "</div>" +
+          '<a class="chip" style="margin:4px 0 0" href="entry.html?id=' + bc.id + '">进入完整词条 →</a>';
+        out.insertBefore(sec, progress);
+        bindCopy(sec);
+      }
+    }).catch(function () {}).then(function () {
+      done++;
+      if (done === concepts.length) {
+        progress.querySelector("#loadTip").textContent =
+          "共 " + book.total + " 段 · " + book.concepts.length + " 个概念，已全部载入";
+      }
+    });
+  });
+
+  function bindCopy(root) {
+    root.querySelectorAll(".q-copy").forEach(function (btn) {
+      btn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var q = btn.closest(".q-wrap").querySelector(".q");
+        var text = q.querySelector(".q-zh").textContent +
+          "\n\n—— " + (q.querySelector(".q-src") || { textContent: "" }).textContent;
+        function ok() { btn.textContent = "已复制"; btn.classList.add("done"); setTimeout(function () { btn.textContent = "复制"; btn.classList.remove("done"); }, 1600); }
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
+        else fallback();
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); ok(); } catch (e) {}
+          document.body.removeChild(ta);
+        }
+      });
+    });
+  }
+
+  $("#skeleton").style.display = "none";
+  $("#content").style.display = "";
+})();
+</script>
+</body>
+</html>

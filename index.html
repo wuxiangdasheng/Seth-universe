@@ -1,75 +1,154 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" data-theme="light">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<meta name="theme-color" content="#1a0e08">
-<title>核心概念速览·赛斯丨星巢</title>
-<style>:root{--gold: #d98e5f;--gold-soft: rgba(217, 142, 95, .55);--warm: #ffe9d2;--serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;--title: "Lantinghei SC", "\5170\4ead\9ed1-\7b80", "PingFang SC", "Heiti SC", "Microsoft YaHei", sans-serif;--sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;--dockPadX: 14px;--hudPadX: 8px}*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}html,body{height:100%;overflow:hidden}body{font-family:var(--sans);background:#1a0e08;color:var(--warm);-webkit-user-select:none;user-select:none;-webkit-font-smoothing:antialiased}#app{position:fixed;inset:0}#app canvas{display:block;touch-action:none}.hbtn{position:fixed;top:calc(8px + env(safe-area-inset-top));left:calc(10px + env(safe-area-inset-left,0px));z-index:61;width:34px;height:34px;display:inline-flex;align-items:center;justify-content:center;color:var(--gold);text-decoration:none;cursor:pointer;transition:transform .15s,color .2s}.hbtn:active{transform:scale(.94)}.hbtn svg{width:22px;height:22px}.rail{position:fixed;right:calc(8px + env(safe-area-inset-right,0px));top:50%;transform:translateY(calc(-50% - 48px));z-index:18;display:flex;flex-direction:column;gap:6px;align-items:center;pointer-events:auto;max-height:80vh;overflow-y:auto;scrollbar-width:none}.dock{position:fixed;left:0;right:0;bottom:0;z-index:18;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0 var(--dockPadX) calc(13px + env(safe-area-inset-bottom));pointer-events:none}.dock>*{pointer-events:auto}.dockcols{pointer-events:none;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.18fr);gap:0 20px;align-items:end;width:100%;padding:0 var(--hudPadX)}.dockcols>.conceptbar{grid-column:1}.dockcols>.hud{grid-column:2}.rail::-webkit-scrollbar{display:none}.rail button{flex:none;appearance:none;border:none;background:#fff8ef9e;color:#5a3a20d9;font-family:var(--serif);font-size:.55rem;letter-spacing:.04em;width:21px;height:21px;padding:0;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;white-space:nowrap;transition:all .2s}.rail button.on{background:#e9b98a99;color:#3f2712}.rail button:active{transform:scale(.95)}.actTitle{padding:0 var(--hudPadX);pointer-events:none}.actTitle span{display:block;text-align:left;font-family:var(--title);font-size:18px;font-weight:900;letter-spacing:.12em;color:var(--actColor, var(--gold))}.hud{min-width:0}.hud .line{font-family:var(--serif);font-size:16px;line-height:1.65;color:#111;background:none;border-radius:0;padding:0;box-shadow:none;text-align:right}.conceptbar{display:flex;flex-wrap:wrap;justify-content:flex-start;align-content:flex-start;gap:6px;padding:8px;min-width:0;pointer-events:auto;background:var(--actColor, var(--gold));transition:background .45s}.conceptbar:empty{display:none}.conceptbar .chip{font-family:var(--serif);font-size:12px;letter-spacing:.05em;color:var(--actColor, var(--gold));background:#fff;border:none;box-shadow:none;border-radius:0;padding:3px 8px;cursor:pointer;white-space:nowrap;transition:transform .15s,opacity .2s}.conceptbar .chip:active{transform:scale(.96);opacity:.7}.card{--cardGold: #e3a75c;--cardInk: #fff4e2;position:fixed;z-index:30;left:50%;bottom:0;transform:translate(-50%,110%);width:min(440px,calc(100vw - 24px));background:#40200a85;border:1px solid rgba(255,200,130,.3);border-radius:20px 20px 0 0;-webkit-backdrop-filter:blur(26px) saturate(1.3);backdrop-filter:blur(26px) saturate(1.3);padding:14px 22px calc(24px + env(safe-area-inset-bottom));box-shadow:0 -18px 60px -16px #00000080;opacity:0;pointer-events:none;transition:opacity .3s,transform .32s cubic-bezier(.2,.8,.2,1)}.card.show{opacity:1;transform:translate(-50%);pointer-events:auto}.card .grab{width:38px;height:4px;border-radius:2px;background:#ffd09273;margin:2px auto 14px}.card .act{font-size:.6rem;letter-spacing:.28em;color:var(--cardGold)}.card h3{font-family:var(--title);font-size:1.5rem;font-weight:900;margin:8px 0 2px;letter-spacing:.04em;color:var(--cardInk)}.card .en{font-size:.7rem;color:#ffe4baa8;letter-spacing:.06em}.card .tag{margin:14px 0 0;padding:12px 14px;border-left:2px solid var(--cardGold);background:#ffb66024;border-radius:4px 12px 12px 4px;font-family:var(--serif);font-size:.84rem;line-height:1.95;color:#fff2deeb}.card .go{appearance:none;border:none;cursor:pointer;margin-top:16px;width:100%;background:linear-gradient(135deg,#e0a353,#bb7a36);color:#fffaf0;font-weight:700;font-size:.84rem;border-radius:12px;padding:12px;display:flex;align-items:center;justify-content:center;gap:7px;text-decoration:none;transition:filter .2s,transform .15s;font-family:var(--sans)}.card .go:active{transform:scale(.97)}.card .x{position:absolute;top:12px;right:12px;border:none;background:none;color:#ffe4beb8;cursor:pointer;font-size:.9rem;padding:4px 6px}.loader{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 42%,#6b3010,#100803 74%);transition:opacity .8s ease;gap:20px}.loader.hide{opacity:0;pointer-events:none}.halo{width:84px;height:84px;border-radius:50%;border:2px solid rgba(255,180,110,.15);border-top-color:#ffc382f2;animation:spin 1.1s linear infinite;box-shadow:0 0 40px #ffa05040,inset 0 0 30px #ffa05026}@keyframes spin{to{transform:rotate(360deg)}}.loader p{font-size:13px;letter-spacing:4px;color:#ffd6aab3}.loader p.err{color:#ff9a76;letter-spacing:1px;line-height:1.8;text-align:center;padding:0 32px}
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>赛斯Seth宇宙 · 概念手册</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%239c6f2e' d='m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9Z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
 </head>
 <body>
+<div class="shell">
 
-<div id="app"></div>
-
-<!-- 左上角：返回首页（剧场已部署在站根，./ 即本页） -->
-<a class="hbtn" id="homeBtn" href="./index.html" aria-label="返回首页" title="返回首页">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5"/><path d="m12 19-7-7 7-7"/></svg>
-</a>
-
-
-<!-- 页底：章节标题一行（左对齐）+ 左右两栏（左＝概念标签群，右＝章节旁白） -->
-<div class="dock">
-  <div class="actTitle" id="actTitle"></div>
-  <div class="dockcols">
-    <div class="conceptbar" id="conceptbar"></div>
-    <div class="hud">
-      <div class="line" id="narLine"></div>
+  <header class="appbar static" id="appbar">
+    <div class="brand brand-pill">
+      <span class="hero-kicker">赛斯Seth宇宙 · 概念手册</span>
     </div>
+    <button class="icon-btn font-btn" id="fontBtn" aria-label="调节字号">字</button>
+    <button class="icon-btn" id="themeBtn" aria-label="切换深浅色"></button>
+  </header>
+
+  <main class="p-home">
+    <!-- ========== 视图一：概念 ========== -->
+    <section class="view" id="view-concepts">
+      <div class="hero">
+        <h1>理解赛斯哲学<br>探索<em>多元实相</em>的自己</h1>
+        <p class="hero-sub">——「你创造你的实相」</p>
+        <div class="hero-stats" id="heroStats"></div>
+        <div class="hero-cta">
+          <a class="btn btn-ghost btn-purple" href="theater/theater3d-release/index.html">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2 13 13l-3.8 1.8L11 11Z"/></svg>
+            概念地图
+          </a>
+        </div>
+      </div>
+
+      <div class="searchwrap stuck">
+        <div class="searchbox" id="searchbox">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="searchInput" type="search" placeholder="搜概念、一句话解释…" autocomplete="off">
+          <button class="search-clear" id="searchClear" aria-label="清空">✕</button>
+        </div>
+      </div>
+
+      <div class="list" id="conceptList"></div>
+    </section>
+
+    <!-- ========== 视图二：档案（时间线 + 书海） ========== -->
+    <section class="view" id="view-archive">
+      <div class="section">
+        <div class="section-head"><span class="tick"></span><h2>二十一年的录音档案</h2></div>
+        <div class="timeline">
+          <p class="tl-intro">每根柱子是当年被引原文的段数。点一年，看那一年哪些概念在发声。</p>
+          <div id="timeline"></div>
+          <div class="tl-detail" id="tlDetail" style="display:none"></div>
+        </div>
+        <div class="section-head"><span class="tick"></span><h2>书海</h2><span class="count" id="bookCount"></span></div>
+        <p class="tl-intro">按书看概念——点一本书，读它被引用的全部段落。</p>
+        <div class="book-grid" id="bookGrid"></div>
+      </div>
+    </section>
+
+    <!-- ========== 视图三：日签（随机一段赛斯原文）· 站点首页 ========== -->
+    <section class="view active" id="view-daily">
+      <div class="section">
+        <div class="section-head">
+          <span class="tick"></span><h2>随手签</h2>
+          <span class="count" id="dailyDate"></span>
+        </div>
+        <p class="tl-intro">「你创造你的实相」</p>
+        <div id="dailyCard"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <nav class="tabbar">
+    <button class="on" data-tab="daily">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      日签
+    </button>
+    <button data-tab="concepts">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2Zm0 0a2 2 0 0 0 2 2h13"/></svg>
+      wiki
+    </button>
+    <button data-href="ai-seth.html" title="AI 赛斯 · 公告与安装">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.4 8.4 0 0 1-8.5 8.3 9 9 0 0 1-3.9-.9L3 21l1.9-4.4A8 8 0 0 1 4 11.5 8.4 8.4 0 0 1 12.5 3 8.4 8.4 0 0 1 21 11.5Z"/></svg>
+      AI 赛斯
+    </button>
+    <button data-href="theater/theater3d-release/index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M14.8 9.2 13 13l-3.8 1.8L11 11Z"/></svg>
+      地图
+    </button>
+  </nav>
+
+  <button class="totop" id="totop" aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 14.5 12 8l6.5 6.5"/></svg>
+  </button>
+</div>
+
+<!-- 随机引文抽屉 -->
+<div class="sheet-mask" id="sheetMask"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-grab"></div>
+  <div class="sheet-head">
+    <div class="sheet-title" id="sheetTitle">随机一段</div>
+    <button class="icon-btn" id="sheetClose" aria-label="关闭" style="width:30px;height:30px;border-radius:10px">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>  <div id="sheetBody"></div>
+  <div class="sheet-actions">
+    <button class="btn btn-ghost" id="sheetShuffle">换一段</button>
+    <button class="btn btn-primary" id="sheetOpen" style="display:none">打开所属词条</button>
   </div>
 </div>
-<!-- 右侧竖排：章节序号导航 -->
-<nav class="rail" id="rail"></nav>
 
-<aside class="card" id="card">
-  <div class="grab"></div>
-  <button class="x" id="cardX">✕</button>
-  <div class="act" id="cardAct">—</div>
-  <h3 id="cardName">—</h3>
-  <div class="en" id="cardEn">—</div>
-  <p class="tag" id="cardTag"></p>
-  <a class="go" id="cardGo" href="#">打开完整词条
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:14px;height:14px"><path d="M4 12h15m-6-6 6 6-6 6"/></svg>
-  </a>
-</aside>
-
-
-<!-- 加载遮罩：打开即进模型页，壹幕就绪前由它全屏挡住 -->
-<div class="loader" id="loader">
-  <div class="halo"></div>
-  <p id="loadText">赛斯宇宙…</p>
+<!-- 分享卡片预览 -->
+<div class="share-mask" id="shareMask"></div>
+<div class="share-sheet" id="shareSheet">
+  <div class="share-head">
+    <div class="share-title">分享卡片</div>
+    <button class="icon-btn" id="shareClose" aria-label="关闭">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+  </div>
+  <div class="share-stage"><img id="sharePreview" alt="分享卡片"></div>
+  <div class="share-actions">
+    <button class="btn btn-primary" id="shareSave">保存图片</button>
+  </div>
+  <p class="share-hint" id="shareHint">正在生成…</p>
 </div>
 
-<script src="data/index.js?v=mvapy8u6"></script>
-<script src="acts.min.js?v=mvapy8u6"></script>
+<script src="data/index.js"></script>
+<script src="data/books.js"></script>
+<script src="assets/app.js"></script>
 <script>
-  if (location.protocol === 'file:') {
-    window.addEventListener('load', function () {
-      var h = document.querySelector('.halo'); if (h) h.style.display = 'none';
-      var t = document.getElementById('loadText');
-      if (t) t.outerHTML = '<p class="err">请用本地服务器打开，不能直接双击（file://）<br>在该目录执行：python3 -m http.server 8088<br>再访问 http://127.0.0.1:8088/theater/theater3d/</p>';
-    });
+Wiki.bindTotop();
+/* 深链：子页（ai-seth.html 等）底栏跳 index.html#concepts / #daily / #archive 时落到对应视图；
+   无 hash 维持默认日签。app.js 的 IIFE 在本脚本前已跑完，底栏点击绑定已就绪，click() 即走 switchView。
+   hashchange 一并监听：同文档内改 hash（不重载）也要能切视图 */
+(function () {
+  function activateFromHash() {
+    var t = (location.hash || "").replace("#", "");
+    if (!t) return;
+    /* 档案不在底栏（走首屏 data-goto 入口），所以两种入口都认 */
+    var btn = document.querySelector('.tabbar button[data-tab="' + t + '"], [data-goto="' + t + '"]');
+    if (btn) btn.click();
   }
+  activateFromHash();
+  window.addEventListener("hashchange", activateFromHash);
+})();
 </script>
-<script type="importmap">
-{
-  "imports": {
-    "three": "./lib/three.module.js?v=mvapy8u6",
-    "three/addons/": "./lib/addons/"
-  }
-}
-</script>
-
-<script type="module" src="app.min.js?v=mvapy8u6"></script>
 </body>
 </html>

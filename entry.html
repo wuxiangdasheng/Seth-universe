@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#f7f3ea">
+<title>词条 · 赛斯宇宙</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%239c6f2e' d='m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9Z'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="assets/app.css">
+</head>
+<body>
+<div class="progress"><i id="progressBar"></i></div>
+<div class="shell">
+
+  <header class="appbar" id="appbar">
+    <button class="icon-btn" id="backBtn" aria-label="返回">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m14.5 5.5-6.5 6.5 6.5 6.5"/></svg>
+    </button>
+    <div class="brand" style="text-align:center">
+      <span class="brand-mark" id="barTitle" style="font-size:1rem;opacity:0;transition:opacity .3s">词条</span>
+    </div>
+    <button class="icon-btn font-btn" id="fontBtn" aria-label="调节字号">字</button>
+    <button class="icon-btn" id="langBtn" aria-label="双语切换">EN</button>
+    <button class="icon-btn" id="themeBtn" aria-label="切换深浅色"></button>
+  </header>
+
+  <main id="main">
+    <div id="skeleton">
+      <div class="entry-hero">
+        <div class="skel skel-line" style="width:32%"></div>
+        <div class="skel skel-line" style="width:70%;height:30px"></div>
+        <div class="skel skel-line" style="width:45%"></div>
+        <div class="skel skel-line" style="height:64px;margin-top:16px"></div>
+      </div>
+      <div class="section">
+        <div class="skel skel-line" style="width:40%;height:18px;margin:22px 0"></div>
+        <div class="skel skel-line"></div><div class="skel skel-line" style="width:92%"></div>
+        <div class="skel skel-line" style="width:78%"></div>
+      </div>
+    </div>
+    <div id="content" style="display:none"></div>
+  </main>
+
+  <button class="totop" id="totop" aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 14.5 12 8l6.5 6.5"/></svg>
+  </button>
+</div>
+
+<script src="data/index.js"></script>
+<script src="assets/app.js"></script>
+<script>
+(function () {
+  "use strict";
+  var $ = Wiki.$;
+  var id = new URLSearchParams(location.search).get("id") || "";
+  var meta = null;
+  (window.WIKI_INDEX.concepts || []).forEach(function (c) { if (c.id === id) meta = c; });
+  var entryIdx = window.WIKI_INDEX.concepts.indexOf(meta);
+
+  if (!meta) {
+    $("#content").style.display = "";
+    $("#skeleton").style.display = "none";
+    $("#content").innerHTML = '<div class="empty" style="padding-top:80px">' +
+      '<p><b>找不到这个词条</b>它可能还没有被收录。</p>' +
+      '<a class="btn btn-ghost" style="flex:none;margin-top:16px;display:inline-flex;text-decoration:none" href="index.html">回到首页</a></div>';
+    return;
+  }
+  document.title = meta.name_zh + " · 赛斯宇宙";
+  Wiki.bindCommon();
+
+  /* 返回 */
+  $("#backBtn").addEventListener("click", function () {
+    if (history.length > 1) history.back(); else location.href = "index.html";
+  });
+
+  /* 双语模式 */
+  var bi = false;
+  $("#langBtn").addEventListener("click", function () {
+    bi = !bi;
+    document.body.classList.toggle("bilingual", bi);
+    this.classList.toggle("on", bi);
+    this.textContent = bi ? "中" : "EN";
+  });
+
+  /* 进度条 / 顶栏 / 回到顶部 */
+  var bar = $("#progressBar"), barTitle = $("#barTitle"), totop = $("#totop");
+  function onScroll() {
+    var h = document.documentElement;
+    var p = h.scrollHeight - h.clientHeight;
+    bar.style.width = (p > 0 ? (h.scrollTop / p) * 100 : 0) + "%";
+    $("#appbar").classList.toggle("scrolled", window.scrollY > 8);
+    var showTitle = window.scrollY > 130;
+    barTitle.style.opacity = showTitle ? "1" : "0";
+    totop.classList.toggle("show", window.scrollY > 600);
+  }
+  window.addEventListener("scroll", onScroll, { passive: true });
+  totop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
+
+  /* ---------- 渲染 ---------- */
+  Wiki.loadEntry(id).then(function (e) {
+    $("#skeleton").style.display = "none";
+    $("#barTitle").textContent = e.name_zh;
+    var el = $("#content");
+    el.style.display = "";
+    var html = "";
+
+    /* 头部 */
+    html += '<div class="entry-hero" style="position:relative">' +
+      '<div class="kicker">概念词条</div>' +
+      '<h1>' + Wiki.esc(e.name_zh) + "</h1>" +
+      '<div class="en">' + Wiki.esc(e.name_en) + "</div>" +
+      (e.tagline ? '<p class="tagline">' + Wiki.esc(e.tagline) + "</p>" : "") +
+      '<div class="entry-chips">' +
+      chip(e.stats.quotes + " 段原文") +
+      chip(e.stats.blocks + " 个小节") +
+      chip(e.books.length + " 部书") +
+      (e.span ? chip(e.span[0] + "–" + e.span[1]) : "") +
+      (e.stats.reading ? chip("延展阅读 " + e.stats.reading + " 段") : "") +
+      "</div></div>";
+
+    /* 赛斯怎么定义 */
+    if (e.definitions && e.definitions.length) {
+      html += '<div class="section"><div class="section-head"><span class="tick"></span>' +
+        "<h2>赛斯怎么定义</h2><span class=\"count\">" + e.definitions.length + " 条</span></div>";
+      e.definitions.forEach(function (d, di) {
+        /* 定义区的段不在 picks 里，按位置造一个稳定 id：q-{concept}-def{i}（openShare 按它回退查找） */
+        var defId = "q-" + id + "-def" + di;
+        html += '<article class="q" id="' + defId + '">' +
+          '<p class="q-zh">' + Wiki.esc(d.zh) + "</p>" +
+          (d.en ? '<p class="q-en">' + Wiki.esc(d.en) + "</p>" : "") +
+          '<div class="q-foot">' +
+          (d.source ? '<span class="q-src">' + Wiki.esc(d.source) + "</span>" : "") +
+          '<span class="badge badge-src">原文</span>' +
+          '<span class="q-exp">▾</span><span class="q-acts">' + Wiki.shareBtn(defId, id) + "</span></div></article>";
+      });
+      html += "</div>";
+    }
+
+    /* 怎么理解它（模型整理） */
+    if (e.explanation) {
+      html += '<div class="section"><div class="section-head"><span class="tick"></span>' +
+        "<h2>怎么理解它</h2><span class=\"badge badge-ai\">整理</span></div>" +
+        '<div class="note-card">' + Wiki.noteHTML(e.explanation, []) + "</div></div>";
+    }
+
+    /* 正文分块 */
+    html += '<div class="section"><div class="section-head"><span class="tick"></span>' +
+      "<h2>正文</h2><span class=\"count\">" + e.blocks.length + " 节</span></div>";
+    e.blocks.forEach(function (b, i) {
+      html += '<div class="reveal" id="' + Wiki.esc(b.id) + '">' +
+        '<div class="group-label" style="font-family:var(--serif);font-size:.98rem;color:var(--ink);margin-top:22px">' +
+        "<span style=\"color:var(--accent);font-weight:700\">" + String(i + 1).padStart(2, "0") + "</span>" +
+        Wiki.esc(b.title) + "</div>";
+      if (b.note) html += '<div class="note-card">' + Wiki.noteHTML(b.note, b.cites) + "</div>";
+      (b.groups || []).forEach(function (g) {
+        if (g.label) html += '<div class="group-label">' + Wiki.esc(g.label) + "</div>";
+        if (g.note) html += '<p class="group-note">' + Wiki.esc(g.note) + "</p>";
+        (g.picks || []).forEach(function (p) {
+          html += Wiki.quoteHTML(p, id, null, copyBtn(p));
+        });
+      });
+      html += "</div>";
+    });
+    html += "</div>";
+
+    /* 延展阅读 */
+    if (e.reading && e.reading.length) {
+      html += '<div class="section"><div class="section-head"><span class="tick"></span>' +
+        "<h2>延展阅读</h2><span class=\"count\">" + e.reading.length + " 段</span></div>" +
+        '<p class="tl-intro">与这个词条相关、未归入上面小节的段落。</p>';
+      e.reading.forEach(function (p) {
+        html += Wiki.quoteHTML(p, id, null, copyBtn(p));
+      });
+      html += "</div>";
+    }
+
+    /* 脚部：书目分布 + 说明 + 上下篇 */
+    html += '<div class="entry-foot">' +
+      '<div class="section-head"><span class="tick"></span><h2>它在哪些书里出现</h2></div>' +
+      '<div class="book-chips">' + e.books.map(function (b) {
+        return '<a class="chip" href="book.html?name=' + encodeURIComponent(b.name) + '">' +
+          Wiki.esc(b.name) + " <b>" + b.count + "</b></a>";
+      }).join("") + "</div>" +
+      '<p class="foot-note">本词条由模型通读赛斯书语料库生成初稿，人工在成品上修订。出处直接显示在每张引文卡上，轻触任意引文可查看英文原文；整理段落中的小上标可点开对应的原文。◆ 表示该段仅以英文检索命中。</p>' +
+      "</div>";
+
+    var prev = window.WIKI_INDEX.concepts[entryIdx - 1];
+    var next = window.WIKI_INDEX.concepts[entryIdx + 1];
+    html += '<div class="pager">' +
+      (prev ? '<a href="entry.html?id=' + prev.id + '">← 上一篇<b>' + Wiki.esc(prev.name_zh) + "</b></a>" : "<span></span>") +
+      (next ? '<a class="next" href="entry.html?id=' + next.id + '">下一篇 →<b>' + Wiki.esc(next.name_zh) + "</b></a>" : "<span></span>") +
+      "</div>";
+
+    el.innerHTML = html;
+    bindEntryEvents(e);
+    onScroll();
+    revealObserve();
+
+    /* 深链：#q-xxx 定位并高亮 */
+    if (location.hash) {
+      var t = document.getElementById(location.hash.slice(1));
+      if (t) setTimeout(function () {
+        t.scrollIntoView({ behavior: "smooth", block: "center" });
+        t.classList.add("open");
+      }, 350);
+    }
+  }).catch(function () {
+    $("#skeleton").style.display = "none";
+    $("#content").style.display = "";
+    $("#content").innerHTML = '<div class="empty" style="padding-top:80px"><p><b>词条载入失败</b>请检查网络或返回重试。</p></div>';
+  });
+
+  function chip(t) { return '<span class="chip">' + t + "</span>"; }
+
+  /* 复制按钮：出处行内、分享按钮前方，图标样式与分享按钮一致 */
+  var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  var CHECK_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  function copyBtn(p) {
+    return '<button class="q-copy" data-id="' + Wiki.esc(p.id) + '" title="复制这段话" aria-label="复制这段话">' + COPY_SVG + "</button>";
+  }
+
+  function bindEntryEvents(e) {
+    /* 复制引文（按钮在出处行内、卡片 article 里，点它不会展开/收起卡片） */
+    document.querySelectorAll(".q-copy").forEach(function (btn) {
+      btn.addEventListener("click", function (ev) {
+        ev.stopPropagation();
+        var q = btn.closest(".q");
+        var zh = q.querySelector(".q-zh").textContent;
+        var enEl = q.querySelector(".q-en");
+        var src = q.querySelector(".q-src");
+        var text = zh + (enEl ? "\n\n" + enEl.textContent : "") +
+          (src ? "\n\n—— " + src.textContent + "《赛斯书》" : "");
+        function ok() {
+          btn.classList.add("done");
+          btn.innerHTML = CHECK_SVG;
+          setTimeout(function () { btn.classList.remove("done"); btn.innerHTML = COPY_SVG; }, 1600);
+        }
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(ok, function () { fallback(); });
+        } else fallback();
+        function fallback() {
+          var ta = document.createElement("textarea");
+          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+          document.body.appendChild(ta); ta.select();
+          try { document.execCommand("copy"); ok(); } catch (e2) {}
+          document.body.removeChild(ta);
+        }
+      });
+    });
+  }
+
+  /* 滚动进场 */
+  function revealObserve() {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add("in"); io.unobserve(en.target); } });
+    }, { rootMargin: "0px 0px -8% 0px", threshold: 0.05 });
+    document.querySelectorAll(".reveal").forEach(function (el) { io.observe(el); });
+  }
+})();
+</script>
+</body>
+</html>
