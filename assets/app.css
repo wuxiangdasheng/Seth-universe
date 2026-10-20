@@ -29,7 +29,10 @@
   --shadow-lg: 0 8px 40px -8px rgba(43, 38, 52, 0.28);
   --star-op: 0;
   --grain-op: 0.5;
-  --serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  /* 2026-10-20：原为宋体栈（Songti SC / STSong / Noto Serif SC / SimSun），
+     按要求全站改用苹方，黑体兜底。变量名沿用 --serif（约 20 处引用，改名只会制造噪声），
+     但它现在与 --sans 同族 —— 要恢复宋体，改回这一行即可。 */
+  --serif: "PingFang SC", "Heiti SC", "Microsoft YaHei", sans-serif;
   --sans: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", sans-serif;
 }
 
@@ -318,7 +321,9 @@ main.p-home { display: flex; flex-direction: column; }
   outline: none;
   background: transparent;
   flex: 1;
-  font-size: 0.92rem;
+  /* 16px 是地板不是设计值：iOS Safari 一聚焦字号 <16px 的可编辑控件就放大整页，
+     而字阶最小档的 0.92rem 只有 13.5px —— 所以取 max 而不是直接写死 */
+  font-size: max(16px, 0.92rem);
   font-family: var(--sans);
   color: var(--ink);
   min-width: 0;
@@ -336,6 +341,37 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
 
 /* ---------- 概念列表 ---------- */
 .list { padding: 8px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+
+/* 列表分组：八幕 → 地图标签，与「地图」页同一份结构（data/structure.js） */
+.list .grp { display: flex; flex-direction: column; gap: 10px; }
+.list .grp-act {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin: 20px 2px 6px;
+}
+.list .grp-act:first-child { margin-top: 4px; }
+.list .grp-act h2 {
+  font-family: var(--serif);
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+.list .grp-label {
+  display: flex;
+  align-items: baseline;
+  gap: 7px;
+  margin: 2px 2px -2px;
+}
+.list .grp-label h3 {
+  font-family: var(--serif);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--ink-2);
+  letter-spacing: 0.02em;
+}
+.list .grp-act .count,
+.list .grp-label .count { margin-left: auto; font-size: 0.66rem; color: var(--ink-3); }
 
 .card {
   display: block;
@@ -505,6 +541,19 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
 .q-foot .q-copy svg { width: 15px; height: 15px; display: block; }
 .q-foot .q-copy:active { color: var(--accent); background: var(--accent-soft); }
 .q-foot .q-copy.done { color: var(--ok); }
+/* 调试专用的删除按钮（出处行内、复制按钮前方）：同款图标按钮，红色系。
+   只有词条页经 admin-server 打开时才由 entry-del.js 注入，线上没有这个 class 的元素 */
+.q-foot .q-del {
+  border: none; background: none; cursor: pointer;
+  color: var(--ink-3);
+  padding: 2px;
+  display: inline-flex; align-items: center;
+  border-radius: 8px;
+  transition: color 0.2s, background 0.2s;
+}
+.q-foot .q-del svg { width: 15px; height: 15px; display: block; }
+.q-foot .q-del:hover { color: var(--red); background: var(--red-soft); }
+.q-foot .q-del:disabled { opacity: .4; cursor: default; }
 .q-tag {
   background: var(--red-soft);
   color: var(--red);
@@ -720,23 +769,23 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
 
 /* ---------- AI 赛斯：公告文章页 ----------
    不套卡片（用户要求「只是文章」）：内容直接排在本节内，与全站其他视图同一平面。
-   原来兜底的 .art 卡片规则已删；kicker 的 6px 上边距是原来卡片内边距的替代。 */
-.art-kicker { font-size: 0.66rem; letter-spacing: 0.24em; color: var(--gold); font-weight: 600; margin-top: 6px; }
-.art-title { font-family: var(--serif); font-size: 1.32rem; font-weight: 700; line-height: 1.45; margin: 8px 0 6px; }
-.art-meta { font-size: 0.72rem; color: var(--ink-3); line-height: 1.7; margin-bottom: 16px; }
-.art-meta a { color: var(--accent); text-decoration: none; }
+   （.art-kicker / .art-title / .art-meta / .art-linkcopy 2026-10-20 删除：
+     该页改用 .art-h / .art-p 那套排版后，这四条全站 0 使用。）
+   2026-10-20：正文 0.84rem → 0.94rem，与词条页原文段落（.q-zh）对齐 —— 该页收回本文件后，
+   同一套「字号三档」在这里每一档都比别页小 1.6px，根因就是基准值不一样。
+   标题同步 1rem → 1.1rem，保住与正文的层级差（原来差 0.16rem）。 */
 .art-h {
   font-family: var(--serif);
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 700;
   margin: 20px 0 10px;
   padding-left: 9px;
   border-left: 3px solid var(--gold);
 }
-.art-p { font-size: 0.84rem; line-height: 1.95; margin: 0 0 10px; }
+.art-p { font-size: 0.94rem; line-height: 1.95; margin: 0 0 10px; }
 .art-p:last-of-type { margin-bottom: 0; }
 .art-ol { margin: 0 0 12px; padding-left: 20px; }
-.art-ol li { font-size: 0.84rem; line-height: 1.95; margin-bottom: 8px; padding-left: 2px; }
+.art-ol li { font-size: 0.94rem; line-height: 1.95; margin-bottom: 8px; padding-left: 2px; }
 .art-ol li:last-child { margin-bottom: 0; }
 .art-ol li::marker { color: var(--gold); font-weight: 700; }
 /* MCP 配置块：等宽 + 可横向滚 + 右上角一键复制 */
@@ -795,21 +844,11 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
   border-top: 1px dashed var(--line-2);
   margin: 18px 0 14px;
 }
-/* 一区第一步「复制本页链接」：meta 行内小文字按钮，复制成功变 ✓ */
-.art-linkcopy {
-  appearance: none;
-  margin-left: 8px;
-  font-family: var(--sans);
-  font-size: 0.68rem;
-  color: var(--accent);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 1px 8px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s;
-}
-.art-linkcopy.done { color: var(--ok); border-color: var(--ok); }
+/* 反馈微信号后的小复制钮（AI 赛斯页）：比标准 .icon-btn（36px）小，跟着文字走；复制成功变绿勾。
+   2026-10-20 从该页内联样式收回 —— 该页改用本文件后，这里是它唯一缺的 3 条规则。 */
+.wx-copy { width: 28px; height: 28px; border-radius: 9px; vertical-align: -6px; margin-left: 6px; }
+.wx-copy svg { width: 14px; height: 14px; }
+.wx-copy.done { color: var(--ok); border-color: var(--ok); }
 
 .tl-year {
   display: grid;
@@ -829,6 +868,9 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
 .tl-year .y { font-family: var(--serif); font-size: 0.8rem; color: var(--ink-2); font-weight: 700; }
 .tl-year .bar-track { height: 14px; background: var(--card-2); border-radius: 5px; overflow: hidden; }
 .tl-year .bar {
+  /* block 是必需的：.bar 是个 span，行内盒子的 width/height 一律被忽略，
+     只有 display 之后 JS 设的条宽才真的画出来 */
+  display: block;
   height: 100%;
   width: 0;
   border-radius: 5px;
@@ -868,41 +910,6 @@ mark { background: var(--gold-soft); color: inherit; border-radius: 3px; padding
 .book-card .bname { font-family: var(--serif); font-size: 0.92rem; font-weight: 700; line-height: 1.5; }
 .book-card .bmeta { font-size: 0.68rem; color: var(--ink-3); margin-top: 7px; }
 .book-card .bmeta b { color: var(--accent); }
-
-/* ---------- 抽屉（随机引文等） ---------- */
-.sheet-mask {
-  position: fixed;
-  inset: 0;
-  background: rgba(10, 8, 16, 0.5);
-  -webkit-backdrop-filter: blur(3px);
-  backdrop-filter: blur(3px);
-  z-index: 80;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.3s;
-}
-.sheet-mask.show { opacity: 1; pointer-events: auto; }
-.sheet {
-  position: fixed;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, 100%);
-  width: min(100%, var(--shell-w));
-  z-index: 90;
-  background: var(--shell);
-  border-radius: 26px 26px 0 0;
-  padding: 10px 20px calc(26px + env(safe-area-inset-bottom));
-  transition: transform 0.38s cubic-bezier(0.22, 0.9, 0.26, 1);
-  max-height: 86dvh;
-  overflow-y: auto;
-  box-shadow: var(--shadow-lg);
-}
-.sheet.show { transform: translate(-50%, 0); }
-.sheet-grab { width: 42px; height: 4.5px; border-radius: 3px; background: var(--line-2); margin: 4px auto 16px; }
-.sheet-title { font-family: var(--serif); font-size: 1.05rem; font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; flex: 1; }
-.sheet-head { display: flex; align-items: center; gap: 10px; }
-.sheet-q { margin: 0; }
-.sheet-actions { display: flex; gap: 10px; margin-top: 16px; }
 
 /* ---------- 分享卡片预览 ---------- */
 .share-mask {

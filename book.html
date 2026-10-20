@@ -43,6 +43,7 @@
 
 <script src="data/index.js"></script>
 <script src="data/books.js"></script>
+<script src="assets/theme.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function () {
@@ -138,16 +139,10 @@
         var q = btn.closest(".q-wrap").querySelector(".q");
         var text = q.querySelector(".q-zh").textContent +
           "\n\n—— " + (q.querySelector(".q-src") || { textContent: "" }).textContent;
-        function ok() { btn.textContent = "已复制"; btn.classList.add("done"); setTimeout(function () { btn.textContent = "复制"; btn.classList.remove("done"); }, 1600); }
-        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text).then(ok, fallback);
-        else fallback();
-        function fallback() {
-          var ta = document.createElement("textarea");
-          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-          document.body.appendChild(ta); ta.select();
-          try { document.execCommand("copy"); ok(); } catch (e) {}
-          document.body.removeChild(ta);
-        }
+        Wiki.copyToClipboard(text, function () {
+          btn.textContent = "已复制"; btn.classList.add("done");
+          setTimeout(function () { btn.textContent = "复制"; btn.classList.remove("done"); }, 1600);
+        });
       });
     });
   }

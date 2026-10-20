@@ -49,15 +49,15 @@
 </div>
 
 <script src="data/index.js"></script>
+<script src="assets/theme.js"></script>
 <script src="assets/app.js"></script>
 <script>
 (function () {
   "use strict";
   var $ = Wiki.$;
   var id = new URLSearchParams(location.search).get("id") || "";
-  var meta = null;
-  (window.WIKI_INDEX.concepts || []).forEach(function (c) { if (c.id === id) meta = c; });
-  var entryIdx = window.WIKI_INDEX.concepts.indexOf(meta);
+  var meta = Wiki.byId(id);
+  var entryIdx = (window.WIKI_INDEX.concepts || []).indexOf(meta);
 
   if (!meta) {
     $("#content").style.display = "";
@@ -77,19 +77,17 @@
   /* 回首页：index.html 无 hash 时默认落在日签视图 */
   $("#homeBtn").addEventListener("click", function () { location.href = "index.html"; });
 
-  /* 进度条 / 顶栏 / 回到顶部 */
-  var bar = $("#progressBar"), barTitle = $("#barTitle"), totop = $("#totop");
+  /* 进度条 / 顶栏（回到顶部按钮由 Wiki.bindTotop 统一处理） */
+  var bar = $("#progressBar"), barTitle = $("#barTitle");
+  Wiki.bindTotop();
   function onScroll() {
     var h = document.documentElement;
     var p = h.scrollHeight - h.clientHeight;
     bar.style.width = (p > 0 ? (h.scrollTop / p) * 100 : 0) + "%";
     $("#appbar").classList.toggle("scrolled", window.scrollY > 8);
-    var showTitle = window.scrollY > 130;
-    barTitle.style.opacity = showTitle ? "1" : "0";
-    totop.classList.toggle("show", window.scrollY > 600);
+    barTitle.style.opacity = window.scrollY > 130 ? "1" : "0";
   }
   window.addEventListener("scroll", onScroll, { passive: true });
-  totop.addEventListener("click", function () { window.scrollTo({ top: 0, behavior: "smooth" }); });
 
   /* ---------- 渲染 ---------- */
   Wiki.loadEntry(id).then(function (e) {
@@ -105,13 +103,7 @@
       '<h1>' + Wiki.esc(e.name_zh) + "</h1>" +
       '<div class="en">' + Wiki.esc(e.name_en) + "</div>" +
       (e.tagline ? '<p class="tagline">' + Wiki.esc(e.tagline) + "</p>" : "") +
-      '<div class="entry-chips">' +
-      chip(e.stats.quotes + " 段原文") +
-      chip(e.stats.blocks + " 个小节") +
-      chip(e.books.length + " 部书") +
-      (e.span ? chip(e.span[0] + "–" + e.span[1]) : "") +
-      (e.stats.reading ? chip("延展阅读 " + e.stats.reading + " 段") : "") +
-      "</div></div>";
+      '<div class="entry-chips">' + heroChips(e) + "</div></div>";
 
     /* 赛斯怎么定义 */
     if (e.definitions && e.definitions.length) {
@@ -148,6 +140,8 @@
         Wiki.esc(b.title) + "</div>";
       if (b.note) html += '<div class="note-card">' + Wiki.noteHTML(b.note, b.cites) + "</div>";
       (b.groups || []).forEach(function (g) {
+        /* 后台删段落后分组可能空掉：只剩一个标题（或一句说明）没有原文，是残缺不是内容 */
+        if (!(g.picks || []).length) return;
         if (g.label) html += '<div class="group-label">' + Wiki.esc(g.label) + "</div>";
         if (g.note) html += '<p class="group-note">' + Wiki.esc(g.note) + "</p>";
         (g.picks || []).forEach(function (p) {
@@ -161,7 +155,7 @@
     /* 延展阅读 */
     if (e.reading && e.reading.length) {
       html += '<div class="section"><div class="section-head"><span class="tick"></span>' +
-        "<h2>延展阅读</h2><span class=\"count\">" + e.reading.length + " 段</span></div>" +
+        "<h2>延展阅读</h2><span class=\"count\" id=\"readingCount\">" + e.reading.length + " 段</span></div>" +
         '<p class="tl-intro">与这个词条相关、未归入上面小节的段落。</p>';
       e.reading.forEach(function (p) {
         html += Wiki.quoteHTML(p, id, null, copyBtn(p));
@@ -188,6 +182,9 @@
 
     el.innerHTML = html;
     bindEntryEvents(e);
+    /* 调试专用：经 admin-server 打开时，在每张引文卡的复制按钮前注入「删除」。
+       entry-del.js 由 DEBUG 标记引进，发版时整块剥掉；没有后台时它自己探测失败、不注入。 */
+    if (window.ENTRY_DEL) window.ENTRY_DEL.mount(e, id, function () { refreshStats(e); });
     onScroll();
     revealObserve();
 
@@ -206,6 +203,27 @@
   });
 
   function chip(t) { return '<span class="chip">' + t + "</span>"; }
+
+  /* 头部统计片：删段落后 refreshStats 靠它重画，口径与 build_data.py 的 count_quotes 一致 */
+  function heroChips(e) {
+    return chip(e.stats.quotes + " 段原文") +
+      chip(e.stats.blocks + " 个小节") +
+      chip(e.books.length + " 部书") +
+      (e.span ? chip(e.span[0] + "–" + e.span[1]) : "") +
+      (e.stats.reading ? chip("延展阅读 " + e.stats.reading + " 段") : "");
+  }
+  function refreshStats(e) {
+    var q = 0;
+    (e.blocks || []).forEach(function (b) {
+      (b.groups || []).forEach(function (g) { q += (g.picks || []).length; });
+    });
+    e.stats.quotes = q + (e.reading || []).length;
+    e.stats.reading = (e.reading || []).length;
+    var box = document.querySelector(".entry-chips");
+    if (box) box.innerHTML = heroChips(e);
+    var rc = document.getElementById("readingCount");
+    if (rc) rc.textContent = e.stats.reading + " 段";
+  }
 
   /* 复制按钮：出处行内、分享按钮前方，图标样式与分享按钮一致 */
   var COPY_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="13" height="13" x="9" y="9" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
@@ -230,16 +248,7 @@
           btn.innerHTML = CHECK_SVG;
           setTimeout(function () { btn.classList.remove("done"); btn.innerHTML = COPY_SVG; }, 1600);
         }
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-          navigator.clipboard.writeText(text).then(ok, function () { fallback(); });
-        } else fallback();
-        function fallback() {
-          var ta = document.createElement("textarea");
-          ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
-          document.body.appendChild(ta); ta.select();
-          try { document.execCommand("copy"); ok(); } catch (e2) {}
-          document.body.removeChild(ta);
-        }
+        Wiki.copyToClipboard(text, ok);
       });
     });
   }

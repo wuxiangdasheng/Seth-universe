@@ -6,67 +6,13 @@
 
   /* ---------- 工具 ---------- */
   var $ = function (s, r) { return (r || document).querySelector(s); };
-  var LS = { theme: "seth.theme", fs: "seth.fs" };
 
-  function esc(s) {
-    return String(s == null ? "" : s)
-      .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;");
-  }
+  /* 主题 / 字号 / 图标 / esc：只有一份，在 assets/theme.js（本文件之前加载） */
+  var ICON = SethTheme.ICON;
+  var esc = SethTheme.esc;
 
-  var ICON = {
-    star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="m12 2.6 2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.5l-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9Z"/></svg>',
-    sun: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8m10.4 10.4 1.8 1.8m0-14-1.8 1.8M6.7 17.3l-1.8 1.8"/></svg>',
-    moon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M20.5 14.5A8.5 8.5 0 0 1 9.5 3.5a8.5 8.5 0 1 0 11 11Z"/></svg>',
-    refresh: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-2.64-6.36M21 3v5h-5"/></svg>',
-    /* 跟随系统：右半圆填充 + 整圆描边（一半固定一半跟随） */
-    auto: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 1 0 17z" fill="currentColor" stroke="none"/></svg>'
-  };
-
-  /* ---------- 主题（三态：亮 / 暗 / 跟随系统） ---------- */
-  function systemDark() {
-    return !!(window.matchMedia && matchMedia("(prefers-color-scheme: dark)").matches);
-  }
-  /* 存的是「模式」不是「生效颜色」：light / dark / auto（auto = 跟随系统实时切换）。
-     旧数据只可能是 light/dark（那时尚无 auto），直接沿用；异常/无记录一律 auto */
-  function themeMode() {
-    var v = null;
-    try { v = localStorage.getItem(LS.theme); } catch (e) {}
-    return (v === "light" || v === "dark") ? v : "auto";
-  }
-  function themeEffective(mode) {
-    return mode === "auto" ? (systemDark() ? "dark" : "light") : mode;
-  }
-  function applyTheme() {
-    var mode = themeMode();
-    var t = themeEffective(mode);
-    document.documentElement.dataset.theme = t;
-    var mt = document.querySelector('meta[name="theme-color"]');
-    if (mt) mt.setAttribute("content", t === "dark" ? "#14121c" : "#f7f3ea");
-    var b = $("#themeBtn");
-    if (b) {
-      b.innerHTML = mode === "dark" ? ICON.sun : (mode === "light" ? ICON.moon : ICON.auto);
-      b.title = mode === "dark" ? "深色 · 点按切换到浅色"
-        : (mode === "light" ? "浅色 · 点按切换到深色" : "跟随系统 · 点按切换到浅色");
-    }
-  }
-  applyTheme();
-  /* 系统深浅色变化时，仅「跟随系统」模式下实时跟随 */
-  (function () {
-    if (!window.matchMedia) return;
-    var mq = matchMedia("(prefers-color-scheme: dark)");
-    var onChange = function () { if (themeMode() === "auto") applyTheme(); };
-    if (mq.addEventListener) mq.addEventListener("change", onChange);
-    else if (mq.addListener) mq.addListener(onChange);
-  })();
-
-  var FS_STEPS = [0.92, 1, 1.09];
-  var fsIdx = parseInt(localStorage.getItem(LS.fs) || "1", 10);
-  function applyFs() {
-    document.documentElement.style.setProperty("--fs", FS_STEPS[fsIdx]);
-    localStorage.setItem(LS.fs, String(fsIdx));
-  }
-  applyFs();
+  /* 主题与字号在 theme.js 加载时已应用（applyTheme / applyFs），
+     系统深浅色变化的监听也在那边，这里不再重复一份。 */
 
   /* ---------- 词条数据按需加载（file:// 下用 script 标签，绕开 fetch 限制） ---------- */
   var entryCache = {};
@@ -132,29 +78,41 @@
     }).join("");
   }
 
-  /* ---------- 通用按钮绑定 ---------- */
+  /* ---------- 通用按钮绑定 ----------
+     主题 / 字号两个按钮的绑定在 theme.js（SethTheme.bindButtons 幂等，重复调无副作用）。 */
   function bindCommon() {
-    var tb = $("#themeBtn");
-    if (tb) tb.addEventListener("click", function () {
-      /* 三态循环：亮 → 暗 → 跟随系统 → 亮 …；auto 态下系统变化由上面的监听实时处理 */
-      var order = ["light", "dark", "auto"];
-      var next = order[(order.indexOf(themeMode()) + 1) % order.length];
-      try { localStorage.setItem(LS.theme, next); } catch (e) {}
-      applyTheme();
-    });
-    var fb = $("#fontBtn");
-    if (fb) fb.addEventListener("click", function () {
-      fsIdx = (fsIdx + 1) % FS_STEPS.length;
-      applyFs();
-    });
+    SethTheme.bindButtons();
   }
 
-  /* ---------- 暴露 ---------- */
+  /* ---------- 按编号查概念：整份 index 只建一次表 ----------
+     首页 / 词条页 / 书目页都要「拿 concept-NNN 找回这一页」，以前各写一遍线性 find，
+     现在只有这一份，暴露成 Wiki.byId。 */
+  var CONCEPT_BY_ID = {};
+  ((window.WIKI_INDEX && window.WIKI_INDEX.concepts) || []).forEach(function (c) { CONCEPT_BY_ID[c.id] = c; });
+
+  /* 复制到剪贴板：clipboard 不可用（file:// 与非安全上下文）时退回 textarea + execCommand。
+     文案怎么拼、按钮怎么反馈由调用方管 —— 词条页和书目页的文案不一样。 */
+  function copyToClipboard(text, onDone) {
+    function fallback() {
+      var ta = document.createElement("textarea");
+      ta.value = text; ta.style.position = "fixed"; ta.style.opacity = "0";
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand("copy"); onDone(); } catch (e) {}
+      document.body.removeChild(ta);
+    }
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(onDone, fallback);
+    } else fallback();
+  }
+
+  /* ---------- 暴露 ----------
+     只放页面真的会调的：ICON / entryCache 2026-10-20 删（三个页面 0 引用，
+     内部各用自己的变量，不走这个出口）。 */
   window.Wiki = {
-    $: $, esc: esc, ICON: ICON, loadEntry: loadEntry,
+    $: $, esc: esc, loadEntry: loadEntry,
     quoteHTML: quoteHTML, shareBtn: shareBtn, noteHTML: noteHTML, bindCommon: bindCommon,
-    entryCache: function () { return entryCache; },
-    setShareBg: function (i) { shareBgIdx = i; },   /* 测试钩子：强制分享卡背景序号（无 UI 入口） */
+    byId: function (id) { return CONCEPT_BY_ID[id] || null; },
+    copyToClipboard: copyToClipboard,
     /* 回到顶部：页面注入 .totop 按钮后调用一次。点击平滑回顶；滚动超过 600px 才显形。
        用 dataset 判重，避免页面重复调用导致多次绑定。样式共享 .totop（已对齐手机壳、压在底栏上方）。 */
     bindTotop: function () {
@@ -493,8 +451,7 @@
   function openShare(conceptId, pickId) {
     var mask = $("#shareMask"), sheet = $("#shareSheet"), img = $("#sharePreview");
     if (!mask || !sheet || !window.WIKI_INDEX) return;
-    var concept = null;
-    window.WIKI_INDEX.concepts.forEach(function (c) { if (c.id === conceptId) concept = c; });
+    var concept = CONCEPT_BY_ID[conceptId];
     if (!concept) return;
     mask.classList.add("show"); sheet.classList.add("show");
     img.removeAttribute("src");
@@ -574,7 +531,7 @@
 
   var IDX = window.WIKI_INDEX;
   var BOOKS = window.WIKI_BOOKS;
-  var state = { tab: "daily", q: "", deep: false, deepBusy: false };
+  var state = { tab: "daily", q: "" };
 
   /* 英雄区统计：第 4 格不是统计数字，是档案视图的入口（可点击） */
   (function () {
@@ -586,11 +543,10 @@
     function stat(b, s) { return '<div class="stat-chip"><b>' + b + "</b><span>" + s + "</span></div>"; }
   })();
 
-  /* 概念列表 */
+  /* 概念列表：只搜词条名（中文名 + 英文主键），不搜正文 */
   function matchConcept(c, q) {
     if (!q) return true;
-    return (c.name_zh + " " + c.name_en + " " + c.tagline + " " + c.explanation)
-      .toLowerCase().indexOf(q) !== -1;
+    return (c.name_zh + " " + c.name_en).toLowerCase().indexOf(q) !== -1;
   }
   function hl(text, q) {
     var s = esc(text);
@@ -608,89 +564,85 @@
     return '<a class="card" style="animation-delay:' + Math.min(i * 28, 350) + 'ms" href="entry.html?id=' + c.id + '">' +
       '<div class="concept-head"><span class="concept-name">' + hl(c.name_zh, q) + '</span>' +
       '<span class="concept-en">' + esc(c.name_en) + "</span></div>" +
-      (c.tagline ? '<p class="concept-tag">' + hl(c.tagline, q) + "</p>" : "") +
+      (c.tagline ? '<p class="concept-tag">' + esc(c.tagline) + "</p>" : "") +
       '<div class="concept-meta">' + meta.join("") + "</div>" +
       "</a>";
   }
-  /* 搜索框下面那行小字（命中数 / 深度搜索按钮）已从页面下线：
-     这里统一走判空写入，元素不存在就静默跳过，别让 null.innerHTML 把整个渲染带崩。 */
-  function setSearchMeta(html) {
-    var el = $("#searchMeta");
-    if (el) el.innerHTML = html;
+  /* 列表按「地图」页同一份结构分组：八幕 → 地图标签。
+     结构数据 = window.SETH_STRUCTURE（data/structure.js，gen_theater_acts.py 产物，
+     与剧场共源）；卡片信息仍取自 WIKI_INDEX。结构数据缺失 / 对不上时退回平铺，绝不留白。 */
+  var GROUPS = null;
+  /* 一个标签节点下的全部行 = entries + members（标签行自己在 entries[0]）——
+     这张表在三个读方各有一份同名小函数，语义一样：都是「这个标签下有哪些页」 */
+  function rowsOf(n) { return (n.entries || []).concat(n.members || []); }
+  function buildGroups() {
+    if (GROUPS) return GROUPS;
+    var byId = CONCEPT_BY_ID;
+    var out = [], seen = {};
+    var st = window.SETH_STRUCTURE;
+    if (st && st.acts && st.acts.length) {
+      st.acts.forEach(function (a) {
+        (a.nodes || []).forEach(function (n) {
+          var ids = [];
+          rowsOf(n).forEach(function (r) {
+            if (r.concept_id && byId[r.concept_id] && !seen[r.concept_id]) {
+              seen[r.concept_id] = 1;
+              ids.push(r.concept_id);
+            }
+          });
+          if (ids.length) out.push({
+            act: a.title || "", label: n.label || "", ids: ids,
+            /* 只有专题词条摆组标题；单词条一组就一个概念，标题等于重复一遍卡片名 */
+            topic: n.form === "专题词条"
+          });
+        });
+      });
+      /* 表上没挂、但内容文件已成的概念（防御）：补在末尾，不因结构数据漏行而丢词条 */
+      IDX.concepts.forEach(function (c) {
+        if (!seen[c.id]) out.push({ act: "", label: "", ids: [c.id] });
+      });
+    }
+    if (!out.length) {
+      out = IDX.concepts.map(function (c) { return { act: "", label: "", ids: [c.id] }; });
+    }
+    GROUPS = out;
+    return GROUPS;
   }
   function renderList() {
     var q = state.q.trim().toLowerCase();
     var box = $("#conceptList");
-    if (state.deep) return; // 深度搜索接管列表
-    var hits = IDX.concepts.filter(function (c) { return matchConcept(c, q); });
-    setSearchMeta(q
-      ? "<span>" + hits.length + " 个概念命中</span>" +
-        (hits.length === 0 ? '<button class="deep-btn" id="deepBtn">在 ' + IDX.meta.total_quotes.toLocaleString() + " 段原文里搜 →</button>" : "")
-      : "<span>共 " + IDX.concepts.length + " 个概念</span>");
-    var db = $("#deepBtn");
-    if (db) db.addEventListener("click", function () { deepSearch(); });
-    box.innerHTML = hits.length
-      ? hits.map(function (c, i) { return conceptCard(c, q, i); }).join("")
+    var byId = {};
+    IDX.concepts.forEach(function (c) { byId[c.id] = c; });
+    var perAct = {};
+    var groups = buildGroups().map(function (g) {
+      var cards = [];
+      g.ids.forEach(function (cid) {
+        var c = byId[cid];
+        if (!c || !matchConcept(c, q)) return;
+        cards.push(conceptCard(c, q, cards.length));
+      });
+      if (!cards.length) return null;
+      if (g.act) perAct[g.act] = (perAct[g.act] || 0) + cards.length;
+      return { act: g.act, label: g.label, topic: g.topic, cards: cards };
+    }).filter(Boolean);
+    /* 章号按幕出现顺序编（与地图页卡片「第 N 章 · 标题」同一口径） */
+    var html = [], lastAct = null, actNo = 0;
+    groups.forEach(function (g) {
+      if (g.act && g.act !== lastAct) {
+        lastAct = g.act; actNo++;
+        html.push('<div class="grp-act"><h2>第 ' + actNo + " 章 · " + esc(g.act) +
+          '</h2><span class="count">' + perAct[g.act] + "</span></div>");
+      }
+      html.push('<div class="grp">' +
+        (g.topic && g.label
+          ? '<div class="grp-label"><h3>' + esc(g.label) + '</h3><span class="count">' +
+            g.cards.length + "</span></div>"
+          : "") +
+        g.cards.join("") + "</div>");
+    });
+    box.innerHTML = html.length
+      ? html.join("")
       : '<div class="empty">' + ICON.star + "<p><b>没有命中的概念</b>换个词试试。</p></div>";
-  }
-
-  /* 深度搜索：按需加载全部词条，搜引文原文 */
-  function deepSearch() {
-    var q = state.q.trim();
-    if (!q || state.deepBusy) return;
-    state.deep = true;
-    state.deepBusy = true;
-    var box = $("#conceptList");
-    var ids = IDX.concepts.map(function (c) { return c.id; });
-    var n = 0;
-    setSearchMeta("<span>正在载入语料 0/" + ids.length + " …</span>");
-    function step() {
-      if (n >= ids.length) return done();
-      var id = ids[n];
-      setSearchMeta("<span>正在载入语料 " + (n + 1) + "/" + ids.length + " …</span>");
-      loadEntry(id).then(step, step);
-      n++;
-    }
-    function done() {
-      state.deepBusy = false;
-      var ql = q.toLowerCase();
-      var results = [];
-      IDX.concepts.forEach(function (c) {
-        var e = Wiki.entryCache()[c.id];
-        if (!e) return;
-        e.blocks.forEach(function (b) {
-          (b.groups || []).forEach(function (g) {
-            (g.picks || []).forEach(function (p) {
-              if ((p.zh + " " + p.en).toLowerCase().indexOf(ql) !== -1)
-                results.push({ c: c, p: p });
-            });
-          });
-        });
-        (e.reading || []).forEach(function (p) {
-          if ((p.zh + " " + p.en).toLowerCase().indexOf(ql) !== -1) results.push({ c: c, p: p });
-        });
-      });
-      setSearchMeta("<span>" + results.length + " 段原文命中</span>" +
-        '<button class="deep-btn" id="deepBack">← 回到概念搜索</button>');
-      var back = $("#deepBack");
-      if (back) back.addEventListener("click", function () {
-        state.deep = false; renderList();
-      });
-      box.innerHTML = results.length
-        ? '<div style="font-size:.72rem;color:var(--ink-3);padding:2px 2px 0">以下为原文段落，点开可中英对照</div>' +
-          results.slice(0, 200).map(function (r, i) {
-            var p = r.p;
-            var tag = p.tag ? ' <span class="q-tag">' + esc(p.tag) + "</span>" : "";
-            var oe = p.only_en ? ' <span class="q-oe">◆</span>' : "";
-            return '<a class="card" style="animation-delay:' + Math.min(i * 20, 300) + 'ms" href="entry.html?id=' + r.c.id + "#" + esc(p.id) + '">' +
-              '<div class="concept-head"><span class="concept-name">' + esc(r.c.name_zh) + "</span></div>" +
-              '<p class="concept-tag q-zh" style="-webkit-line-clamp:3">' + hl(p.zh, q) + "</p>" +
-              '<div class="concept-meta"><span class="q-src">' + esc(p.source) + "</span>" +
-              (p.year ? " · " + esc(p.year) : "") + tag + oe + "</div></a>";
-          }).join("")
-        : '<div class="empty">' + ICON.star + "<p><b>原文里也没有</b>这个词没有以任何形式出现过。</p></div>";
-    }
-    step();
   }
 
   /* 时间线 */
@@ -711,11 +663,7 @@
         '<span class="bar-track"><span class="bar" data-w="' + w + '"></span></span>' +
         '<span class="n">' + totals[y] + "</span></button>";
     }).join("");
-    requestAnimationFrame(function () {
-      setTimeout(function () {
-        box.querySelectorAll(".bar").forEach(function (b) { b.style.width = b.getAttribute("data-w") + "%"; });
-      }, 60);
-    });
+    renderTimelineBars();
     box.querySelectorAll(".tl-year").forEach(function (btn) {
       btn.addEventListener("click", function () {
         box.querySelectorAll(".tl-year").forEach(function (b) { b.classList.remove("active"); });
@@ -754,7 +702,7 @@
   }
 
   /* 日签：随机抽一段原文。
-     做法是「先随机概念、再随机它的段落」，不是把 61 个词条全加载再抽 ——
+     做法是「先随机概念、再随机它的段落」，不是把所有词条全加载再抽 ——
      全量约 62 MB，进一次日签要下完整个库。分布上段数多的概念更容易被抽到，
      但换一张就能重来，这个偏差不值得为它付全量加载的代价。 */
   function renderDaily() {
@@ -829,9 +777,14 @@
     btn.addEventListener("click", function () { switchView(btn.getAttribute("data-goto"), null); });
   });
 
+  /* 时间线条宽：innerHTML 刚换完时宽度还是 0，要等一帧再赋值才触发 CSS transition */
   function renderTimelineBars() {
-    document.querySelectorAll("#timeline .bar").forEach(function (b) {
-      b.style.width = b.getAttribute("data-w") + "%";
+    requestAnimationFrame(function () {
+      setTimeout(function () {
+        document.querySelectorAll("#timeline .bar").forEach(function (b) {
+          b.style.width = b.getAttribute("data-w") + "%";
+        });
+      }, 60);
     });
   }
 
@@ -839,12 +792,11 @@
   var input = $("#searchInput");
   input.addEventListener("input", function () {
     state.q = input.value;
-    state.deep = false;
     $("#searchbox").classList.toggle("has-value", !!input.value);
     renderList();
   });
   $("#searchClear").addEventListener("click", function () {
-    input.value = ""; state.q = ""; state.deep = false;
+    input.value = ""; state.q = "";
     $("#searchbox").classList.remove("has-value");
     renderList(); input.focus();
   });
@@ -853,49 +805,6 @@
   window.addEventListener("scroll", function () {
     $("#appbar").classList.toggle("scrolled", window.scrollY > 8);
   }, { passive: true });
-
-  /* ---------- 随机引文抽屉 ---------- */
-  var mask = $("#sheetMask"), sheet = $("#sheet"), sheetBody = $("#sheetBody");
-  var currentConcept = null, currentPick = null;
-  function openSheet() { mask.classList.add("show"); sheet.classList.add("show"); }
-  function closeSheet() { mask.classList.remove("show"); sheet.classList.remove("show"); }
-  mask.addEventListener("click", closeSheet);
-  $("#sheetClose").addEventListener("click", closeSheet);
-
-  function randomQuote() {
-    var c = IDX.concepts[Math.floor(Math.random() * IDX.concepts.length)];
-    $("#sheetTitle").textContent = "随机一段";
-    sheetBody.innerHTML = '<div class="skel skel-line" style="width:70%"></div><div class="skel skel-line"></div><div class="skel skel-line" style="width:85%"></div><div class="skel skel-line" style="width:60%"></div>';
-    $("#sheetOpen").style.display = "none";
-    openSheet();
-    loadEntry(c.id).then(function (e) {
-      var all = [];
-      e.blocks.forEach(function (b) {
-        (b.groups || []).forEach(function (g) {
-          (g.picks || []).forEach(function (p) { all.push(p); });
-        });
-      });
-      if (!all.length) return randomQuote();
-      currentPick = all[Math.floor(Math.random() * all.length)];
-      currentConcept = c;
-      sheetBody.innerHTML =
-        '<div style="font-size:.74rem;color:var(--ink-3);margin-bottom:2px">来自词条</div>' +
-        '<a href="entry.html?id=' + c.id + "#" + esc(currentPick.id) + '" style="font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--accent);text-decoration:none">' + esc(c.name_zh) + " →</a>" +
-        '<div style="margin-top:10px">' + quoteHTML(currentPick, c.id) + "</div>";
-      var open = $("#sheetOpen");
-      open.style.display = "";
-      open.onclick = function () { location.href = "entry.html?id=" + c.id + "#" + esc(currentPick.id); };
-    }, function () { sheetBody.innerHTML = "<p>载入失败，请重试。</p>"; });
-  }
-  /* 首屏那组 CTA 已下线，这两个入口可能不存在 —— 判空绑定，别让缺失的元素把后面整段初始化带崩 */
-  var randQuoteBtn = $("#randQuoteBtn");
-  if (randQuoteBtn) randQuoteBtn.addEventListener("click", randomQuote);
-  $("#sheetShuffle").addEventListener("click", randomQuote);
-  var randConceptBtn = $("#randConceptBtn");
-  if (randConceptBtn) randConceptBtn.addEventListener("click", function () {
-    var c = IDX.concepts[Math.floor(Math.random() * IDX.concepts.length)];
-    location.href = "entry.html?id=" + c.id;
-  });
 
   /* ---------- 启动 ---------- */
   renderList();
